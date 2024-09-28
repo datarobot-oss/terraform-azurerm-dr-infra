@@ -1,0 +1,19 @@
+provider: azure
+domainFilters:
+- ${domain}
+sources:
+- ingress
+policy: sync
+txtOwnerId: ${clusterName}
+azure:
+  useWorkloadIdentityExtension: true
+  useManagedIdentityExtension: true
+  userAssignedIdentityID: ${clientId}
+  tenantId: ${tenantId}
+  subscriptionId: ${subscriptionId}
+  resourceGroup: ${resourceGroup}
+podLabels:
+  azure.workload.identity/use: "true"
+serviceAccount:
+  annotations:
+    azure.workload.identity/client-id: ${clientId}

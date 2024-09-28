@@ -1,0 +1,8 @@
+controller:
+  service:
+    external:
+      enabled: false
+    internal:
+      enabled: true
+      annotations:
+          service.beta.kubernetes.io/azure-load-balancer-internal: true

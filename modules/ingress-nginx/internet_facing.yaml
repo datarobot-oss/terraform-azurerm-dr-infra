@@ -1,0 +1,6 @@
+controller:
+  service:
+    external:
+      enabled: true
+    internal:
+      enabled: false

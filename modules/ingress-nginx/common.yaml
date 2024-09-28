@@ -1,0 +1,6 @@
+controller:
+  admissionWebhooks:
+    enabled: false
+  replicaCount: 3
+  service:
+    externalTrafficPolicy: Local

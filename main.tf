@@ -30,10 +30,6 @@ resource "azurerm_resource_group" "this" {
 # Virtual Network
 ################################################################################
 
-locals {
-  vnet_id = var.create_vnet && var.vnet_id == "" ? module.vnet[0].id : var.vnet_id
-}
-
 module "vnet" {
   source = "./modules/vnet"
   count  = var.create_vnet && var.vnet_id == "" ? 1 : 0
@@ -54,8 +50,7 @@ module "vnet" {
 ################################################################################
 
 locals {
-  private_zone_id = var.create_dns_zones && var.zone_id == "" ? module.dns[0].private_zone_id : var.zone_id
-  public_zone_id  = var.create_dns_zones && var.zone_id == "" ? module.dns[0].public_zone_id : var.zone_id
+  public_zone_id = var.create_dns_zones && var.zone_id == "" ? module.dns[0].public_zone_id : var.zone_id
 }
 
 module "dns" {
@@ -74,14 +69,12 @@ module "dns" {
 ################################################################################
 
 locals {
-  storage_account_name   = var.create_storage && var.storage_account_name == "" ? module.storage[0].account_name : var.storage_account_name
-  storage_account_id     = var.create_storage && var.storage_account_id == "" ? module.storage[0].account_id : var.storage_account_id
-  storage_container_name = var.create_storage && var.storage_container_name == "" ? module.storage[0].container_name : var.storage_container_name
+  storage_account_id = var.create_storage && var.storage_account_id == "" ? module.storage[0].account_id : var.storage_account_id
 }
 
 module "storage" {
   source = "./modules/storage"
-  count  = var.create_storage && var.storage_account_name == "" ? 1 : 0
+  count  = var.create_storage && var.storage_account_id == "" ? 1 : 0
 
   resource_group_name = local.resource_group_name
   location            = var.location
@@ -127,8 +120,8 @@ module "aks" {
   location            = var.location
 
   name                         = module.naming.kubernetes_cluster.name
+  private_cluster              = var.aks_private_cluster
   node_pool_subnet_id          = var.create_aks_cluster && var.vnet_id == "" ? module.vnet[0].subnet_ids[0] : var.aks_node_pool_subnet_id
-  node_pool_subnet_cidr        = module.vnet[0].subnet_cidrs[0][0]
   primary_node_pool_vm_size    = var.aks_primary_node_pool_vm_size
   primary_node_pool_node_count = var.aks_primary_node_pool_node_count
   primary_node_pool_min_count  = var.aks_primary_node_pool_min_count

@@ -56,20 +56,10 @@ variable "vnet_address_space" {
   default     = "10.0.0.0/16"
 }
 
-variable "aks_subnet_id" {
-  description = "ID of the subnet to use for the AKS node pools"
-  type        = string
-  default     = ""
-}
 
 ################################################################################
 # DNS
 ################################################################################
-
-variable "domain_name" {
-  type    = string
-  default = ""
-}
 
 variable "create_dns_zones" {
   description = "Whether to create a public and private zone for domain_name"
@@ -80,6 +70,12 @@ variable "create_dns_zones" {
 variable "zone_id" {
   description = "ID of existing zone to use"
   type        = string
+  default     = ""
+}
+
+variable "domain_name" {
+  type        = string
+  description = "Name of the domain to create. Used by the cert-manager helm chart for DNS validation and as a domain filter by the external-dns helm chart."
   default     = ""
 }
 
@@ -96,18 +92,6 @@ variable "create_storage" {
 
 variable "storage_account_id" {
   description = "ID of existing storage account to use"
-  type        = string
-  default     = ""
-}
-
-variable "storage_account_name" {
-  description = "Name of existing storage account to use"
-  type        = string
-  default     = ""
-}
-
-variable "storage_container_name" {
-  description = "Name of existing storage container to use"
   type        = string
   default     = ""
 }
@@ -144,6 +128,12 @@ variable "create_aks_cluster" {
   description = "Whether to create an AKS cluster"
   type        = bool
   default     = true
+}
+
+variable "aks_private_cluster" {
+  description = "Whether the Kubernetes API endpoint should be exposed only internally to the virtual network. If true, the Kubernetes API endpoint will not be accessible over the public internet."
+  type        = bool
+  default     = false
 }
 
 variable "aks_node_pool_subnet_id" {

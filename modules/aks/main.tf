@@ -7,18 +7,16 @@ resource "azurerm_kubernetes_cluster" "this" {
   sku_tier                  = "Standard"
   workload_identity_enabled = true
   oidc_issuer_enabled       = true
+  private_cluster_enabled   = var.private_cluster
 
   identity {
     type = "SystemAssigned"
   }
 
   network_profile {
-    network_plugin = "azure"
+    network_plugin      = "azure"
+    network_plugin_mode = "overlay"
   }
-
-  # http_proxy_config {
-  #   no_proxy = [var.node_pool_subnet_cidr]
-  # }
 
   default_node_pool {
     name                         = "system"
@@ -41,7 +39,7 @@ resource "azurerm_kubernetes_cluster" "this" {
   tags = var.tags
 }
 
-resource "azurerm_role_assignment" "network" {
+resource "azurerm_role_assignment" "aks_node_pool_subnet" {
   scope                = var.node_pool_subnet_id
   role_definition_name = "Network Contributor"
   principal_id         = azurerm_kubernetes_cluster.this.identity[0].principal_id

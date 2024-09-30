@@ -8,6 +8,7 @@ Terraform module to create Azure Cloud infrastructure resources required to run 
 |------|---------|
 | <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.3.5 |
 | <a name="requirement_azurerm"></a> [azurerm](#requirement\_azurerm) | >= 4.3.0 |
+| <a name="requirement_helm"></a> [helm](#requirement\_helm) | >= 2.15.0 |
 
 ## Providers
 
@@ -47,7 +48,7 @@ Terraform module to create Azure Cloud infrastructure resources required to run 
 | <a name="input_aks_primary_node_pool_min_count"></a> [aks\_primary\_node\_pool\_min\_count](#input\_aks\_primary\_node\_pool\_min\_count) | Minimum number of nodes in the primary node pool | `number` | `3` | no |
 | <a name="input_aks_primary_node_pool_node_count"></a> [aks\_primary\_node\_pool\_node\_count](#input\_aks\_primary\_node\_pool\_node\_count) | Node count of the primary node pool | `number` | `6` | no |
 | <a name="input_aks_primary_node_pool_vm_size"></a> [aks\_primary\_node\_pool\_vm\_size](#input\_aks\_primary\_node\_pool\_vm\_size) | VM size used for the primary node pool | `string` | `"Standard_D32s_v4"` | no |
-| <a name="input_aks_subnet_id"></a> [aks\_subnet\_id](#input\_aks\_subnet\_id) | ID of the subnet to use for the AKS node pools | `string` | `""` | no |
+| <a name="input_aks_private_cluster"></a> [aks\_private\_cluster](#input\_aks\_private\_cluster) | Whether the Kubernetes API endpoint should be exposed only internally to the virtual network. If true, the Kubernetes API endpoint will not be accessible over the public internet. | `bool` | `false` | no |
 | <a name="input_cert_manager"></a> [cert\_manager](#input\_cert\_manager) | Install the cert-manager helm chart | `bool` | `true` | no |
 | <a name="input_cert_manager_email_address"></a> [cert\_manager\_email\_address](#input\_cert\_manager\_email\_address) | Email address for the certificate owner. Let's Encrypt will use this to contact you about expiring certificates, and issues related to your account. | `string` | `"user@example.com"` | no |
 | <a name="input_cert_manager_values"></a> [cert\_manager\_values](#input\_cert\_manager\_values) | Path to templatefile containing custom values for the cert-manager helm chart. | `string` | `""` | no |
@@ -61,8 +62,8 @@ Terraform module to create Azure Cloud infrastructure resources required to run 
 | <a name="input_create_user_assigned_identity"></a> [create\_user\_assigned\_identity](#input\_create\_user\_assigned\_identity) | Whether to create a user assigned identity | `bool` | `true` | no |
 | <a name="input_create_vnet"></a> [create\_vnet](#input\_create\_vnet) | Whether to create an Azure virtual network | `bool` | `true` | no |
 | <a name="input_datarobot_namespace"></a> [datarobot\_namespace](#input\_datarobot\_namespace) | Kubernetes namespace in which the DataRobot application will be installed | `string` | `"dr-app"` | no |
-| <a name="input_datarobot_service_accounts"></a> [datarobot\_service\_accounts](#input\_datarobot\_service\_accounts) | Names of the Kubernetes service accounts used by the DataRobot application | `set(string)` | <pre>[<br>  "dr",<br>  "build-service",<br>  "build-service-image-builder",<br>  "dr-lrs-operator",<br>  "dynamic-worker"<br>]</pre> | no |
-| <a name="input_domain_name"></a> [domain\_name](#input\_domain\_name) | n/a | `string` | `""` | no |
+| <a name="input_datarobot_service_accounts"></a> [datarobot\_service\_accounts](#input\_datarobot\_service\_accounts) | Names of the Kubernetes service accounts used by the DataRobot application | `set(string)` | <pre>[<br>  "dr",<br>  "build-service",<br>  "build-service-image-builder",<br>  "buzok-account",<br>  "dr-lrs-operator",<br>  "dynamic-worker",<br>  "internal-api-sa",<br>  "nbx-notebook-revisions-account",<br>  "prediction-server-sa",<br>  "tileservergl-sa"<br>]</pre> | no |
+| <a name="input_domain_name"></a> [domain\_name](#input\_domain\_name) | Name of the domain to create. Used by the cert-manager helm chart for DNS validation and as a domain filter by the external-dns helm chart. | `string` | `""` | no |
 | <a name="input_external_dns"></a> [external\_dns](#input\_external\_dns) | Install the external\_dns helm chart | `bool` | `true` | no |
 | <a name="input_external_dns_values"></a> [external\_dns\_values](#input\_external\_dns\_values) | Path to templatefile containing custom values for the external\_dns helm chart. | `string` | `""` | no |
 | <a name="input_external_dns_variables"></a> [external\_dns\_variables](#input\_external\_dns\_variables) | Variables passed to the external\_dns\_values templatefile | `map(string)` | `{}` | no |
@@ -74,8 +75,6 @@ Terraform module to create Azure Cloud infrastructure resources required to run 
 | <a name="input_name"></a> [name](#input\_name) | Name to use as a prefix for created resources | `string` | n/a | yes |
 | <a name="input_resource_group_name"></a> [resource\_group\_name](#input\_resource\_group\_name) | Name of existing resource group to use | `string` | `null` | no |
 | <a name="input_storage_account_id"></a> [storage\_account\_id](#input\_storage\_account\_id) | ID of existing storage account to use | `string` | `""` | no |
-| <a name="input_storage_account_name"></a> [storage\_account\_name](#input\_storage\_account\_name) | Name of existing storage account to use | `string` | `""` | no |
-| <a name="input_storage_container_name"></a> [storage\_container\_name](#input\_storage\_container\_name) | Name of existing storage container to use | `string` | `""` | no |
 | <a name="input_tags"></a> [tags](#input\_tags) | A map of tags to add to all created resources | `map(string)` | <pre>{<br>  "managed-by": "terraform"<br>}</pre> | no |
 | <a name="input_user_assigned_identity_id"></a> [user\_assigned\_identity\_id](#input\_user\_assigned\_identity\_id) | ID of existing user assigned identity | `string` | `""` | no |
 | <a name="input_vnet_address_space"></a> [vnet\_address\_space](#input\_vnet\_address\_space) | CIDR block to use for the Azure VNet | `string` | `"10.0.0.0/16"` | no |

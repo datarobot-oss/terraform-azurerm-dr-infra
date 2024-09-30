@@ -13,13 +13,13 @@ variable "name" {
   type        = string
 }
 
-variable "node_pool_subnet_id" {
-  description = "ID of the subnet to use for the node pools"
-  type        = string
+variable "private_cluster" {
+  description = "Whether the Kubernetes API endpoint should be exposed only internally to the virtual network. If true, the Kubernetes API endpoint will not be accessible over the public internet."
+  type        = bool
 }
 
-variable "node_pool_subnet_cidr" {
-  description = "CIDR of the subnet to use for the node pools"
+variable "node_pool_subnet_id" {
+  description = "ID of the subnet to use for the node pools"
   type        = string
 }
 

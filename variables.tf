@@ -207,8 +207,13 @@ variable "datarobot_service_accounts" {
     "dr",
     "build-service",
     "build-service-image-builder",
+    "buzok-account",
     "dr-lrs-operator",
-    "dynamic-worker"
+    "dynamic-worker",
+    "internal-api-sa",
+    "nbx-notebook-revisions-account",
+    "prediction-server-sa",
+    "tileservergl-sa",
   ]
 }
 

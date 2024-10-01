@@ -23,7 +23,7 @@ resource "azurerm_kubernetes_cluster" "this" {
     temporary_name_for_rotation  = "systemrota"
     only_critical_addons_enabled = true
     vnet_subnet_id               = var.node_pool_subnet_id
-    zones                        = [1, 2, 3]
+    zones                        = var.node_pool_availability_zones
     vm_size                      = "Standard_DS4_v2"
     node_count                   = 3
 
@@ -40,30 +40,62 @@ resource "azurerm_kubernetes_cluster" "this" {
 }
 
 resource "azurerm_role_assignment" "aks_node_pool_subnet" {
-  scope                = var.node_pool_subnet_id
-  role_definition_name = "Network Contributor"
-  principal_id         = azurerm_kubernetes_cluster.this.identity[0].principal_id
+  scope                            = var.node_pool_subnet_id
+  role_definition_name             = "Network Contributor"
+  principal_id                     = azurerm_kubernetes_cluster.this.identity[0].principal_id
+  skip_service_principal_aad_check = true
 }
 
 resource "azurerm_kubernetes_cluster_node_pool" "primary" {
-  name                  = "primary"
+  name                  = var.primary_node_pool_name
   kubernetes_cluster_id = azurerm_kubernetes_cluster.this.id
 
   vnet_subnet_id = var.node_pool_subnet_id
-  zones          = [1, 2, 3]
+  zones          = var.node_pool_availability_zones
 
-  vm_size         = var.primary_node_pool_vm_size
-  os_disk_size_gb = 500
+  node_labels = var.primary_node_pool_labels
+  node_taints = var.primary_node_pool_taints
 
-  fips_enabled            = false
+  vm_size                 = var.primary_node_pool_vm_size
+  os_disk_size_gb         = 500
   host_encryption_enabled = false
   auto_scaling_enabled    = true
   node_count              = var.primary_node_pool_node_count
   min_count               = var.primary_node_pool_min_count
   max_count               = var.primary_node_pool_max_count
 
-  node_labels = {}
-  node_taints = []
+  upgrade_settings {
+    drain_timeout_in_minutes      = 0
+    max_surge                     = "10%"
+    node_soak_duration_in_minutes = 0
+  }
+
+  tags = var.tags
+
+  lifecycle {
+    ignore_changes = [node_count]
+  }
+}
+
+resource "azurerm_kubernetes_cluster_node_pool" "gpu" {
+  count = var.create_gpu_node_pool ? 1 : 0
+
+  name                  = var.gpu_node_pool_name
+  kubernetes_cluster_id = azurerm_kubernetes_cluster.this.id
+
+  vnet_subnet_id = var.node_pool_subnet_id
+  zones          = var.node_pool_availability_zones
+
+  node_labels = var.gpu_node_pool_labels
+  node_taints = var.gpu_node_pool_taints
+
+  vm_size                 = var.gpu_node_pool_vm_size
+  os_disk_size_gb         = 500
+  host_encryption_enabled = false
+  auto_scaling_enabled    = true
+  node_count              = var.gpu_node_pool_node_count
+  min_count               = var.gpu_node_pool_min_count
+  max_count               = var.gpu_node_pool_max_count
 
   upgrade_settings {
     drain_timeout_in_minutes      = 0

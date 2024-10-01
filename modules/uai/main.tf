@@ -8,15 +8,17 @@ resource "azurerm_user_assigned_identity" "datarobot" {
 }
 
 resource "azurerm_role_assignment" "storage" {
-  scope                = var.storage_account_id
-  role_definition_name = "Storage Blob Data Contributor"
-  principal_id         = azurerm_user_assigned_identity.datarobot.principal_id
+  scope                            = var.storage_account_id
+  role_definition_name             = "Storage Blob Data Contributor"
+  principal_id                     = azurerm_user_assigned_identity.datarobot.principal_id
+  skip_service_principal_aad_check = true
 }
 
 resource "azurerm_role_assignment" "acr" {
-  scope                = var.acr_id
-  role_definition_name = "AcrPush"
-  principal_id         = azurerm_user_assigned_identity.datarobot.principal_id
+  scope                            = var.acr_id
+  role_definition_name             = "AcrPush"
+  principal_id                     = azurerm_user_assigned_identity.datarobot.principal_id
+  skip_service_principal_aad_check = true
 }
 
 

@@ -27,6 +27,7 @@ Terraform module to create Azure Cloud infrastructure resources required to run 
 | <a name="module_external_dns"></a> [external\_dns](#module\_external\_dns) | ./modules/external-dns | n/a |
 | <a name="module_ingress_nginx"></a> [ingress\_nginx](#module\_ingress\_nginx) | ./modules/ingress-nginx | n/a |
 | <a name="module_naming"></a> [naming](#module\_naming) | Azure/naming/azurerm | ~> 0.4 |
+| <a name="module_nvidia_device_plugin"></a> [nvidia\_device\_plugin](#module\_nvidia\_device\_plugin) | ./modules/nvidia-device-plugin | n/a |
 | <a name="module_storage"></a> [storage](#module\_storage) | ./modules/storage | n/a |
 | <a name="module_uai"></a> [uai](#module\_uai) | ./modules/uai | n/a |
 | <a name="module_vnet"></a> [vnet](#module\_vnet) | ./modules/vnet | n/a |
@@ -43,10 +44,14 @@ Terraform module to create Azure Cloud infrastructure resources required to run 
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
 | <a name="input_account_replication_type"></a> [account\_replication\_type](#input\_account\_replication\_type) | Storage account data replication type as described in https://learn.microsoft.com/en-us/azure/storage/common/storage-redundancy | `string` | `"ZRS"` | no |
+| <a name="input_aks_node_pool_availability_zones"></a> [aks\_node\_pool\_availability\_zones](#input\_aks\_node\_pool\_availability\_zones) | Availability zones to use for the node pools | `list(number)` | <pre>[<br>  1,<br>  2,<br>  3<br>]</pre> | no |
 | <a name="input_aks_node_pool_subnet_id"></a> [aks\_node\_pool\_subnet\_id](#input\_aks\_node\_pool\_subnet\_id) | ID of the subnet to use for the node pools | `string` | `""` | no |
+| <a name="input_aks_primary_node_pool_labels"></a> [aks\_primary\_node\_pool\_labels](#input\_aks\_primary\_node\_pool\_labels) | A map of Kubernetes labels to apply to the primary node pool | `map(string)` | `{}` | no |
 | <a name="input_aks_primary_node_pool_max_count"></a> [aks\_primary\_node\_pool\_max\_count](#input\_aks\_primary\_node\_pool\_max\_count) | Maximum number of nodes in the primary node pool | `number` | `10` | no |
 | <a name="input_aks_primary_node_pool_min_count"></a> [aks\_primary\_node\_pool\_min\_count](#input\_aks\_primary\_node\_pool\_min\_count) | Minimum number of nodes in the primary node pool | `number` | `3` | no |
+| <a name="input_aks_primary_node_pool_name"></a> [aks\_primary\_node\_pool\_name](#input\_aks\_primary\_node\_pool\_name) | Name of the primary node pool | `string` | `"primary"` | no |
 | <a name="input_aks_primary_node_pool_node_count"></a> [aks\_primary\_node\_pool\_node\_count](#input\_aks\_primary\_node\_pool\_node\_count) | Node count of the primary node pool | `number` | `6` | no |
+| <a name="input_aks_primary_node_pool_taints"></a> [aks\_primary\_node\_pool\_taints](#input\_aks\_primary\_node\_pool\_taints) | A list of Kubernetes taints to apply to the primary node pool | `list(string)` | `[]` | no |
 | <a name="input_aks_primary_node_pool_vm_size"></a> [aks\_primary\_node\_pool\_vm\_size](#input\_aks\_primary\_node\_pool\_vm\_size) | VM size used for the primary node pool | `string` | `"Standard_D32s_v4"` | no |
 | <a name="input_aks_private_cluster"></a> [aks\_private\_cluster](#input\_aks\_private\_cluster) | Whether the Kubernetes API endpoint should be exposed only internally to the virtual network. If true, the Kubernetes API endpoint will not be accessible over the public internet. | `bool` | `false` | no |
 | <a name="input_cert_manager"></a> [cert\_manager](#input\_cert\_manager) | Install the cert-manager helm chart | `bool` | `true` | no |
@@ -57,6 +62,7 @@ Terraform module to create Azure Cloud infrastructure resources required to run 
 | <a name="input_create_aks_cluster"></a> [create\_aks\_cluster](#input\_create\_aks\_cluster) | Whether to create an AKS cluster | `bool` | `true` | no |
 | <a name="input_create_container_registry"></a> [create\_container\_registry](#input\_create\_container\_registry) | Whether to create a container registry | `bool` | `true` | no |
 | <a name="input_create_dns_zones"></a> [create\_dns\_zones](#input\_create\_dns\_zones) | Whether to create a public and private zone for domain\_name | `bool` | `true` | no |
+| <a name="input_create_gpu_node_pool"></a> [create\_gpu\_node\_pool](#input\_create\_gpu\_node\_pool) | Whether to create a GPU node pool | `bool` | `false` | no |
 | <a name="input_create_resource_group"></a> [create\_resource\_group](#input\_create\_resource\_group) | Whether to create an Azure resource group | `bool` | `true` | no |
 | <a name="input_create_storage"></a> [create\_storage](#input\_create\_storage) | Whether to create a storage account and container | `bool` | `true` | no |
 | <a name="input_create_user_assigned_identity"></a> [create\_user\_assigned\_identity](#input\_create\_user\_assigned\_identity) | Whether to create a user assigned identity | `bool` | `true` | no |
@@ -67,17 +73,27 @@ Terraform module to create Azure Cloud infrastructure resources required to run 
 | <a name="input_external_dns"></a> [external\_dns](#input\_external\_dns) | Install the external\_dns helm chart | `bool` | `true` | no |
 | <a name="input_external_dns_values"></a> [external\_dns\_values](#input\_external\_dns\_values) | Path to templatefile containing custom values for the external\_dns helm chart. | `string` | `""` | no |
 | <a name="input_external_dns_variables"></a> [external\_dns\_variables](#input\_external\_dns\_variables) | Variables passed to the external\_dns\_values templatefile | `map(string)` | `{}` | no |
+| <a name="input_gpu_node_pool_labels"></a> [gpu\_node\_pool\_labels](#input\_gpu\_node\_pool\_labels) | A map of Kubernetes labels to apply to the GPU node pool | `map(string)` | <pre>{<br>  "datarobot.com/node-capability": "gpu"<br>}</pre> | no |
+| <a name="input_gpu_node_pool_max_count"></a> [gpu\_node\_pool\_max\_count](#input\_gpu\_node\_pool\_max\_count) | Maximum number of nodes in the GPU node pool | `number` | `3` | no |
+| <a name="input_gpu_node_pool_min_count"></a> [gpu\_node\_pool\_min\_count](#input\_gpu\_node\_pool\_min\_count) | Minimum number of nodes in the GPU node pool | `number` | `1` | no |
+| <a name="input_gpu_node_pool_name"></a> [gpu\_node\_pool\_name](#input\_gpu\_node\_pool\_name) | Name of the GPU node pool | `string` | `"gpu"` | no |
+| <a name="input_gpu_node_pool_node_count"></a> [gpu\_node\_pool\_node\_count](#input\_gpu\_node\_pool\_node\_count) | Node count of the GPU node pool | `number` | `1` | no |
+| <a name="input_gpu_node_pool_taints"></a> [gpu\_node\_pool\_taints](#input\_gpu\_node\_pool\_taints) | A list of Kubernetes taints to apply to the GPU node pool | `list(string)` | <pre>[<br>  "nvidia.com/gpu:NoSchedule"<br>]</pre> | no |
+| <a name="input_gpu_node_pool_vm_size"></a> [gpu\_node\_pool\_vm\_size](#input\_gpu\_node\_pool\_vm\_size) | VM size used for the GPU node pool | `string` | `"Standard_NC6s_v3"` | no |
 | <a name="input_ingress_nginx"></a> [ingress\_nginx](#input\_ingress\_nginx) | Install the ingress-nginx helm chart to use as the ingress controller for the AKS cluster. Ignored if create\_aks\_cluster is false. | `bool` | `true` | no |
 | <a name="input_ingress_nginx_values"></a> [ingress\_nginx\_values](#input\_ingress\_nginx\_values) | Path to templatefile containing custom values for the ingress-nginx helm chart. | `string` | `""` | no |
 | <a name="input_ingress_nginx_variables"></a> [ingress\_nginx\_variables](#input\_ingress\_nginx\_variables) | Variables passed to the ingress\_nginx\_values templatefile | `map(string)` | `{}` | no |
 | <a name="input_internet_facing_ingress_lb"></a> [internet\_facing\_ingress\_lb](#input\_internet\_facing\_ingress\_lb) | Determines the type of NLB created for AKS ingress. If true, an internet-facing NLB will be created. If false, an internal NLB will be created. Ignored when ingress\_nginx is false. | `bool` | `true` | no |
 | <a name="input_location"></a> [location](#input\_location) | Azure location to create resources in | `string` | n/a | yes |
 | <a name="input_name"></a> [name](#input\_name) | Name to use as a prefix for created resources | `string` | n/a | yes |
+| <a name="input_nvidia_device_plugin"></a> [nvidia\_device\_plugin](#input\_nvidia\_device\_plugin) | Install the nvidia-device-plugin helm chart to expose node GPU resources to the EKS cluster. Ignored if create\_eks\_cluster is false. | `bool` | `true` | no |
+| <a name="input_nvidia_device_plugin_values"></a> [nvidia\_device\_plugin\_values](#input\_nvidia\_device\_plugin\_values) | Path to templatefile containing custom values for the nvidia-device-plugin helm chart. | `string` | `""` | no |
+| <a name="input_nvidia_device_plugin_variables"></a> [nvidia\_device\_plugin\_variables](#input\_nvidia\_device\_plugin\_variables) | Variables passed to the nvidia\_device\_plugin\_values templatefile | `map(string)` | `{}` | no |
 | <a name="input_resource_group_name"></a> [resource\_group\_name](#input\_resource\_group\_name) | Name of existing resource group to use | `string` | `null` | no |
 | <a name="input_storage_account_id"></a> [storage\_account\_id](#input\_storage\_account\_id) | ID of existing storage account to use | `string` | `""` | no |
 | <a name="input_tags"></a> [tags](#input\_tags) | A map of tags to add to all created resources | `map(string)` | <pre>{<br>  "managed-by": "terraform"<br>}</pre> | no |
 | <a name="input_user_assigned_identity_id"></a> [user\_assigned\_identity\_id](#input\_user\_assigned\_identity\_id) | ID of existing user assigned identity | `string` | `""` | no |
-| <a name="input_vnet_address_space"></a> [vnet\_address\_space](#input\_vnet\_address\_space) | CIDR block to use for the Azure VNet | `string` | `"10.0.0.0/16"` | no |
+| <a name="input_vnet_address_space"></a> [vnet\_address\_space](#input\_vnet\_address\_space) | CIDR block to use for the Azure VNet | `string` | `"10.1.0.0/16"` | no |
 | <a name="input_vnet_id"></a> [vnet\_id](#input\_vnet\_id) | ID of existing Azure VNet to use | `string` | `""` | no |
 | <a name="input_zone_id"></a> [zone\_id](#input\_zone\_id) | ID of existing zone to use | `string` | `""` | no |
 

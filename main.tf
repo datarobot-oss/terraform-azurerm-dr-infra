@@ -122,10 +122,22 @@ module "aks" {
   name                         = module.naming.kubernetes_cluster.name
   private_cluster              = var.aks_private_cluster
   node_pool_subnet_id          = var.create_aks_cluster && var.vnet_id == "" ? module.vnet[0].subnet_ids[0] : var.aks_node_pool_subnet_id
+  node_pool_availability_zones = var.aks_node_pool_availability_zones
+  primary_node_pool_name       = var.aks_primary_node_pool_name
+  primary_node_pool_labels     = var.aks_primary_node_pool_labels
+  primary_node_pool_taints     = var.aks_primary_node_pool_taints
   primary_node_pool_vm_size    = var.aks_primary_node_pool_vm_size
   primary_node_pool_node_count = var.aks_primary_node_pool_node_count
   primary_node_pool_min_count  = var.aks_primary_node_pool_min_count
   primary_node_pool_max_count  = var.aks_primary_node_pool_max_count
+  create_gpu_node_pool         = var.create_gpu_node_pool
+  gpu_node_pool_name           = var.gpu_node_pool_name
+  gpu_node_pool_labels         = var.gpu_node_pool_labels
+  gpu_node_pool_taints         = var.gpu_node_pool_taints
+  gpu_node_pool_vm_size        = var.gpu_node_pool_vm_size
+  gpu_node_pool_node_count     = var.gpu_node_pool_node_count
+  gpu_node_pool_min_count      = var.gpu_node_pool_min_count
+  gpu_node_pool_max_count      = var.gpu_node_pool_max_count
 
   tags = var.tags
 }
@@ -215,4 +227,12 @@ module "external_dns" {
   custom_values_variables    = var.external_dns_variables
 
   tags = var.tags
+}
+
+module "nvidia_device_plugin" {
+  source = "./modules/nvidia-device-plugin"
+  count  = var.create_aks_cluster && var.nvidia_device_plugin ? 1 : 0
+
+  custom_values_templatefile = var.nvidia_device_plugin_values
+  custom_values_variables    = var.nvidia_device_plugin_variables
 }

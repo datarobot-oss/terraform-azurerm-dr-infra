@@ -53,7 +53,7 @@ variable "vnet_id" {
 variable "vnet_address_space" {
   description = "CIDR block to use for the Azure VNet"
   type        = string
-  default     = "10.0.0.0/16"
+  default     = "10.1.0.0/16"
 }
 
 
@@ -142,6 +142,30 @@ variable "aks_node_pool_subnet_id" {
   default     = ""
 }
 
+variable "aks_node_pool_availability_zones" {
+  description = "Availability zones to use for the node pools"
+  type        = list(number)
+  default     = [1, 2, 3]
+}
+
+variable "aks_primary_node_pool_name" {
+  description = "Name of the primary node pool"
+  type        = string
+  default     = "primary"
+}
+
+variable "aks_primary_node_pool_labels" {
+  description = "A map of Kubernetes labels to apply to the primary node pool"
+  type        = map(string)
+  default     = {}
+}
+
+variable "aks_primary_node_pool_taints" {
+  description = "A list of Kubernetes taints to apply to the primary node pool"
+  type        = list(string)
+  default     = []
+}
+
 variable "aks_primary_node_pool_vm_size" {
   description = "VM size used for the primary node pool"
   type        = string
@@ -165,6 +189,56 @@ variable "aks_primary_node_pool_max_count" {
   description = "Maximum number of nodes in the primary node pool"
   type        = number
   default     = 10
+}
+
+variable "create_gpu_node_pool" {
+  description = "Whether to create a GPU node pool"
+  type        = bool
+  default     = false
+}
+
+variable "gpu_node_pool_name" {
+  description = "Name of the GPU node pool"
+  type        = string
+  default     = "gpu"
+}
+
+variable "gpu_node_pool_labels" {
+  description = "A map of Kubernetes labels to apply to the GPU node pool"
+  type        = map(string)
+  default = {
+    "datarobot.com/node-capability" = "gpu"
+  }
+}
+
+variable "gpu_node_pool_taints" {
+  description = "A list of Kubernetes taints to apply to the GPU node pool"
+  type        = list(string)
+  default     = ["nvidia.com/gpu:NoSchedule"]
+}
+
+variable "gpu_node_pool_vm_size" {
+  description = "VM size used for the GPU node pool"
+  type        = string
+  default     = "Standard_NC6s_v3"
+}
+
+variable "gpu_node_pool_node_count" {
+  description = "Node count of the GPU node pool"
+  type        = number
+  default     = 1
+}
+
+variable "gpu_node_pool_min_count" {
+  description = "Minimum number of nodes in the GPU node pool"
+  type        = number
+  default     = 1
+}
+
+variable "gpu_node_pool_max_count" {
+  description = "Maximum number of nodes in the GPU node pool"
+  type        = number
+  default     = 3
 }
 
 
@@ -274,6 +348,24 @@ variable "external_dns_values" {
 
 variable "external_dns_variables" {
   description = "Variables passed to the external_dns_values templatefile"
+  type        = map(string)
+  default     = {}
+}
+
+variable "nvidia_device_plugin" {
+  description = "Install the nvidia-device-plugin helm chart to expose node GPU resources to the EKS cluster. Ignored if create_eks_cluster is false."
+  type        = bool
+  default     = true
+}
+
+variable "nvidia_device_plugin_values" {
+  description = "Path to templatefile containing custom values for the nvidia-device-plugin helm chart."
+  type        = string
+  default     = ""
+}
+
+variable "nvidia_device_plugin_variables" {
+  description = "Variables passed to the nvidia_device_plugin_values templatefile"
   type        = map(string)
   default     = {}
 }

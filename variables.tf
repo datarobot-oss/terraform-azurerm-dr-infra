@@ -30,7 +30,7 @@ variable "create_resource_group" {
 variable "resource_group_name" {
   description = "Name of existing resource group to use"
   type        = string
-  default     = null
+  default     = ""
 }
 
 
@@ -61,13 +61,13 @@ variable "vnet_address_space" {
 # DNS
 ################################################################################
 
-variable "create_dns_zones" {
+variable "create_dns_zone" {
   description = "Whether to create a public and private zone for domain_name"
   type        = bool
   default     = true
 }
 
-variable "zone_id" {
+variable "dns_zone_id" {
   description = "ID of existing zone to use"
   type        = string
   default     = ""
@@ -137,7 +137,7 @@ variable "aks_private_cluster" {
 }
 
 variable "aks_node_pool_subnet_id" {
-  description = "ID of the subnet to use for the node pools"
+  description = "ID of the subnet to use for the node pools. Required if create_vnet is false. Ignored if create_aks_cluster is false."
   type        = string
   default     = ""
 }
@@ -191,7 +191,7 @@ variable "aks_primary_node_pool_max_count" {
   default     = 10
 }
 
-variable "create_gpu_node_pool" {
+variable "create_aks_gpu_node_pool" {
   description = "Whether to create a GPU node pool"
   type        = bool
   default     = false
@@ -220,7 +220,7 @@ variable "gpu_node_pool_taints" {
 variable "gpu_node_pool_vm_size" {
   description = "VM size used for the GPU node pool"
   type        = string
-  default     = "Standard_NC6s_v3"
+  default     = "Standard_NC4as_T4_v3"
 }
 
 variable "gpu_node_pool_node_count" {

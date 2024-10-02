@@ -60,4 +60,6 @@ resource "kubectl_manifest" "issuers" {
     subscriptionID    = var.subscription_id,
     clientID          = azurerm_user_assigned_identity.cert_manager.client_id
   })
+
+  depends_on = [module.cert_manager]
 }

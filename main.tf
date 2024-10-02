@@ -14,14 +14,14 @@ module "naming" {
 ################################################################################
 
 locals {
-  resource_group_name = coalesce(var.resource_group_name, azurerm_resource_group.this[0].name)
+  resource_group_name = var.create_resource_group && var.resource_group_name == "" ? azurerm_resource_group.this[0].name : var.resource_group_name
 }
 
 resource "azurerm_resource_group" "this" {
-  count = var.create_resource_group ? 1 : 0
+  count = var.create_resource_group && var.resource_group_name == "" ? 1 : 0
 
   location = var.location
-  name     = coalesce(var.resource_group_name, module.naming.resource_group.name)
+  name     = module.naming.resource_group.name
   tags     = var.tags
 }
 
@@ -29,6 +29,10 @@ resource "azurerm_resource_group" "this" {
 ################################################################################
 # Virtual Network
 ################################################################################
+
+locals {
+  aks_node_pool_subnet_id = var.create_vnet && var.vnet_id == "" ? module.vnet[0].subnet_ids[0] : var.aks_node_pool_subnet_id
+}
 
 module "vnet" {
   source = "./modules/vnet"
@@ -50,12 +54,12 @@ module "vnet" {
 ################################################################################
 
 locals {
-  public_zone_id = var.create_dns_zones && var.zone_id == "" ? module.dns[0].public_zone_id : var.zone_id
+  public_zone_id = var.create_dns_zone && var.dns_zone_id == "" ? module.dns[0].public_zone_id : var.dns_zone_id
 }
 
 module "dns" {
   source = "./modules/dns"
-  count  = var.create_dns_zones && var.zone_id == "" ? 1 : 0
+  count  = var.create_dns_zone && var.dns_zone_id == "" ? 1 : 0
 
   resource_group_name = local.resource_group_name
   domain_name         = var.domain_name
@@ -120,8 +124,9 @@ module "aks" {
   location            = var.location
 
   name                         = module.naming.kubernetes_cluster.name
+  container_registry_id        = local.container_registry_id
   private_cluster              = var.aks_private_cluster
-  node_pool_subnet_id          = var.create_aks_cluster && var.vnet_id == "" ? module.vnet[0].subnet_ids[0] : var.aks_node_pool_subnet_id
+  node_pool_subnet_id          = local.aks_node_pool_subnet_id
   node_pool_availability_zones = var.aks_node_pool_availability_zones
   primary_node_pool_name       = var.aks_primary_node_pool_name
   primary_node_pool_labels     = var.aks_primary_node_pool_labels
@@ -130,7 +135,7 @@ module "aks" {
   primary_node_pool_node_count = var.aks_primary_node_pool_node_count
   primary_node_pool_min_count  = var.aks_primary_node_pool_min_count
   primary_node_pool_max_count  = var.aks_primary_node_pool_max_count
-  create_gpu_node_pool         = var.create_gpu_node_pool
+  create_aks_gpu_node_pool     = var.create_aks_gpu_node_pool
   gpu_node_pool_name           = var.gpu_node_pool_name
   gpu_node_pool_labels         = var.gpu_node_pool_labels
   gpu_node_pool_taints         = var.gpu_node_pool_taints
@@ -178,6 +183,14 @@ provider "helm" {
   }
 }
 
+provider "kubectl" {
+  host                   = try(module.aks[0].host, "")
+  client_certificate     = base64decode(try(module.aks[0].client_certificate, ""))
+  client_key             = base64decode(try(module.aks[0].client_key, ""))
+  cluster_ca_certificate = base64decode(try(module.aks[0].cluster_ca_certificate, ""))
+  load_config_file       = false
+}
+
 
 module "ingress_nginx" {
   source     = "./modules/ingress-nginx"
@@ -193,7 +206,7 @@ module "ingress_nginx" {
 module "cert_manager" {
   source     = "./modules/cert-manager"
   count      = var.create_aks_cluster && var.cert_manager ? 1 : 0
-  depends_on = [module.ingress_nginx]
+  depends_on = [module.aks]
 
   resource_group_name = local.resource_group_name
   location            = var.location
@@ -213,7 +226,7 @@ module "cert_manager" {
 module "external_dns" {
   source     = "./modules/external-dns"
   count      = var.create_aks_cluster && var.external_dns ? 1 : 0
-  depends_on = [module.ingress_nginx]
+  depends_on = [module.aks]
 
   resource_group_name = local.resource_group_name
   location            = var.location
@@ -230,8 +243,9 @@ module "external_dns" {
 }
 
 module "nvidia_device_plugin" {
-  source = "./modules/nvidia-device-plugin"
-  count  = var.create_aks_cluster && var.nvidia_device_plugin ? 1 : 0
+  source     = "./modules/nvidia-device-plugin"
+  count      = var.create_aks_cluster && var.nvidia_device_plugin ? 1 : 0
+  depends_on = [module.aks]
 
   custom_values_templatefile = var.nvidia_device_plugin_values
   custom_values_variables    = var.nvidia_device_plugin_variables

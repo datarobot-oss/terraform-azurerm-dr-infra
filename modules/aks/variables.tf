@@ -13,6 +13,11 @@ variable "name" {
   type        = string
 }
 
+variable "container_registry_id" {
+  description = "ID of an Azure Container Registry to attach to the kubernetes cluster"
+  type        = string
+}
+
 variable "private_cluster" {
   description = "Whether the Kubernetes API endpoint should be exposed only internally to the virtual network. If true, the Kubernetes API endpoint will not be accessible over the public internet."
   type        = bool
@@ -63,7 +68,7 @@ variable "primary_node_pool_max_count" {
   type        = number
 }
 
-variable "create_gpu_node_pool" {
+variable "create_aks_gpu_node_pool" {
   description = "Whether to create a GPU node pool"
   type        = bool
 }

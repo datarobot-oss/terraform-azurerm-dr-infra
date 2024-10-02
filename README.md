@@ -1,6 +1,62 @@
 # terraform-azurerm-dr-infra
 Terraform module to create Azure Cloud infrastructure resources required to run DataRobot.
 
+## Usage
+```
+module "datarobot_infra" {
+  source = "datarobot-oss/dr-infra/azurerm"
+
+  name        = "datarobot"
+  domain_name = "yourdomain.com"
+
+  create_resource_group         = true
+  create_vnet                   = true
+  vnet_address_space            = "10.7.0.0/16"
+  create_dns_zone               = false
+  dns_zone_id                   = "/subscriptions/subscription-id/resourceGroups/existing-resource-group-name/providers/Microsoft.Network/dnszones/yourdomain.com"
+  create_storage                = true
+  create_container_registry     = false
+  container_registry_id         = "/subscriptions/subscription-id/resourceGroups/existing-resource-group-name/providers/Microsoft.ContainerRegistry/registries/existing-acr-name"
+  create_aks_cluster            = true
+  create_user_assigned_identity = true
+
+  ingress_nginx                = true
+  internet_facing_ingress_lb   = true
+  cert_manager                 = true
+  external_dns                 = true
+  nvidia_device_plugin         = true
+
+  tags = {
+    application   = "datarobot"
+    environment   = "dev"
+    managed-by    = "terraform"
+  }
+}
+```
+
+## Examples
+- [Internet Facing Comprehensive](examples/internet-facing)
+- [Internal](examples/internal)
+- [Minimal](examples/minimal)
+
+### Using an example directly from source
+1. Clone the repo
+```bash
+git clone https://github.com/datarobot-oss/terraform-aws-dr-infra.git
+```
+2. Change directories into the example that best suits your needs
+```bash
+cd terraform-aws-dr-infra/examples/internal
+```
+3. Modify `main.tf` as needed
+4. Run terraform commands
+```bash
+terraform init
+terraform plan
+terraform apply
+terraform destroy
+```
+
 <!-- BEGIN_TF_DOCS -->
 ## Requirements
 
@@ -61,8 +117,8 @@ Terraform module to create Azure Cloud infrastructure resources required to run 
 | <a name="input_container_registry_id"></a> [container\_registry\_id](#input\_container\_registry\_id) | ID of existing container registry to use | `string` | `""` | no |
 | <a name="input_create_aks_cluster"></a> [create\_aks\_cluster](#input\_create\_aks\_cluster) | Whether to create an AKS cluster | `bool` | `true` | no |
 | <a name="input_create_container_registry"></a> [create\_container\_registry](#input\_create\_container\_registry) | Whether to create a container registry | `bool` | `true` | no |
-| <a name="input_create_dns_zones"></a> [create\_dns\_zones](#input\_create\_dns\_zones) | Whether to create a public and private zone for domain\_name | `bool` | `true` | no |
-| <a name="input_create_gpu_node_pool"></a> [create\_gpu\_node\_pool](#input\_create\_gpu\_node\_pool) | Whether to create a GPU node pool | `bool` | `false` | no |
+| <a name="input_create_dns_zone"></a> [create\_dns\_zones](#input\_create\_dns\_zones) | Whether to create a public and private zone for domain\_name | `bool` | `true` | no |
+| <a name="input_create_aks_gpu_node_pool"></a> [create\_gpu\_node\_pool](#input\_create\_gpu\_node\_pool) | Whether to create a GPU node pool | `bool` | `false` | no |
 | <a name="input_create_resource_group"></a> [create\_resource\_group](#input\_create\_resource\_group) | Whether to create an Azure resource group | `bool` | `true` | no |
 | <a name="input_create_storage"></a> [create\_storage](#input\_create\_storage) | Whether to create a storage account and container | `bool` | `true` | no |
 | <a name="input_create_user_assigned_identity"></a> [create\_user\_assigned\_identity](#input\_create\_user\_assigned\_identity) | Whether to create a user assigned identity | `bool` | `true` | no |

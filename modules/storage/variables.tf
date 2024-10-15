@@ -1,0 +1,44 @@
+variable "resource_group_name" {
+  description = "Name of the Resource Group"
+  type        = string
+}
+
+variable "location" {
+  description = "Azure location"
+  type        = string
+}
+
+variable "tags" {
+  description = "A map of tags to add to all created resources"
+  type        = map(string)
+}
+
+variable "account_name" {
+  description = "Name of the Storage Account"
+  type        = string
+}
+
+variable "container_name" {
+  description = "Name of the Storage Container"
+  type        = string
+}
+
+variable "account_replication_type" {
+  description = "Storage account data replication type as described in https://learn.microsoft.com/en-us/azure/storage/common/storage-redundancy"
+  type        = string
+}
+
+variable "public_ip_allow_list" {
+  description = "List of public IP or IP ranges in CIDR Format to allow access to the storage account. Only IPv4 addresses are allowed. /31 CIDRs, /32 CIDRs, and Private IP address ranges (as defined in RFC 1918), are not allowed."
+  type        = list(string)
+}
+
+variable "vnet_id" {
+  description = "ID of the VNet used for the private endpoint to storage"
+  type        = string
+}
+
+variable "subnet_id" {
+  description = "ID of the subnet used for the private endpoint to storage"
+  type        = string
+}

@@ -28,8 +28,8 @@ variable "private_cluster" {
   type        = bool
 }
 
-variable "cluster_endpoint_public_access_cidrs" {
-  description = "List of CIDR blocks which can access the Amazon AKS public API server endpoint"
+variable "cluster_endpoint_authorized_ip_ranges" {
+  description = "List of CIDR blocks which can access the Kubernetes API server endpoint"
   type        = list(string)
 }
 

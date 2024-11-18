@@ -6,10 +6,11 @@ resource "azurerm_storage_account" "this" {
   account_tier             = "Standard"
   account_replication_type = var.account_replication_type
 
-  public_network_access_enabled = length(var.public_ip_allow_list) > 0
+  public_network_access_enabled = var.public_network_access_enabled
   network_rules {
-    default_action = "Deny"
-    ip_rules       = var.public_ip_allow_list
+    default_action             = var.network_rules_default_action
+    ip_rules                   = var.public_ip_allow_list
+    virtual_network_subnet_ids = var.virtual_network_subnet_ids
   }
 
   tags = var.tags
@@ -56,8 +57,8 @@ resource "azurerm_private_dns_zone_virtual_network_link" "storage" {
 }
 
 resource "azurerm_storage_container" "this" {
-  name                 = var.container_name
-  storage_account_name = azurerm_storage_account.this.name
+  name               = var.container_name
+  storage_account_id = azurerm_storage_account.this.id
 
   depends_on = [azurerm_private_endpoint.storage, azurerm_private_dns_zone_virtual_network_link.storage]
 }

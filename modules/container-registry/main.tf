@@ -6,11 +6,11 @@ resource "azurerm_container_registry" "this" {
   sku                           = "Premium"
   admin_enabled                 = true
   zone_redundancy_enabled       = true
-  public_network_access_enabled = length(var.public_ip_allow_list) > 0
+  public_network_access_enabled = var.public_network_access_enabled
   network_rule_set {
-    default_action = "Deny"
+    default_action = var.network_rules_default_action
 
-    ip_rule = [for cidr_block in var.public_ip_allow_list : {
+    ip_rule = [for cidr_block in var.ip_allow_list : {
       action   = "Allow"
       ip_range = cidr_block
     }]

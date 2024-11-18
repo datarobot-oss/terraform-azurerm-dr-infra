@@ -15,9 +15,9 @@ resource "azurerm_kubernetes_cluster" "this" {
   }
 
   dynamic "api_server_access_profile" {
-    for_each = var.cluster_endpoint_public_access_cidrs != null ? ["api_server_access_profile"] : []
+    for_each = var.cluster_endpoint_authorized_ip_ranges != null ? ["api_server_access_profile"] : []
     content {
-      authorized_ip_ranges = var.cluster_endpoint_public_access_cidrs
+      authorized_ip_ranges = var.cluster_endpoint_authorized_ip_ranges
     }
   }
 
@@ -30,6 +30,13 @@ resource "azurerm_kubernetes_cluster" "this" {
     service_cidr        = var.service_cidr
     dns_service_ip      = var.dns_service_ip
     outbound_type       = "userAssignedNATGateway"
+  }
+
+  auto_scaler_profile {
+    expander                                   = "least-waste"
+    daemonset_eviction_for_empty_nodes_enabled = true
+    skip_nodes_with_local_storage              = false
+    skip_nodes_with_system_pods                = false
   }
 
   default_node_pool {

@@ -15,7 +15,7 @@ locals {
 
 
 module "datarobot_infra" {
-  source = "datarobot-oss/dr-infra/azurerm"
+  source = "../.."
 
   name        = local.name
   domain_name = local.domain_name

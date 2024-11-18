@@ -14,12 +14,6 @@ variable "location" {
   type        = string
 }
 
-variable "public_ip_allow_list" {
-  description = "List of public IP ranges in CIDR format to allow Kubernetes cluster API endpoint, storage account, and container registry access. By default the storage account and container registry can only be accessed within the VNet via PrivateLink. When kubernetes_cluster_endpoint_public_access are true, this list restricts access to only the specified IP addresses. When kubernetes_cluster_endpoint_public_access is false, this list is ignored and the Kubernetes cluster API endpoint can only be reached from within the VNet. Required when creating a storage account, container registry, or kubernetes cluster over the public internet."
-  type        = list(string)
-  default     = []
-}
-
 variable "tags" {
   description = "A map of tags to add to all created resources"
   type        = map(string)
@@ -114,6 +108,35 @@ variable "storage_account_replication_type" {
   default     = "ZRS"
 }
 
+variable "storage_public_network_access_enabled" {
+  description = "Whether the public network access to the storage account is enabled"
+  type        = bool
+  default     = true
+}
+
+variable "storage_network_rules_default_action" {
+  description = "Specifies the default action of the storage firewall to allow or deny when no other rules match"
+  type        = string
+  default     = "Allow"
+
+  validation {
+    condition     = contains(["Deny", "Allow"], var.storage_network_rules_default_action)
+    error_message = "Valid options are Deny or Allow"
+  }
+}
+
+variable "storage_public_ip_allow_list" {
+  description = "List of public IP or IP ranges in CIDR Format which are allowed to access the storage account. Only IPv4 addresses are allowed. /31 CIDRs, /32 CIDRs, and Private IP address ranges (as defined in RFC 1918), are not allowed. Ignored if storage_public_network_access_enabled is false."
+  type        = list(string)
+  default     = []
+}
+
+variable "storage_virtual_network_subnet_ids" {
+  description = "List of resource IDs for subnets which are allowed to access the storage account"
+  type        = list(string)
+  default     = null
+}
+
 
 ################################################################################
 # Container Registry
@@ -130,6 +153,29 @@ variable "create_container_registry" {
   description = "Create a new Azure Container Registry. Ignored if an existing existing_container_registry_id is specified."
   type        = bool
   default     = true
+}
+
+variable "container_registry_public_network_access_enabled" {
+  description = "Whether the public network access to the container registry is enabled"
+  type        = bool
+  default     = true
+}
+
+variable "container_registry_network_rules_default_action" {
+  description = "Specifies the default action of allow or deny when no other rules match"
+  type        = string
+  default     = "Allow"
+
+  validation {
+    condition     = contains(["Deny", "Allow"], var.container_registry_network_rules_default_action)
+    error_message = "Valid options are Deny or Allow"
+  }
+}
+
+variable "container_registry_ip_allow_list" {
+  description = "List of CIDR blocks to allow access to the container registry. Only IPv4 addresses are allowed"
+  type        = list(string)
+  default     = []
 }
 
 
@@ -153,6 +199,12 @@ variable "kubernetes_cluster_endpoint_public_access" {
   description = "Whether or not the Kubernetes API endpoint should be exposed to the public internet. When false, the cluster endpoint is only available internally to the virtual network."
   type        = bool
   default     = true
+}
+
+variable "kubernetes_cluster_endpoint_public_access_cidrs" {
+  description = "List of CIDR blocks which can access the Kubernetes API server endpoint"
+  type        = list(string)
+  default     = []
 }
 
 variable "existing_kubernetes_nodes_subnet_id" {

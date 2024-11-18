@@ -93,12 +93,15 @@ module "storage" {
   resource_group_name = local.resource_group_name
   location            = var.location
 
-  account_name             = module.naming.storage_account.name_unique
-  container_name           = module.naming.storage_container.name
-  account_replication_type = var.storage_account_replication_type
-  public_ip_allow_list     = [for cidr in var.public_ip_allow_list : replace(cidr, "/32", "")]
-  vnet_id                  = local.vnet_id
-  subnet_id                = local.aks_nodes_subnet_id
+  account_name                  = module.naming.storage_account.name_unique
+  container_name                = module.naming.storage_container.name
+  account_replication_type      = var.storage_account_replication_type
+  public_network_access_enabled = var.storage_public_network_access_enabled
+  network_rules_default_action  = var.storage_network_rules_default_action
+  public_ip_allow_list          = [for cidr in var.storage_public_ip_allow_list : replace(cidr, "/32", "")]
+  virtual_network_subnet_ids    = var.storage_virtual_network_subnet_ids
+  vnet_id                       = local.vnet_id
+  subnet_id                     = local.aks_nodes_subnet_id
 
   tags = var.tags
 }
@@ -119,10 +122,12 @@ module "container_registry" {
   resource_group_name = local.resource_group_name
   location            = var.location
 
-  name                 = module.naming.container_registry.name
-  vnet_id              = local.vnet_id
-  subnet_id            = local.aks_nodes_subnet_id
-  public_ip_allow_list = var.public_ip_allow_list
+  name                          = module.naming.container_registry.name
+  vnet_id                       = local.vnet_id
+  subnet_id                     = local.aks_nodes_subnet_id
+  public_network_access_enabled = var.container_registry_public_network_access_enabled
+  network_rules_default_action  = var.container_registry_network_rules_default_action
+  ip_allow_list                 = var.container_registry_ip_allow_list
 
   tags = var.tags
 }
@@ -139,30 +144,36 @@ module "kubernetes" {
   resource_group_name = local.resource_group_name
   location            = var.location
 
-  name                                 = module.naming.kubernetes_cluster.name
-  cluster_version                      = var.kubernetes_cluster_version
-  container_registry_id                = local.container_registry_id
-  private_cluster                      = !var.kubernetes_cluster_endpoint_public_access
-  cluster_endpoint_public_access_cidrs = var.kubernetes_cluster_endpoint_public_access ? concat(var.public_ip_allow_list, try(["${module.network[0].nat_gateway_pip}/32"], [])) : null
-  pod_cidr                             = var.kubernetes_pod_cidr
-  service_cidr                         = var.kubernetes_service_cidr
-  dns_service_ip                       = var.kubernetes_dns_service_ip
-  nodepool_subnet_id                   = local.aks_nodes_subnet_id
-  nodepool_availability_zones          = var.kubernetes_nodepool_availability_zones
-  primary_nodepool_name                = var.kubernetes_primary_nodepool_name
-  primary_nodepool_labels              = var.kubernetes_primary_nodepool_labels
-  primary_nodepool_taints              = var.kubernetes_primary_nodepool_taints
-  primary_nodepool_vm_size             = var.kubernetes_primary_nodepool_vm_size
-  primary_nodepool_node_count          = var.kubernetes_primary_nodepool_node_count
-  primary_nodepool_min_count           = var.kubernetes_primary_nodepool_min_count
-  primary_nodepool_max_count           = var.kubernetes_primary_nodepool_max_count
-  gpu_nodepool_name                    = var.kubernetes_gpu_nodepool_name
-  gpu_nodepool_labels                  = var.kubernetes_gpu_nodepool_labels
-  gpu_nodepool_taints                  = var.kubernetes_gpu_nodepool_taints
-  gpu_nodepool_vm_size                 = var.kubernetes_gpu_nodepool_vm_size
-  gpu_nodepool_node_count              = var.kubernetes_gpu_nodepool_node_count
-  gpu_nodepool_min_count               = var.kubernetes_gpu_nodepool_min_count
-  gpu_nodepool_max_count               = var.kubernetes_gpu_nodepool_max_count
+  name                  = module.naming.kubernetes_cluster.name
+  cluster_version       = var.kubernetes_cluster_version
+  container_registry_id = local.container_registry_id
+
+  private_cluster = !var.kubernetes_cluster_endpoint_public_access
+  cluster_endpoint_authorized_ip_ranges = length(var.kubernetes_cluster_endpoint_public_access_cidrs) > 0 ? concat(
+    var.kubernetes_cluster_endpoint_public_access_cidrs,
+    try(["${module.network[0].nat_gateway_pip}/32"], [])
+  ) : null
+
+  pod_cidr                    = var.kubernetes_pod_cidr
+  service_cidr                = var.kubernetes_service_cidr
+  dns_service_ip              = var.kubernetes_dns_service_ip
+  nodepool_subnet_id          = local.aks_nodes_subnet_id
+  nodepool_availability_zones = var.kubernetes_nodepool_availability_zones
+
+  primary_nodepool_name       = var.kubernetes_primary_nodepool_name
+  primary_nodepool_labels     = var.kubernetes_primary_nodepool_labels
+  primary_nodepool_taints     = var.kubernetes_primary_nodepool_taints
+  primary_nodepool_vm_size    = var.kubernetes_primary_nodepool_vm_size
+  primary_nodepool_node_count = var.kubernetes_primary_nodepool_node_count
+  primary_nodepool_min_count  = var.kubernetes_primary_nodepool_min_count
+  primary_nodepool_max_count  = var.kubernetes_primary_nodepool_max_count
+  gpu_nodepool_name           = var.kubernetes_gpu_nodepool_name
+  gpu_nodepool_labels         = var.kubernetes_gpu_nodepool_labels
+  gpu_nodepool_taints         = var.kubernetes_gpu_nodepool_taints
+  gpu_nodepool_vm_size        = var.kubernetes_gpu_nodepool_vm_size
+  gpu_nodepool_node_count     = var.kubernetes_gpu_nodepool_node_count
+  gpu_nodepool_min_count      = var.kubernetes_gpu_nodepool_min_count
+  gpu_nodepool_max_count      = var.kubernetes_gpu_nodepool_max_count
 
   tags = var.tags
 }

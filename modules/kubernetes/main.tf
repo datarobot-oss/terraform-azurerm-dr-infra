@@ -46,18 +46,26 @@ resource "azurerm_kubernetes_cluster" "this" {
     vnet_subnet_id               = var.nodepool_subnet_id
     zones                        = var.nodepool_availability_zones
     vm_size                      = "Standard_DS4_v2"
-    node_count                   = 3
+    auto_scaling_enabled         = true
+    node_count                   = 1
+    min_count                    = 1
+    max_count                    = 3
 
     upgrade_settings {
-      drain_timeout_in_minutes      = 0
-      max_surge                     = "10%"
-      node_soak_duration_in_minutes = 0
+      max_surge = "10%"
     }
 
-    tags = var.tags
+    tags = merge(
+      var.tags,
+      { "k8s.io_cluster-autoscaler_node-template_taint_CriticalAddonsOnly" = "true:NoSchedule" }
+    )
   }
 
   tags = var.tags
+
+  lifecycle {
+    ignore_changes = [default_node_pool[0].node_count]
+  }
 }
 
 resource "azurerm_role_assignment" "aks_nodepool_subnet" {
@@ -85,19 +93,21 @@ resource "azurerm_kubernetes_cluster_node_pool" "primary" {
   node_taints = var.primary_nodepool_taints
 
   vm_size              = var.primary_nodepool_vm_size
-  os_disk_size_gb      = 500
+  os_disk_size_gb      = 200
   auto_scaling_enabled = true
   node_count           = var.primary_nodepool_node_count
   min_count            = var.primary_nodepool_min_count
   max_count            = var.primary_nodepool_max_count
 
   upgrade_settings {
-    drain_timeout_in_minutes      = 0
-    max_surge                     = "10%"
-    node_soak_duration_in_minutes = 0
+    max_surge = "10%"
   }
 
-  tags = var.tags
+  tags = merge(
+    var.tags,
+    { for k, v in var.primary_nodepool_labels : "k8s.io_cluster-autoscaler_node-template_label_${replace(k, "///", "_")}" => v },
+    { for taint in var.primary_nodepool_taints : "k8s.io_cluster-autoscaler_node-template_taint_${split("=", replace(taint, "///", "_"))[0]}" => split("=", taint)[1] }
+  )
 
   lifecycle {
     ignore_changes = [node_count]
@@ -115,19 +125,21 @@ resource "azurerm_kubernetes_cluster_node_pool" "gpu" {
   node_taints = var.gpu_nodepool_taints
 
   vm_size              = var.gpu_nodepool_vm_size
-  os_disk_size_gb      = 500
+  os_disk_size_gb      = 200
   auto_scaling_enabled = true
   node_count           = var.gpu_nodepool_node_count
   min_count            = var.gpu_nodepool_min_count
   max_count            = var.gpu_nodepool_max_count
 
   upgrade_settings {
-    drain_timeout_in_minutes      = 0
-    max_surge                     = "10%"
-    node_soak_duration_in_minutes = 0
+    max_surge = "10%"
   }
 
-  tags = var.tags
+  tags = merge(
+    var.tags,
+    { for k, v in var.gpu_nodepool_labels : "k8s.io_cluster-autoscaler_node-template_label_${replace(k, "///", "_")}" => v },
+    { for taint in var.gpu_nodepool_taints : "k8s.io_cluster-autoscaler_node-template_taint_${split("=", replace(taint, "///", "_"))[0]}" => split("=", taint)[1] }
+  )
 
   lifecycle {
     ignore_changes = [node_count]

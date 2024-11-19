@@ -252,13 +252,13 @@ variable "kubernetes_primary_nodepool_vm_size" {
 variable "kubernetes_primary_nodepool_node_count" {
   description = "Node count of the primary node pool"
   type        = number
-  default     = 6
+  default     = 1
 }
 
 variable "kubernetes_primary_nodepool_min_count" {
   description = "Minimum number of nodes in the primary node pool"
   type        = number
-  default     = 3
+  default     = 0
 }
 
 variable "kubernetes_primary_nodepool_max_count" {
@@ -270,7 +270,9 @@ variable "kubernetes_primary_nodepool_max_count" {
 variable "kubernetes_primary_nodepool_labels" {
   description = "A map of Kubernetes labels to apply to the primary node pool"
   type        = map(string)
-  default     = {}
+  default = {
+    "datarobot.com/node-capability" = "cpu"
+  }
 }
 
 variable "kubernetes_primary_nodepool_taints" {
@@ -320,7 +322,7 @@ variable "kubernetes_gpu_nodepool_labels" {
 variable "kubernetes_gpu_nodepool_taints" {
   description = "A list of Kubernetes taints to apply to the GPU node pool"
   type        = list(string)
-  default     = ["nvidia.com/gpu:NoSchedule"]
+  default     = ["nvidia.com/gpu=true:NoSchedule"]
 }
 
 

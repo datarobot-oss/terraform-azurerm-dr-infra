@@ -34,6 +34,7 @@ resource "azurerm_kubernetes_cluster" "this" {
 
   auto_scaler_profile {
     expander                                   = "least-waste"
+    balance_similar_node_groups                = true
     daemonset_eviction_for_empty_nodes_enabled = true
     skip_nodes_with_local_storage              = false
     skip_nodes_with_system_pods                = false
@@ -83,11 +84,13 @@ resource "azurerm_role_assignment" "aks_kubelet_acr" {
 }
 
 resource "azurerm_kubernetes_cluster_node_pool" "primary" {
-  name                  = var.primary_nodepool_name
+  for_each = var.nodepool_availability_zones
+
+  name                  = "${var.primary_nodepool_name}az${each.value}"
   kubernetes_cluster_id = azurerm_kubernetes_cluster.this.id
 
   vnet_subnet_id = var.nodepool_subnet_id
-  zones          = var.nodepool_availability_zones
+  zones          = [each.value]
 
   node_labels = var.primary_nodepool_labels
   node_taints = var.primary_nodepool_taints
@@ -115,11 +118,13 @@ resource "azurerm_kubernetes_cluster_node_pool" "primary" {
 }
 
 resource "azurerm_kubernetes_cluster_node_pool" "gpu" {
-  name                  = var.gpu_nodepool_name
+  for_each = var.nodepool_availability_zones
+
+  name                  = "${var.gpu_nodepool_name}az${each.value}"
   kubernetes_cluster_id = azurerm_kubernetes_cluster.this.id
 
   vnet_subnet_id = var.nodepool_subnet_id
-  zones          = var.nodepool_availability_zones
+  zones          = [each.value]
 
   node_labels = var.gpu_nodepool_labels
   node_taints = var.gpu_nodepool_taints

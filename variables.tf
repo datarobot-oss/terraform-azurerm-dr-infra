@@ -258,7 +258,7 @@ variable "kubernetes_primary_nodepool_node_count" {
 variable "kubernetes_primary_nodepool_min_count" {
   description = "Minimum number of nodes in the primary node pool"
   type        = number
-  default     = 0
+  default     = 1
 }
 
 variable "kubernetes_primary_nodepool_max_count" {
@@ -450,6 +450,24 @@ variable "nvidia_device_plugin_values" {
 
 variable "nvidia_device_plugin_variables" {
   description = "Variables passed to the nvidia_device_plugin_values templatefile"
+  type        = any
+  default     = {}
+}
+
+variable "descheduler" {
+  description = "Install the descheduler helm chart to enable rescheduling of pods. All other descheduler variables are ignored if this variable is false"
+  type        = bool
+  default     = true
+}
+
+variable "descheduler_values" {
+  description = "Path to templatefile containing custom values for the descheduler helm chart"
+  type        = string
+  default     = ""
+}
+
+variable "descheduler_variables" {
+  description = "Variables passed to the descheduler templatefile"
   type        = any
   default     = {}
 }

@@ -26,6 +26,7 @@ module "datarobot_infra" {
   cert_manager_letsencrypt_email_address = youremail@yourdomain.com
   external_dns                           = true
   nvidia_device_plugin                   = true
+  descheduler                            = true
 
   tags = {
     application = "datarobot"
@@ -153,7 +154,7 @@ TBD
 - `ingress_nginx` to install the `ingress-nginx` helm chart
 
 #### Description
-Uses the [terraform-helm-release](https://github.com/terraform-module/terraform-helm-release) module to install the `https://kubernetes.github.io/ingress-nginx/ingress-nginx` helm chart into the `ingress-nginx` namespace.
+Uses the [terraform-helm-release](https://github.com/terraform-module/terraform-helm-release) module to install the `ingress-nginx` helm chart from the `https://kubernetes.github.io/ingress-nginx` repo into the `ingress-nginx` namespace.
 
 The `ingress-nginx` helm chart will trigger the deployment of an Azure Standard Load Balancer directing traffic to the `ingress-nginx-controller` Kubernetes services.
 
@@ -169,7 +170,7 @@ Not required
 - `cert_manager` to install the `cert-manager` helm chart
 
 #### Description
-Uses the [terraform-helm-release](https://github.com/terraform-module/terraform-helm-release) module to install the `https://charts.jetstack.io/cert-manager` helm chart into the `cert-manager` namespace.
+Uses the [terraform-helm-release](https://github.com/terraform-module/terraform-helm-release) module to install the `cert-manager` helm chart from the `https://charts.jetstack.io` repo into the `cert-manager` namespace.
 
 A User Assigned Identity and Federated Identity Credential is created for the `cert-manager` service account running in the `cert-manager` namespace that allows the creation of DNS resources within the specified DNS zone.
 
@@ -188,7 +189,7 @@ TBD
 - `external_dns` to install the `external-dns` helm chart
 
 #### Description
-Uses the [terraform-helm-release](https://github.com/terraform-module/terraform-helm-release) module to install the `https://charts.bitnami.com/bitnami/external-dns` helm chart into the `external-dns` namespace.
+Uses the [terraform-helm-release](https://github.com/terraform-module/terraform-helm-release) module to install the `external-dns` helm chart from the `https://charts.bitnami.com/bitnami` repo into the `external-dns` namespace.
 
 A User Assigned Identity and Federated Identity Credential is created for the `external-dns` service account running in the `external-dns` namespace that allows the creation of DNS resources within the specified DNS zone.
 
@@ -205,9 +206,24 @@ TBD
 - `nvidia_device_plugin` to install the `nvidia-device-plugin` helm chart
 
 #### Description
-Uses the [terraform-helm-release](https://github.com/terraform-module/terraform-helm-release) module to install the `https://nvidia.github.io/k8s-device-plugin/nvidia-device-plugin` helm chart into the `nvidia-device-plugin` namespace.
+Uses the [terraform-helm-release](https://github.com/terraform-module/terraform-helm-release) module to install the `nvidia-device-plugin` helm chart from the `https://nvidia.github.io/k8s-device-plugin` repo into the `nvidia-device-plugin` namespace.
+
+This helm chart is used to expose GPU resources on nodes intended for GPU workloads such as the default `gpu` node group.
 
 Values passed to the helm chart can be overridden by passing a custom values file via the `nvidia_device_plugin_values` variable as demonstrated in the [complete example](examples/complete/main.tf).
+
+#### Permissions
+Not required
+
+
+### Helm Chart - descheduler
+#### Toggle
+- `descheduler` to install the `descheduler` helm chart
+
+#### Description
+Uses the [terraform-helm-release](https://github.com/terraform-module/terraform-helm-release) module to install the `descheduler` helm chart from the `https://kubernetes-sigs.github.io/descheduler/` helm repo into the `descheduler` namespace.
+
+This helm chart allows for automatic rescheduling of pods for optimizing resource consumption.
 
 #### Permissions
 Not required
@@ -247,6 +263,7 @@ TBD
 | <a name="module_app_identity"></a> [app\_identity](#module\_app\_identity) | ./modules/app-identity | n/a |
 | <a name="module_cert_manager"></a> [cert\_manager](#module\_cert\_manager) | ./modules/cert-manager | n/a |
 | <a name="module_container_registry"></a> [container\_registry](#module\_container\_registry) | ./modules/container-registry | n/a |
+| <a name="module_descheduler"></a> [descheduler](#module\_descheduler) | ./modules/descheduler | n/a |
 | <a name="module_dns"></a> [dns](#module\_dns) | ./modules/dns | n/a |
 | <a name="module_external_dns"></a> [external\_dns](#module\_external\_dns) | ./modules/external-dns | n/a |
 | <a name="module_ingress_nginx"></a> [ingress\_nginx](#module\_ingress\_nginx) | ./modules/ingress-nginx | n/a |
@@ -284,6 +301,9 @@ TBD
 | <a name="input_create_storage"></a> [create\_storage](#input\_create\_storage) | Create a new Azure Storage account and container. Ignored if an existing\_storage\_account\_id is specified. | `bool` | `true` | no |
 | <a name="input_datarobot_namespace"></a> [datarobot\_namespace](#input\_datarobot\_namespace) | Kubernetes namespace in which the DataRobot application will be installed | `string` | `"dr-app"` | no |
 | <a name="input_datarobot_service_accounts"></a> [datarobot\_service\_accounts](#input\_datarobot\_service\_accounts) | Names of the Kubernetes service accounts used by the DataRobot application | `set(string)` | <pre>[<br>  "dr",<br>  "build-service",<br>  "build-service-image-builder",<br>  "buzok-account",<br>  "dr-lrs-operator",<br>  "dynamic-worker",<br>  "internal-api-sa",<br>  "nbx-notebook-revisions-account",<br>  "prediction-server-sa",<br>  "tileservergl-sa"<br>]</pre> | no |
+| <a name="input_descheduler"></a> [descheduler](#input\_descheduler) | Install the descheduler helm chart to enable rescheduling of pods. All other descheduler variables are ignored if this variable is false | `bool` | `true` | no |
+| <a name="input_descheduler_values"></a> [descheduler\_values](#input\_descheduler\_values) | Path to templatefile containing custom values for the descheduler helm chart | `string` | `""` | no |
+| <a name="input_descheduler_variables"></a> [descheduler\_variables](#input\_descheduler\_variables) | Variables passed to the descheduler templatefile | `any` | `{}` | no |
 | <a name="input_domain_name"></a> [domain\_name](#input\_domain\_name) | Name of the domain to use for the DataRobot application. If create\_dns\_zones is true then zones will be created for this domain. It is also used by the cert-manager helm chart for DNS validation and as a domain filter by the external-dns helm chart. | `string` | `""` | no |
 | <a name="input_existing_container_registry_id"></a> [existing\_container\_registry\_id](#input\_existing\_container\_registry\_id) | ID of existing container registry to use | `string` | `""` | no |
 | <a name="input_existing_kubernetes_nodes_subnet_id"></a> [existing\_kubernetes\_nodes\_subnet\_id](#input\_existing\_kubernetes\_nodes\_subnet\_id) | ID of an existing subnet to use for the AKS node pools. Required when an existing\_network\_id is specified. Ignored if create\_network is true and no existing\_network\_id is specified. | `string` | `""` | no |
@@ -314,7 +334,7 @@ TBD
 | <a name="input_kubernetes_pod_cidr"></a> [kubernetes\_pod\_cidr](#input\_kubernetes\_pod\_cidr) | The CIDR to use for Kubernetes pod IP addresses | `string` | `null` | no |
 | <a name="input_kubernetes_primary_nodepool_labels"></a> [kubernetes\_primary\_nodepool\_labels](#input\_kubernetes\_primary\_nodepool\_labels) | A map of Kubernetes labels to apply to the primary node pool | `map(string)` | <pre>{<br>  "datarobot.com/node-capability": "cpu"<br>}</pre> | no |
 | <a name="input_kubernetes_primary_nodepool_max_count"></a> [kubernetes\_primary\_nodepool\_max\_count](#input\_kubernetes\_primary\_nodepool\_max\_count) | Maximum number of nodes in the primary node pool | `number` | `10` | no |
-| <a name="input_kubernetes_primary_nodepool_min_count"></a> [kubernetes\_primary\_nodepool\_min\_count](#input\_kubernetes\_primary\_nodepool\_min\_count) | Minimum number of nodes in the primary node pool | `number` | `0` | no |
+| <a name="input_kubernetes_primary_nodepool_min_count"></a> [kubernetes\_primary\_nodepool\_min\_count](#input\_kubernetes\_primary\_nodepool\_min\_count) | Minimum number of nodes in the primary node pool | `number` | `1` | no |
 | <a name="input_kubernetes_primary_nodepool_name"></a> [kubernetes\_primary\_nodepool\_name](#input\_kubernetes\_primary\_nodepool\_name) | Name of the primary node pool | `string` | `"primary"` | no |
 | <a name="input_kubernetes_primary_nodepool_node_count"></a> [kubernetes\_primary\_nodepool\_node\_count](#input\_kubernetes\_primary\_nodepool\_node\_count) | Node count of the primary node pool | `number` | `1` | no |
 | <a name="input_kubernetes_primary_nodepool_taints"></a> [kubernetes\_primary\_nodepool\_taints](#input\_kubernetes\_primary\_nodepool\_taints) | A list of Kubernetes taints to apply to the primary node pool | `list(string)` | `[]` | no |

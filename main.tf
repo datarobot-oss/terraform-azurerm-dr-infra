@@ -224,20 +224,20 @@ provider "kubectl" {
 
 
 module "ingress_nginx" {
-  source     = "./modules/ingress-nginx"
-  count      = var.create_kubernetes_cluster && var.ingress_nginx ? 1 : 0
-  depends_on = [module.kubernetes]
+  source = "./modules/ingress-nginx"
+  count  = var.create_kubernetes_cluster && var.ingress_nginx ? 1 : 0
 
   internet_facing_ingress_lb = var.internet_facing_ingress_lb
 
   custom_values_templatefile = var.ingress_nginx_values
   custom_values_variables    = var.ingress_nginx_variables
+
+  depends_on = [module.kubernetes]
 }
 
 module "cert_manager" {
-  source     = "./modules/cert-manager"
-  count      = var.create_kubernetes_cluster && var.cert_manager ? 1 : 0
-  depends_on = [module.kubernetes]
+  source = "./modules/cert-manager"
+  count  = var.create_kubernetes_cluster && var.cert_manager ? 1 : 0
 
   resource_group_name = local.resource_group_name
   location            = var.location
@@ -256,9 +256,8 @@ module "cert_manager" {
 }
 
 module "external_dns" {
-  source     = "./modules/external-dns"
-  count      = var.create_kubernetes_cluster && var.external_dns ? 1 : 0
-  depends_on = [module.kubernetes]
+  source = "./modules/external-dns"
+  count  = var.create_kubernetes_cluster && var.external_dns ? 1 : 0
 
   resource_group_name = local.resource_group_name
   location            = var.location
@@ -275,10 +274,21 @@ module "external_dns" {
 }
 
 module "nvidia_device_plugin" {
-  source     = "./modules/nvidia-device-plugin"
-  count      = var.create_kubernetes_cluster && var.nvidia_device_plugin ? 1 : 0
-  depends_on = [module.kubernetes]
+  source = "./modules/nvidia-device-plugin"
+  count  = var.create_kubernetes_cluster && var.nvidia_device_plugin ? 1 : 0
 
   custom_values_templatefile = var.nvidia_device_plugin_values
   custom_values_variables    = var.nvidia_device_plugin_variables
+
+  depends_on = [module.kubernetes]
+}
+
+module "descheduler" {
+  source = "./modules/descheduler"
+  count  = var.descheduler ? 1 : 0
+
+  custom_values_templatefile = var.descheduler_values
+  custom_values_variables    = var.descheduler_variables
+
+  depends_on = [module.kubernetes]
 }

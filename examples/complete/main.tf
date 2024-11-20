@@ -141,4 +141,11 @@ module "datarobot_infra" {
   nvidia_device_plugin           = true
   nvidia_device_plugin_values    = "${path.module}/templates/custom_nvidia_device_plugin_values.yaml"
   nvidia_device_plugin_variables = {}
+
+  ################################################################################
+  # descheduler
+  ################################################################################
+  descheduler           = true
+  descheduler_values    = "${path.module}/templates/custom_descheduler_values.yaml"
+  descheduler_variables = {}
 }

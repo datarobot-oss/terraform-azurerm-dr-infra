@@ -6,10 +6,9 @@ Terraform module to create Azure Cloud infrastructure resources required to run 
 module "datarobot_infra" {
   source = "datarobot-oss/dr-infra/azurerm"
 
-  name                 = "datarobot"
-  domain_name          = "yourdomain.com"
-  location             = "eastus"
-  public_ip_allow_list = ["123.123.123.123/32"]
+  name        = "datarobot"
+  domain_name = "yourdomain.com"
+  location    = "eastus"
 
   create_resource_group          = true
   create_network                 = true
@@ -108,7 +107,7 @@ A private Route53 zone is used by `external_dns` to create records for the DataR
 - `existing_storage_account_id` to use an existing Azure Storage Account
 
 #### Description
-Create a new Azure Storage Account and Container with public internet access disabled and PrivateLink access from within the VNet. If a `public_ip_allow_list` is specified, those IP addresses will be allowed network access to the storage account as well.
+Create a new Azure Storage Account and Container with public internet access allowed by default and PrivateLink access from within the VNet. Network access to the ACR can be managed via the `storage_public_network_access_enabled`, `storage_network_rules_default_action`, `storage_public_ip_allow_list`, and `storage_virtual_network_subnet_ids` variables.
 
 The DataRobot application will use this storage account for persistent file storage.
 
@@ -122,7 +121,7 @@ The DataRobot application will use this storage account for persistent file stor
 - `existing_container_registry_id` to use an existing Azure Container Registry
 
 #### Description
-Create a new Azure Container Registry with public internet access disabled and PrivateLink access from within the VNet. If a `public_ip_allow_list` is specified, those IP addresses will be allowed network access to the container registry as well.
+Create a new Azure Container Registry with public internet access allowed by default and PrivateLink access from within the VNet. Network access to the ACR can be managed via the `container_registry_public_network_access_enabled`, `container_registry_network_rules_default_action`, and `container_registry_ip_allow_list` variables.
 
 The DataRobot application will use this registry to host custom images created by various services.
 
@@ -133,11 +132,12 @@ TBD
 ### Kubernetes
 #### Toggle
 - `create_kubernetes_cluster` to create a new Azure Kubernetes Service Cluster
+- `existing_eks_cluster_name` to use an existing AKS cluster
 
 #### Description
 Create a new AKS cluster to host the DataRobot application and any other helm charts installed by this module.
 
-The AKS cluster Kubernetes API endpoint can either be made available over the public internet or privately to the VNet. When `private_cluster` is `true`, the cluster API endpoint is only available from within the VNet via a PrivateLink. When `private_cluster` is `false`, the cluster API endpoint is accessed via the public internet. This access can be restricted to specific IP addresses via the `cluster_endpoint_public_access_cidrs` variable.
+The AKS cluster Kubernetes API endpoint can either be made available over the public internet or privately to the VNet. When `kubernetes_cluster_endpoint_public_access` is `false`, the cluster API endpoint is only available from within the VNet via a PrivateLink. When `kubernetes_cluster_endpoint_public_access` is `true`, the cluster API endpoint is accessed via the public internet. This access can be restricted to specific IP addresses via the `kubernetes_cluster_endpoint_public_access_cidrs` variable.
 
 Two node groups are created:
 - A `primary` node group intended to host the majority of the DataRobot pods
@@ -278,6 +278,7 @@ TBD
 | Name | Type |
 |------|------|
 | [azurerm_resource_group.this](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/resource_group) | resource |
+| [azurerm_kubernetes_cluster.existing](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/data-sources/kubernetes_cluster) | data source |
 | [azurerm_subscription.current](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/data-sources/subscription) | data source |
 
 ## Inputs
@@ -305,6 +306,7 @@ TBD
 | <a name="input_descheduler_values"></a> [descheduler\_values](#input\_descheduler\_values) | Path to templatefile containing custom values for the descheduler helm chart | `string` | `""` | no |
 | <a name="input_descheduler_variables"></a> [descheduler\_variables](#input\_descheduler\_variables) | Variables passed to the descheduler templatefile | `any` | `{}` | no |
 | <a name="input_domain_name"></a> [domain\_name](#input\_domain\_name) | Name of the domain to use for the DataRobot application. If create\_dns\_zones is true then zones will be created for this domain. It is also used by the cert-manager helm chart for DNS validation and as a domain filter by the external-dns helm chart. | `string` | `""` | no |
+| <a name="input_existing_aks_cluster_name"></a> [existing\_aks\_cluster\_name](#input\_existing\_aks\_cluster\_name) | Name of existing AKS cluster to use. When specified, all other kubernetes variables will be ignored. | `string` | `null` | no |
 | <a name="input_existing_container_registry_id"></a> [existing\_container\_registry\_id](#input\_existing\_container\_registry\_id) | ID of existing container registry to use | `string` | `""` | no |
 | <a name="input_existing_kubernetes_nodes_subnet_id"></a> [existing\_kubernetes\_nodes\_subnet\_id](#input\_existing\_kubernetes\_nodes\_subnet\_id) | ID of an existing subnet to use for the AKS node pools. Required when an existing\_network\_id is specified. Ignored if create\_network is true and no existing\_network\_id is specified. | `string` | `""` | no |
 | <a name="input_existing_private_dns_zone_id"></a> [existing\_private\_dns\_zone\_id](#input\_existing\_private\_dns\_zone\_id) | ID of existing private hosted zone to use for private DNS records created by external-dns. This is required when create\_dns\_zones is false and ingress\_nginx is true with internet\_facing\_ingress\_lb false. | `string` | `""` | no |

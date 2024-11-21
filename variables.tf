@@ -183,6 +183,12 @@ variable "container_registry_ip_allow_list" {
 # Kubernetes
 ################################################################################
 
+variable "existing_aks_cluster_name" {
+  description = "Name of existing AKS cluster to use. When specified, all other kubernetes variables will be ignored."
+  type        = string
+  default     = null
+}
+
 variable "create_kubernetes_cluster" {
   description = "Create a new Azure Kubernetes Service cluster. All kubernetes and helm chart variables are ignored if this variable is false."
   type        = bool

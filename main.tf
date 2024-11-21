@@ -137,9 +137,25 @@ module "container_registry" {
 # Kubernetes
 ################################################################################
 
+data "azurerm_kubernetes_cluster" "existing" {
+  count = var.existing_aks_cluster_name != null ? 1 : 0
+
+  name                = var.existing_aks_cluster_name
+  resource_group_name = local.resource_group_name
+}
+
+locals {
+  aks_cluster_name            = try(data.azurerm_kubernetes_cluster.existing[0].name, module.kubernetes[0].name, null)
+  aks_client_certificate      = try(data.azurerm_kubernetes_cluster.existing[0].kube_config[0].client_certificate, module.kubernetes[0].client_certificate, null)
+  aks_client_key              = try(data.azurerm_kubernetes_cluster.existing[0].kube_config[0].client_key, module.kubernetes[0].client_key, null)
+  aks_cluster_ca_certificate  = try(data.azurerm_kubernetes_cluster.existing[0].kube_config[0].cluster_ca_certificate, module.kubernetes[0].cluster_ca_certificate, null)
+  aks_cluster_host            = try(data.azurerm_kubernetes_cluster.existing[0].kube_config[0].host, module.kubernetes[0].host, null)
+  aks_cluster_oidc_issuer_url = try(data.azurerm_kubernetes_cluster.existing[0].oidc_issuer_url, module.kubernetes[0].oidc_issuer_url, null)
+}
+
 module "kubernetes" {
   source = "./modules/kubernetes"
-  count  = var.create_kubernetes_cluster ? 1 : 0
+  count  = var.existing_aks_cluster_name == null && var.create_kubernetes_cluster ? 1 : 0
 
   resource_group_name = local.resource_group_name
   location            = var.location
@@ -191,7 +207,7 @@ module "app_identity" {
   location            = var.location
 
   name                       = module.naming.user_assigned_identity.name
-  aks_oidc_issuer_url        = module.kubernetes[0].oidc_issuer_url
+  aks_oidc_issuer_url        = local.aks_cluster_oidc_issuer_url
   storage_account_id         = local.storage_account_id
   acr_id                     = local.container_registry_id
   datarobot_namespace        = var.datarobot_namespace
@@ -207,42 +223,42 @@ module "app_identity" {
 
 provider "helm" {
   kubernetes {
-    host                   = try(module.kubernetes[0].host, "")
-    client_certificate     = base64decode(try(module.kubernetes[0].client_certificate, ""))
-    client_key             = base64decode(try(module.kubernetes[0].client_key, ""))
-    cluster_ca_certificate = base64decode(try(module.kubernetes[0].cluster_ca_certificate, ""))
+    host                   = try(local.aks_cluster_host, "")
+    client_certificate     = base64decode(try(local.aks_client_certificate, ""))
+    client_key             = base64decode(try(local.aks_client_key, ""))
+    cluster_ca_certificate = base64decode(try(local.aks_cluster_ca_certificate, ""))
   }
 }
 
 provider "kubectl" {
-  host                   = try(module.kubernetes[0].host, "")
-  client_certificate     = base64decode(try(module.kubernetes[0].client_certificate, ""))
-  client_key             = base64decode(try(module.kubernetes[0].client_key, ""))
-  cluster_ca_certificate = base64decode(try(module.kubernetes[0].cluster_ca_certificate, ""))
+  host                   = try(local.aks_cluster_host, "")
+  client_certificate     = base64decode(try(local.aks_client_certificate, ""))
+  client_key             = base64decode(try(local.aks_client_key, ""))
+  cluster_ca_certificate = base64decode(try(local.aks_cluster_ca_certificate, ""))
   load_config_file       = false
 }
 
 
 module "ingress_nginx" {
   source = "./modules/ingress-nginx"
-  count  = var.create_kubernetes_cluster && var.ingress_nginx ? 1 : 0
+  count  = var.ingress_nginx ? 1 : 0
 
   internet_facing_ingress_lb = var.internet_facing_ingress_lb
 
   custom_values_templatefile = var.ingress_nginx_values
   custom_values_variables    = var.ingress_nginx_variables
 
-  depends_on = [module.kubernetes]
+  depends_on = [local.aks_cluster_name]
 }
 
 module "cert_manager" {
   source = "./modules/cert-manager"
-  count  = var.create_kubernetes_cluster && var.cert_manager ? 1 : 0
+  count  = var.cert_manager ? 1 : 0
 
   resource_group_name = local.resource_group_name
   location            = var.location
 
-  aks_oidc_issuer_url        = module.kubernetes[0].oidc_issuer_url
+  aks_oidc_issuer_url        = local.aks_cluster_oidc_issuer_url
   hosted_zone_id             = local.public_zone_id
   letsencrypt_clusterissuers = var.cert_manager_letsencrypt_clusterissuers
   hosted_zone_name           = var.domain_name
@@ -257,13 +273,13 @@ module "cert_manager" {
 
 module "external_dns" {
   source = "./modules/external-dns"
-  count  = var.create_kubernetes_cluster && var.external_dns ? 1 : 0
+  count  = var.external_dns ? 1 : 0
 
   resource_group_name = local.resource_group_name
   location            = var.location
   subscription_id     = data.azurerm_subscription.current.subscription_id
-  aks_cluster_name    = module.kubernetes[0].name
-  aks_oidc_issuer_url = module.kubernetes[0].oidc_issuer_url
+  aks_cluster_name    = local.aks_cluster_name
+  aks_oidc_issuer_url = local.aks_cluster_oidc_issuer_url
   hosted_zone_name    = var.domain_name
   hosted_zone_id      = var.internet_facing_ingress_lb ? local.public_zone_id : local.private_zone_id
 
@@ -275,12 +291,12 @@ module "external_dns" {
 
 module "nvidia_device_plugin" {
   source = "./modules/nvidia-device-plugin"
-  count  = var.create_kubernetes_cluster && var.nvidia_device_plugin ? 1 : 0
+  count  = var.nvidia_device_plugin ? 1 : 0
 
   custom_values_templatefile = var.nvidia_device_plugin_values
   custom_values_variables    = var.nvidia_device_plugin_variables
 
-  depends_on = [module.kubernetes]
+  depends_on = [local.aks_cluster_name]
 }
 
 module "descheduler" {
@@ -290,5 +306,5 @@ module "descheduler" {
   custom_values_templatefile = var.descheduler_values
   custom_values_variables    = var.descheduler_variables
 
-  depends_on = [module.kubernetes]
+  depends_on = [local.aks_cluster_name]
 }

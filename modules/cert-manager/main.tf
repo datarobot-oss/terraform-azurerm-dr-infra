@@ -52,30 +52,68 @@ module "cert_manager" {
   ]
 }
 
-resource "kubectl_manifest" "letsencrypt_staging_clusterissuer" {
-  count = var.letsencrypt_clusterissuers ? 1 : 0
+module "letsencrypt_clusterissuers" {
+  source  = "terraform-module/release/helm"
+  version = "~> 2.0"
+  count   = var.letsencrypt_clusterissuers ? 1 : 0
 
-  yaml_body = templatefile("${path.module}/letsencrypt_staging.tftpl", {
-    email             = var.email_address,
-    hostedZoneName    = var.hosted_zone_name,
-    resourceGroupName = var.resource_group_name,
-    subscriptionID    = var.subscription_id,
-    clientID          = azurerm_user_assigned_identity.cert_manager.client_id
-  })
+  namespace  = "cert-manager"
+  repository = "https://dysnix.github.io/charts"
 
-  depends_on = [module.cert_manager]
-}
-
-resource "kubectl_manifest" "letsencrypt_prod_clusterissuer" {
-  count = var.letsencrypt_clusterissuers ? 1 : 0
-
-  yaml_body = templatefile("${path.module}/letsencrypt_prod.tftpl", {
-    email             = var.email_address,
-    hostedZoneName    = var.hosted_zone_name,
-    resourceGroupName = var.resource_group_name,
-    subscriptionID    = var.subscription_id,
-    clientID          = azurerm_user_assigned_identity.cert_manager.client_id
-  })
+  app = {
+    name             = "letsencrypt-clusterissuers"
+    version          = "0.3.2"
+    chart            = "raw"
+    create_namespace = true
+    wait             = true
+    recreate_pods    = false
+    deploy           = 1
+    timeout          = 600
+  }
+  values = [
+    <<-EOF
+    resources:
+      - apiVersion: cert-manager.io/v1
+        kind: ClusterIssuer
+        metadata:
+          name: letsencrypt-staging
+        spec:
+          acme:
+            server: https://acme-staging-v02.api.letsencrypt.org/directory
+            email: ${var.email_address}
+            privateKeySecretRef:
+              name: letsencrypt-staging
+            solvers:
+            - dns01:
+                azureDNS:
+                  hostedZoneName: ${var.hosted_zone_name}
+                  resourceGroupName: ${var.resource_group_name}
+                  subscriptionID: ${var.subscription_id}
+                  environment: AzurePublicCloud
+                  managedIdentity:
+                    clientID: ${azurerm_user_assigned_identity.cert_manager.client_id}
+      - |
+          apiVersion: cert-manager.io/v1
+          kind: ClusterIssuer
+          metadata:
+            name: letsencrypt-prod
+          spec:
+            acme:
+              server: https://acme-v02.api.letsencrypt.org/directory
+              email: ${var.email_address}
+              privateKeySecretRef:
+                name: letsencrypt-prod
+              solvers:
+              - dns01:
+                  azureDNS:
+                    hostedZoneName: ${var.hosted_zone_name}
+                    resourceGroupName: ${var.resource_group_name}
+                    subscriptionID: ${var.subscription_id}
+                    environment: AzurePublicCloud
+                    managedIdentity:
+                      clientID: ${azurerm_user_assigned_identity.cert_manager.client_id}
+    EOF
+  ]
 
   depends_on = [module.cert_manager]
 }

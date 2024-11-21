@@ -5,9 +5,5 @@ terraform {
       source  = "hashicorp/azurerm"
       version = ">= 4.3.0"
     }
-    kubectl = {
-      source  = "gavinbunney/kubectl"
-      version = ">= 1.14.0"
-    }
   }
 }

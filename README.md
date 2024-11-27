@@ -132,7 +132,7 @@ TBD
 ### Kubernetes
 #### Toggle
 - `create_kubernetes_cluster` to create a new Azure Kubernetes Service Cluster
-- `existing_eks_cluster_name` to use an existing AKS cluster
+- `existing_aks_cluster_name` to use an existing AKS cluster
 
 #### Description
 Create a new AKS cluster to host the DataRobot application and any other helm charts installed by this module.

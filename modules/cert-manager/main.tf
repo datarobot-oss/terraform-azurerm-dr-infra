@@ -25,24 +25,14 @@ resource "azurerm_role_assignment" "cert_manager_dns" {
   skip_service_principal_aad_check = true
 }
 
-module "cert_manager" {
-  source     = "terraform-module/release/helm"
-  version    = "~> 2.0"
-  depends_on = [azurerm_role_assignment.cert_manager_dns]
-
+resource "helm_release" "cert_manager" {
+  name       = "cert-manager"
   namespace  = "cert-manager"
   repository = "https://charts.jetstack.io"
+  chart      = "cert-manager"
+  version    = "1.16.1"
 
-  app = {
-    name             = "cert-manager"
-    version          = "1.16.1"
-    chart            = "cert-manager"
-    create_namespace = true
-    wait             = true
-    recreate_pods    = false
-    deploy           = 1
-    timeout          = 600
-  }
+  create_namespace = true
 
   values = [
     templatefile("${path.module}/values.tftpl", {
@@ -50,26 +40,19 @@ module "cert_manager" {
     }),
     var.custom_values_templatefile != "" ? templatefile(var.custom_values_templatefile, var.custom_values_variables) : ""
   ]
+
+  depends_on = [azurerm_role_assignment.cert_manager_dns]
 }
 
-module "letsencrypt_clusterissuers" {
-  source  = "terraform-module/release/helm"
-  version = "~> 2.0"
-  count   = var.letsencrypt_clusterissuers ? 1 : 0
+resource "helm_release" "letsencrypt_clusterissuers" {
+  count = var.letsencrypt_clusterissuers ? 1 : 0
 
+  name       = "letsencrypt-clusterissuers"
   namespace  = "cert-manager"
   repository = "https://dysnix.github.io/charts"
+  chart      = "raw"
+  version    = "0.3.2"
 
-  app = {
-    name             = "letsencrypt-clusterissuers"
-    version          = "0.3.2"
-    chart            = "raw"
-    create_namespace = true
-    wait             = true
-    recreate_pods    = false
-    deploy           = 1
-    timeout          = 600
-  }
   values = [
     <<-EOF
     resources:
@@ -115,5 +98,5 @@ module "letsencrypt_clusterissuers" {
     EOF
   ]
 
-  depends_on = [module.cert_manager]
+  depends_on = [helm_release.cert_manager]
 }

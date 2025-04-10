@@ -3,6 +3,12 @@
 All notable changes are documented in this file.
 
 
+## v1.1.5
+
+### Added
+- private endpoint for Azure Data Lake Storage (dfs)
+
+
 ## v1.1.4
 
 ### Updated

@@ -372,6 +372,12 @@ variable "datarobot_service_accounts" {
 # Helm Charts
 ################################################################################
 
+variable "install_helm_charts" {
+  description = "Whether to install helm charts into the target EKS cluster. All other helm chart variables are ignored if this is `false`."
+  type        = bool
+  default     = true
+}
+
 variable "ingress_nginx" {
   description = "Install the ingress-nginx helm chart to use as the ingress controller for the AKS cluster. All other ingress_nginx variables are ignored if this variable is false."
   type        = bool

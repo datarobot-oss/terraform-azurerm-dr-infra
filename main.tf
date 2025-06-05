@@ -241,7 +241,7 @@ provider "kubectl" {
 
 module "ingress_nginx" {
   source = "./modules/ingress-nginx"
-  count  = var.ingress_nginx ? 1 : 0
+  count  = var.install_helm_charts && var.ingress_nginx ? 1 : 0
 
   internet_facing_ingress_lb = var.internet_facing_ingress_lb
 
@@ -253,7 +253,7 @@ module "ingress_nginx" {
 
 module "cert_manager" {
   source = "./modules/cert-manager"
-  count  = var.cert_manager ? 1 : 0
+  count  = var.install_helm_charts && var.cert_manager ? 1 : 0
 
   resource_group_name = local.resource_group_name
   location            = var.location
@@ -273,7 +273,7 @@ module "cert_manager" {
 
 module "external_dns" {
   source = "./modules/external-dns"
-  count  = var.external_dns ? 1 : 0
+  count  = var.install_helm_charts && var.external_dns ? 1 : 0
 
   resource_group_name = local.resource_group_name
   location            = var.location
@@ -291,7 +291,7 @@ module "external_dns" {
 
 module "nvidia_device_plugin" {
   source = "./modules/nvidia-device-plugin"
-  count  = var.nvidia_device_plugin ? 1 : 0
+  count  = var.install_helm_charts && var.nvidia_device_plugin ? 1 : 0
 
   custom_values_templatefile = var.nvidia_device_plugin_values
   custom_values_variables    = var.nvidia_device_plugin_variables
@@ -301,7 +301,7 @@ module "nvidia_device_plugin" {
 
 module "descheduler" {
   source = "./modules/descheduler"
-  count  = var.descheduler ? 1 : 0
+  count  = var.install_helm_charts && var.descheduler ? 1 : 0
 
   custom_values_templatefile = var.descheduler_values
   custom_values_variables    = var.descheduler_variables

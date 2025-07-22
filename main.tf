@@ -222,7 +222,7 @@ module "app_identity" {
 ################################################################################
 
 provider "helm" {
-  kubernetes {
+  kubernetes = {
     host                   = try(local.aks_cluster_host, "")
     client_certificate     = base64decode(try(local.aks_client_certificate, ""))
     client_key             = base64decode(try(local.aks_client_key, ""))

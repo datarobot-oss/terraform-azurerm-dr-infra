@@ -11,8 +11,8 @@ resource "helm_release" "descheduler" {
     var.custom_values_templatefile != "" ? templatefile(var.custom_values_templatefile, var.custom_values_variables) : ""
   ]
 
-  set {
+  set = [{
     name  = "deschedulerPolicy.evictLocalStoragePods"
     value = "true"
-  }
+  }]
 }

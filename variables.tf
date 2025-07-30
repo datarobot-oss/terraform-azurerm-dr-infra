@@ -354,6 +354,7 @@ variable "datarobot_service_accounts" {
   default = [
     "datarobot-storage-sa",
     "dynamic-worker",
+    "kubeworker-sa",
     "prediction-server-sa",
     "internal-api-sa",
     "build-service",

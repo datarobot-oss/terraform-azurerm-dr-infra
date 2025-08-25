@@ -6,7 +6,7 @@ variable "name" {
 variable "domain_name" {
   description = "Name of the domain to use for the DataRobot application. If create_dns_zones is true then zones will be created for this domain. It is also used by the cert-manager helm chart for DNS validation and as a domain filter by the external-dns helm chart."
   type        = string
-  default     = ""
+  default     = null
 }
 
 variable "location" {
@@ -36,7 +36,7 @@ variable "create_resource_group" {
 variable "existing_resource_group_name" {
   description = "Name of existing resource group to use"
   type        = string
-  default     = ""
+  default     = null
 }
 
 
@@ -47,7 +47,7 @@ variable "existing_resource_group_name" {
 variable "existing_vnet_id" {
   description = "ID of an existing VNet to use. When specified, other network variables are ignored."
   type        = string
-  default     = ""
+  default     = null
 }
 
 variable "create_network" {
@@ -70,13 +70,13 @@ variable "network_address_space" {
 variable "existing_public_dns_zone_id" {
   description = "ID of existing public hosted zone to use for public DNS records created by external-dns and public LetsEncrypt certificate validation by cert-manager. This is required when create_dns_zones is false and ingress_nginx and internet_facing_ingress_lb are true or when cert_manager and cert_manager_letsencrypt_clusterissuers are true."
   type        = string
-  default     = ""
+  default     = null
 }
 
 variable "existing_private_dns_zone_id" {
   description = "ID of existing private hosted zone to use for private DNS records created by external-dns. This is required when create_dns_zones is false and ingress_nginx is true with internet_facing_ingress_lb false."
   type        = string
-  default     = ""
+  default     = null
 }
 
 variable "create_dns_zones" {
@@ -93,7 +93,7 @@ variable "create_dns_zones" {
 variable "existing_storage_account_id" {
   description = "ID of existing Azure Storage Account to use for DataRobot file storage. When specified, all other storage variables will be ignored."
   type        = string
-  default     = ""
+  default     = null
 }
 
 variable "create_storage" {
@@ -145,7 +145,7 @@ variable "storage_virtual_network_subnet_ids" {
 variable "existing_container_registry_id" {
   description = "ID of existing container registry to use"
   type        = string
-  default     = ""
+  default     = null
 }
 
 
@@ -213,10 +213,10 @@ variable "kubernetes_cluster_endpoint_public_access_cidrs" {
   default     = []
 }
 
-variable "existing_kubernetes_nodes_subnet_id" {
+variable "existing_kubernetes_node_subnet" {
   description = "ID of an existing subnet to use for the AKS node pools. Required when an existing_network_id is specified. Ignored if create_network is true and no existing_network_id is specified."
   type        = string
-  default     = ""
+  default     = null
 }
 
 variable "kubernetes_pod_cidr" {

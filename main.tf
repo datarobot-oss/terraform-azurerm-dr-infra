@@ -14,11 +14,11 @@ module "naming" {
 ################################################################################
 
 locals {
-  resource_group_name = var.create_resource_group && var.existing_resource_group_name == "" ? azurerm_resource_group.this[0].name : var.existing_resource_group_name
+  resource_group_name = var.existing_resource_group_name != null ? var.existing_resource_group_name : try(azurerm_resource_group.this[0].name, null)
 }
 
 resource "azurerm_resource_group" "this" {
-  count = var.create_resource_group && var.existing_resource_group_name == "" ? 1 : 0
+  count = var.create_resource_group && var.existing_resource_group_name == null ? 1 : 0
 
   location = var.location
   name     = module.naming.resource_group.name
@@ -31,13 +31,13 @@ resource "azurerm_resource_group" "this" {
 ################################################################################
 
 locals {
-  vnet_id             = var.create_network && var.existing_vnet_id == "" ? module.network[0].id : var.existing_vnet_id
-  aks_nodes_subnet_id = var.create_network && var.existing_vnet_id == "" ? module.network[0].subnet_id : var.existing_kubernetes_nodes_subnet_id
+  vnet_id             = var.existing_vnet_id != null ? var.existing_vnet_id : try(module.network[0].id, null)
+  aks_nodes_subnet_id = var.existing_kubernetes_node_subnet != null ? var.existing_kubernetes_node_subnet : try(module.network[0].subnet_id, null)
 }
 
 module "network" {
   source = "./modules/network"
-  count  = var.create_network && var.existing_vnet_id == "" ? 1 : 0
+  count  = var.create_network && var.existing_vnet_id == null ? 1 : 0
 
   resource_group_name = local.resource_group_name
   location            = var.location
@@ -56,12 +56,12 @@ module "network" {
 locals {
   # create a public zone if we're using external_dns with internet_facing LB
   # or we're using cert_manager with letsencrypt clusterissuers
-  create_public_zone = var.create_dns_zones && var.existing_public_dns_zone_id == "" && ((var.external_dns && var.internet_facing_ingress_lb) || (var.cert_manager && var.cert_manager_letsencrypt_clusterissuers))
-  public_zone_id     = local.create_public_zone ? module.dns[0].public_zone_id : var.existing_public_dns_zone_id
+  create_public_zone = var.create_dns_zones && var.existing_public_dns_zone_id == null && ((var.external_dns && var.internet_facing_ingress_lb) || (var.cert_manager && var.cert_manager_letsencrypt_clusterissuers))
+  public_zone_id     = var.existing_public_dns_zone_id != null ? var.existing_public_dns_zone_id : try(module.dns[0].public_zone_id, null)
 
   # create a private zone if we're using external_dns with an internal LB
-  create_private_zone = var.create_dns_zones && var.existing_private_dns_zone_id == "" && (var.external_dns && !var.internet_facing_ingress_lb)
-  private_zone_id     = local.create_private_zone ? module.dns[0].private_zone_id : var.existing_private_dns_zone_id
+  create_private_zone = var.create_dns_zones && var.existing_private_dns_zone_id == null && (var.external_dns && !var.internet_facing_ingress_lb)
+  private_zone_id     = var.existing_private_dns_zone_id != null ? var.existing_private_dns_zone_id : try(module.dns[0].private_zone_id, null)
 }
 
 module "dns" {
@@ -83,12 +83,12 @@ module "dns" {
 ################################################################################
 
 locals {
-  storage_account_id = var.create_storage && var.existing_storage_account_id == "" ? module.storage[0].account_id : var.existing_storage_account_id
+  storage_account_id = var.existing_storage_account_id != null ? var.existing_storage_account_id : try(module.storage[0].account_id, null)
 }
 
 module "storage" {
   source = "./modules/storage"
-  count  = var.create_storage && var.existing_storage_account_id == "" ? 1 : 0
+  count  = var.create_storage && var.existing_storage_account_id == null ? 1 : 0
 
   resource_group_name = local.resource_group_name
   location            = var.location
@@ -112,12 +112,12 @@ module "storage" {
 ################################################################################
 
 locals {
-  container_registry_id = var.create_container_registry && var.existing_container_registry_id == "" ? module.container_registry[0].id : var.existing_container_registry_id
+  container_registry_id = var.existing_container_registry_id != null ? var.existing_container_registry_id : try(module.container_registry[0].id, null)
 }
 
 module "container_registry" {
   source = "./modules/container-registry"
-  count  = var.create_container_registry && var.existing_container_registry_id == "" ? 1 : 0
+  count  = var.create_container_registry && var.existing_container_registry_id == null ? 1 : 0
 
   resource_group_name = local.resource_group_name
   location            = var.location
@@ -146,10 +146,10 @@ data "azurerm_kubernetes_cluster" "existing" {
 
 locals {
   aks_cluster_name            = try(data.azurerm_kubernetes_cluster.existing[0].name, module.kubernetes[0].name, null)
-  aks_client_certificate      = try(data.azurerm_kubernetes_cluster.existing[0].kube_config[0].client_certificate, module.kubernetes[0].client_certificate, null)
-  aks_client_key              = try(data.azurerm_kubernetes_cluster.existing[0].kube_config[0].client_key, module.kubernetes[0].client_key, null)
-  aks_cluster_ca_certificate  = try(data.azurerm_kubernetes_cluster.existing[0].kube_config[0].cluster_ca_certificate, module.kubernetes[0].cluster_ca_certificate, null)
-  aks_cluster_host            = try(data.azurerm_kubernetes_cluster.existing[0].kube_config[0].host, module.kubernetes[0].host, null)
+  aks_client_certificate      = try(data.azurerm_kubernetes_cluster.existing[0].kube_config[0].client_certificate, module.kubernetes[0].client_certificate, "")
+  aks_client_key              = try(data.azurerm_kubernetes_cluster.existing[0].kube_config[0].client_key, module.kubernetes[0].client_key, "")
+  aks_cluster_ca_certificate  = try(data.azurerm_kubernetes_cluster.existing[0].kube_config[0].cluster_ca_certificate, module.kubernetes[0].cluster_ca_certificate, "")
+  aks_cluster_host            = try(data.azurerm_kubernetes_cluster.existing[0].kube_config[0].host, module.kubernetes[0].host, "")
   aks_cluster_oidc_issuer_url = try(data.azurerm_kubernetes_cluster.existing[0].oidc_issuer_url, module.kubernetes[0].oidc_issuer_url, null)
 }
 
@@ -223,18 +223,18 @@ module "app_identity" {
 
 provider "helm" {
   kubernetes = {
-    host                   = try(local.aks_cluster_host, "")
-    client_certificate     = base64decode(try(local.aks_client_certificate, ""))
-    client_key             = base64decode(try(local.aks_client_key, ""))
-    cluster_ca_certificate = base64decode(try(local.aks_cluster_ca_certificate, ""))
+    host                   = local.aks_cluster_host
+    client_certificate     = try(base64decode(local.aks_client_certificate), "")
+    client_key             = try(base64decode(local.aks_client_key), "")
+    cluster_ca_certificate = try(base64decode(local.aks_cluster_ca_certificate), "")
   }
 }
 
 provider "kubectl" {
-  host                   = try(local.aks_cluster_host, "")
-  client_certificate     = base64decode(try(local.aks_client_certificate, ""))
-  client_key             = base64decode(try(local.aks_client_key, ""))
-  cluster_ca_certificate = base64decode(try(local.aks_cluster_ca_certificate, ""))
+  host                   = local.aks_cluster_host
+  client_certificate     = try(base64decode(local.aks_client_certificate), "")
+  client_key             = try(base64decode(local.aks_client_key), "")
+  cluster_ca_certificate = try(base64decode(local.aks_cluster_ca_certificate), "")
   load_config_file       = false
 }
 

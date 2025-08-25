@@ -3,6 +3,13 @@
 All notable changes are documented in this file.
 
 
+## v1.1.9
+
+### Updated
+- removed loop with dynamic storage account network rules
+- null variables instead of empty strings
+
+
 ## v1.1.8
 
 ### Added

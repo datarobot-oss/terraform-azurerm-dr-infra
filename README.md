@@ -107,7 +107,7 @@ A private Route53 zone is used by `external_dns` to create records for the DataR
 - `existing_storage_account_id` to use an existing Azure Storage Account
 
 #### Description
-Create a new Azure Storage Account and Container with public internet access allowed by default and PrivateLink access from within the VNet. Network access to the ACR can be managed via the `storage_public_network_access_enabled`, `storage_network_rules_default_action`, `storage_public_ip_allow_list`, and `storage_virtual_network_subnet_ids` variables.
+Create a new Azure Storage Account and Container with public internet access allowed by default and PrivateLink access from within the VNet. Network access to the Storage Account can be managed via the `storage_public_network_access_enabled`, `storage_network_rules_default_action`, `storage_public_ip_allow_list`, and `storage_virtual_network_subnet_ids` variables.
 
 The DataRobot application will use this storage account for persistent file storage.
 

@@ -116,3 +116,20 @@ output "aks_cluster_id" {
   description = "ID of the Azure Kubernetes Service cluster"
   value       = try(module.kubernetes[0].id, null)
 }
+
+
+################################################################################
+# PostgreSQL
+################################################################################
+
+
+output "postgres_endpoint" {
+  description = "PostgreSQL Flexible Server endpoint"
+  value       = try(module.postgres[0].endpoint, null)
+}
+
+output "postgres_password" {
+  description = "PostgreSQL Flexible Server admin password"
+  value       = try(module.postgres[0].password, null)
+  sensitive   = true
+}

@@ -18,6 +18,7 @@ module "datarobot_infra" {
   existing_container_registry_id = "/subscriptions/subscription-id/resourceGroups/existing-resource-group-name/providers/Microsoft.ContainerRegistry/registries/existing-acr-name"
   create_kubernetes_cluster      = true
   create_app_identity            = true
+  create_postgres                = true
 
   ingress_nginx                          = true
   internet_facing_ingress_lb             = true
@@ -144,6 +145,17 @@ Two node groups are created:
 - A `gpu` node group intended to host GPU workload pods
 
 By default, Azure uses `10.0.0.0/16` for Kubernetes services and `10.244.0.0/16` for Kubernetes pods. Ensure these do not conflict with your VNet address space by either specifying a different `network_address_space` for the VNet created by this module, or by specifying alternate `kubernetes_pod_cidr` and/or `kubernetes_service_cidr` as needed.
+
+#### Permissions
+TBD
+
+
+### Postgres
+#### Toggle
+- `create_postgres` to create a new Azure PostgreSQL Flexible Server
+
+#### Description
+Create an Azure PostgreSQL Flexible Server connected to via private link.
 
 #### Permissions
 TBD

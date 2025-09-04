@@ -370,6 +370,53 @@ variable "datarobot_service_accounts" {
 
 
 ################################################################################
+# PostgreSQL
+################################################################################
+
+variable "create_postgres" {
+  description = "Whether to create a Azure PostgreSQL Flexible Server"
+  type        = bool
+  default     = false
+}
+
+variable "existing_postgres_subnet" {
+  description = "ID of existing virtual network subnet to create the PostgreSQL Flexible Server. The provided subnet should not have any other resource deployed in it and this subnet will be delegated to the PostgreSQL Flexible Server, if not already delegated."
+  type        = string
+  default     = null
+}
+
+variable "postgres_multi_az" {
+  description = "Create Postgres PostgreSQL Flexible Server in ZoneRedundant high availability mode"
+  type        = bool
+  default     = false
+}
+
+variable "postgres_version" {
+  description = "The version of PostgreSQL Flexible Server to use"
+  type        = string
+  default     = "13"
+}
+
+variable "postgres_sku_name" {
+  description = "The SKU Name for the PostgreSQL Flexible Server"
+  type        = string
+  default     = "GP_Standard_D2ds_v4"
+}
+
+variable "postgres_storage_mb" {
+  description = "The max storage allowed for the PostgreSQL Flexible Server in MB. Default is 32768."
+  type        = number
+  default     = null
+}
+
+variable "postgres_backup_retention_days" {
+  description = "The backup retention days for the PostgreSQL Flexible Server. Possible values are between 7 and 35 days."
+  type        = number
+  default     = 7
+}
+
+
+################################################################################
 # Helm Charts
 ################################################################################
 

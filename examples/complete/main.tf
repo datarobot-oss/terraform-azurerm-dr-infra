@@ -106,6 +106,16 @@ module "datarobot_infra" {
   ]
 
   ################################################################################
+  # PostgreSQL
+  ################################################################################
+  create_postgres                = true
+  postgres_multi_az              = false
+  postgres_version               = "13"
+  postgres_sku_name              = "GP_Standard_D2ds_v4"
+  postgres_storage_mb            = 32768
+  postgres_backup_retention_days = 7
+
+  ################################################################################
   # Helm Charts
   ################################################################################
   install_helm_charts = true

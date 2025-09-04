@@ -31,8 +31,7 @@ resource "azurerm_resource_group" "this" {
 ################################################################################
 
 locals {
-  vnet_id             = var.existing_vnet_id != null ? var.existing_vnet_id : try(module.network[0].id, null)
-  aks_nodes_subnet_id = var.existing_kubernetes_node_subnet != null ? var.existing_kubernetes_node_subnet : try(module.network[0].subnet_id, null)
+  vnet_id = var.existing_vnet_id != null ? var.existing_vnet_id : try(module.network[0].id, null)
 }
 
 module "network" {
@@ -122,7 +121,7 @@ module "container_registry" {
   resource_group_name = local.resource_group_name
   location            = var.location
 
-  name                          = module.naming.container_registry.name
+  name                          = module.naming.container_registry.name_unique
   vnet_id                       = local.vnet_id
   subnet_id                     = local.aks_nodes_subnet_id
   public_network_access_enabled = var.container_registry_public_network_access_enabled
@@ -146,6 +145,7 @@ data "azurerm_kubernetes_cluster" "existing" {
 
 locals {
   aks_cluster_name            = try(data.azurerm_kubernetes_cluster.existing[0].name, module.kubernetes[0].name, null)
+  aks_nodes_subnet_id         = var.existing_kubernetes_node_subnet != null ? var.existing_kubernetes_node_subnet : try(module.network[0].kubernetes_nodes_subnet_id, null)
   aks_client_certificate      = try(data.azurerm_kubernetes_cluster.existing[0].kube_config[0].client_certificate, module.kubernetes[0].client_certificate, "")
   aks_client_key              = try(data.azurerm_kubernetes_cluster.existing[0].kube_config[0].client_key, module.kubernetes[0].client_key, "")
   aks_cluster_ca_certificate  = try(data.azurerm_kubernetes_cluster.existing[0].kube_config[0].cluster_ca_certificate, module.kubernetes[0].cluster_ca_certificate, "")
@@ -212,6 +212,34 @@ module "app_identity" {
   acr_id                     = local.container_registry_id
   datarobot_namespace        = var.datarobot_namespace
   datarobot_service_accounts = var.datarobot_service_accounts
+
+  tags = var.tags
+}
+
+
+################################################################################
+# PostgreSQL
+################################################################################
+
+locals {
+  postgres_subnet_id = var.existing_postgres_subnet != null ? var.existing_postgres_subnet : try(module.network[0].postgres_subnet_id, null)
+}
+
+module "postgres" {
+  source = "./modules/postgres"
+  count  = var.create_postgres ? 1 : 0
+
+  name                = var.name
+  resource_group_name = local.resource_group_name
+  location            = var.location
+
+  vnet_id               = local.vnet_id
+  delegated_subnet_id   = local.postgres_subnet_id
+  multi_az              = var.postgres_multi_az
+  postgres_version      = var.postgres_version
+  sku_name              = var.postgres_sku_name
+  storage_mb            = var.postgres_storage_mb
+  backup_retention_days = var.postgres_backup_retention_days
 
   tags = var.tags
 }

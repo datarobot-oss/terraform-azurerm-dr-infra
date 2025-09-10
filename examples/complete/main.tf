@@ -116,6 +116,31 @@ module "datarobot_infra" {
   postgres_backup_retention_days = 7
 
   ################################################################################
+  # Redis
+  ################################################################################
+  create_redis   = true
+  redis_capacity = 4
+  redis_version  = 6
+
+  ################################################################################
+  # MongoDB
+  ################################################################################
+  create_mongodb                             = true
+  mongodb_version                            = "7.0"
+  mongodb_atlas_org_id                       = "1a2b3c4d5e6f7g8h9i10j"
+  mongodb_atlas_public_key                   = "atlas-public-key"
+  mongodb_atlas_private_key                  = "atlas-private-key"
+  mongodb_termination_protection_enabled     = false
+  mongodb_audit_enable                       = true
+  mongodb_admin_username                     = "pcs-mongodb"
+  mongodb_atlas_auto_scaling_disk_gb_enabled = true
+  mongodb_atlas_disk_size                    = 20
+  mongodb_atlas_instance_type                = "M30"
+  mongodb_enable_slack_alerts                = true
+  mongodb_slack_api_token                    = "slack-api-token"
+  mongodb_slack_notification_channel         = "#mongodb-atlas-notifications"
+
+  ################################################################################
   # Helm Charts
   ################################################################################
   install_helm_charts = true
@@ -123,8 +148,11 @@ module "datarobot_infra" {
   ################################################################################
   # ingress-nginx
   ################################################################################
-  ingress_nginx              = true
-  internet_facing_ingress_lb = true
+  ingress_nginx                             = true
+  internet_facing_ingress_lb                = true
+  create_ingress_pl_service                 = true
+  ingress_pl_visibility_subscription_ids    = ["00000000-0000-0000-0000-0000000000"]
+  ingress_pl_auto_approval_subscription_ids = ["00000000-0000-0000-0000-0000000000"]
 
   # in this case our custom values file override is formatted as a templatefile
   # so we can pass variables like our provisioner_public_ip to it.

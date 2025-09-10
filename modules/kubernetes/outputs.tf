@@ -32,3 +32,8 @@ output "cluster_ca_certificate" {
   description = "The base64 encoded public CA certificate used as the root of trust for the kubernetes cluster"
   value       = azurerm_kubernetes_cluster.this.kube_config[0].cluster_ca_certificate
 }
+
+output "node_resource_group" {
+  description = "The auto-generated Resource Group which contains the resources for this Managed Kubernetes Cluster"
+  value       = azurerm_kubernetes_cluster.this.node_resource_group
+}

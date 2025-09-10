@@ -30,13 +30,21 @@ resource "azurerm_resource_group" "this" {
 # Network
 ################################################################################
 
+data "azurerm_virtual_network" "existing" {
+  count = var.existing_vnet_name != null ? 1 : 0
+
+  name                = var.existing_vnet_name
+  resource_group_name = var.existing_resource_group_name
+}
+
 locals {
-  vnet_id = var.existing_vnet_id != null ? var.existing_vnet_id : try(module.network[0].id, null)
+  vnet_id   = var.existing_vnet_name != null ? data.azurerm_virtual_network.existing[0].id : try(module.network[0].id, null)
+  vnet_cidr = try(data.azurerm_virtual_network.existing[0].address_space, var.network_address_space)
 }
 
 module "network" {
   source = "./modules/network"
-  count  = var.create_network && var.existing_vnet_id == null ? 1 : 0
+  count  = var.create_network && var.existing_vnet_name == null ? 1 : 0
 
   resource_group_name = local.resource_group_name
   location            = var.location
@@ -144,13 +152,14 @@ data "azurerm_kubernetes_cluster" "existing" {
 }
 
 locals {
-  aks_cluster_name            = try(data.azurerm_kubernetes_cluster.existing[0].name, module.kubernetes[0].name, null)
-  aks_nodes_subnet_id         = var.existing_kubernetes_node_subnet != null ? var.existing_kubernetes_node_subnet : try(module.network[0].kubernetes_nodes_subnet_id, null)
-  aks_client_certificate      = try(data.azurerm_kubernetes_cluster.existing[0].kube_config[0].client_certificate, module.kubernetes[0].client_certificate, "")
-  aks_client_key              = try(data.azurerm_kubernetes_cluster.existing[0].kube_config[0].client_key, module.kubernetes[0].client_key, "")
-  aks_cluster_ca_certificate  = try(data.azurerm_kubernetes_cluster.existing[0].kube_config[0].cluster_ca_certificate, module.kubernetes[0].cluster_ca_certificate, "")
-  aks_cluster_host            = try(data.azurerm_kubernetes_cluster.existing[0].kube_config[0].host, module.kubernetes[0].host, "")
-  aks_cluster_oidc_issuer_url = try(data.azurerm_kubernetes_cluster.existing[0].oidc_issuer_url, module.kubernetes[0].oidc_issuer_url, null)
+  aks_cluster_name                = try(data.azurerm_kubernetes_cluster.existing[0].name, module.kubernetes[0].name, null)
+  aks_nodes_subnet_id             = var.existing_kubernetes_node_subnet != null ? var.existing_kubernetes_node_subnet : try(module.network[0].kubernetes_nodes_subnet_id, null)
+  aks_client_certificate          = try(data.azurerm_kubernetes_cluster.existing[0].kube_config[0].client_certificate, module.kubernetes[0].client_certificate, "")
+  aks_client_key                  = try(data.azurerm_kubernetes_cluster.existing[0].kube_config[0].client_key, module.kubernetes[0].client_key, "")
+  aks_cluster_ca_certificate      = try(data.azurerm_kubernetes_cluster.existing[0].kube_config[0].cluster_ca_certificate, module.kubernetes[0].cluster_ca_certificate, "")
+  aks_cluster_host                = try(data.azurerm_kubernetes_cluster.existing[0].kube_config[0].host, module.kubernetes[0].host, "")
+  aks_cluster_oidc_issuer_url     = try(data.azurerm_kubernetes_cluster.existing[0].oidc_issuer_url, module.kubernetes[0].oidc_issuer_url, null)
+  aks_managed_resource_group_name = try(data.azurerm_kubernetes_cluster.existing[0].node_resource_group, module.kubernetes[0].node_resource_group, null)
 }
 
 module "kubernetes" {
@@ -246,6 +255,71 @@ module "postgres" {
 
 
 ################################################################################
+# Redis
+################################################################################
+
+locals {
+  redis_subnet = var.existing_redis_subnet != null ? var.existing_redis_subnet : try(module.network[0].redis_subnet_id, null)
+}
+
+
+module "redis" {
+  source = "./modules/redis"
+  count  = var.create_redis ? 1 : 0
+
+  name                = var.name
+  resource_group_name = local.resource_group_name
+  location            = var.location
+
+  vnet_id       = local.vnet_id
+  subnet_id     = local.redis_subnet
+  capacity      = var.redis_capacity
+  redis_version = var.redis_version
+
+  tags = var.tags
+}
+
+
+################################################################################
+# MongoDB
+################################################################################
+
+provider "mongodbatlas" {
+  public_key  = var.mongodb_atlas_public_key
+  private_key = var.mongodb_atlas_private_key
+}
+
+locals {
+  mongodb_subnets = var.existing_mongodb_subnet != null ? var.existing_mongodb_subnet : try(module.network[0].mongodb_subnet_id, null)
+}
+
+module "mongodb" {
+  source = "./modules/mongodb"
+  count  = var.create_mongodb ? 1 : 0
+
+  name                = var.name
+  resource_group_name = local.resource_group_name
+  location            = var.location
+  vnet_cidr           = local.vnet_cidr
+  subnet_id           = local.mongodb_subnets
+
+  mongodb_version                    = var.mongodb_version
+  atlas_org_id                       = var.mongodb_atlas_org_id
+  termination_protection_enabled     = var.mongodb_termination_protection_enabled
+  db_audit_enable                    = var.mongodb_audit_enable
+  atlas_auto_scaling_disk_gb_enabled = var.mongodb_atlas_auto_scaling_disk_gb_enabled
+  atlas_disk_size                    = var.mongodb_atlas_disk_size
+  atlas_instance_type                = var.mongodb_atlas_instance_type
+  mongodb_admin_username             = var.mongodb_admin_username
+  enable_slack_alerts                = var.mongodb_enable_slack_alerts
+  slack_api_token                    = var.mongodb_slack_api_token
+  slack_notification_channel         = var.mongodb_slack_notification_channel
+
+  tags = var.tags
+}
+
+
+################################################################################
 # Helm Charts
 ################################################################################
 
@@ -271,10 +345,20 @@ module "ingress_nginx" {
   source = "./modules/ingress-nginx"
   count  = var.install_helm_charts && var.ingress_nginx ? 1 : 0
 
-  internet_facing_ingress_lb = var.internet_facing_ingress_lb
+  name                                      = var.name
+  resource_group_name                       = local.resource_group_name
+  location                                  = var.location
+  aks_managed_resource_group_name           = local.aks_managed_resource_group_name
+  ingress_pl_subnet_id                      = local.aks_nodes_subnet_id
+  internet_facing_ingress_lb                = var.internet_facing_ingress_lb
+  create_ingress_pl_service                 = var.create_ingress_pl_service
+  ingress_pl_visibility_subscription_ids    = var.ingress_pl_visibility_subscription_ids
+  ingress_pl_auto_approval_subscription_ids = var.ingress_pl_auto_approval_subscription_ids
 
   custom_values_templatefile = var.ingress_nginx_values
   custom_values_variables    = var.ingress_nginx_variables
+
+  tags = var.tags
 
   depends_on = [local.aks_cluster_name]
 }

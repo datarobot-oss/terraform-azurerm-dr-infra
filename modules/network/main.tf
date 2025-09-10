@@ -11,9 +11,12 @@ resource "azurerm_virtual_network" "this" {
 resource "azurerm_subnet" "kubernetes_nodes" {
   resource_group_name = var.resource_group_name
 
-  virtual_network_name = azurerm_virtual_network.this.name
-  name                 = "${var.name}-nodes-snet"
-  address_prefixes     = [cidrsubnet(var.address_space, 8, 0)]
+  virtual_network_name                          = azurerm_virtual_network.this.name
+  name                                          = "${var.name}-nodes-snet"
+  address_prefixes                              = [cidrsubnet(var.address_space, 8, 0)]
+  private_link_service_network_policies_enabled = false
+  service_endpoints                             = ["Microsoft.Storage"]
+  private_endpoint_network_policies             = "Enabled"
 }
 
 resource "azurerm_subnet" "postgres" {
@@ -32,6 +35,22 @@ resource "azurerm_subnet" "postgres" {
       ]
     }
   }
+}
+
+resource "azurerm_subnet" "redis" {
+  resource_group_name = var.resource_group_name
+
+  virtual_network_name = azurerm_virtual_network.this.name
+  name                 = "${var.name}-redis-snet"
+  address_prefixes     = [cidrsubnet(var.address_space, 8, 2)]
+}
+
+resource "azurerm_subnet" "mongodb" {
+  resource_group_name = var.resource_group_name
+
+  virtual_network_name = azurerm_virtual_network.this.name
+  name                 = "${var.name}-mongodb-snet"
+  address_prefixes     = [cidrsubnet(var.address_space, 8, 3)]
 }
 
 resource "azurerm_nat_gateway" "this" {

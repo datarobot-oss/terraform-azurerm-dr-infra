@@ -44,14 +44,14 @@ variable "existing_resource_group_name" {
 # Network
 ################################################################################
 
-variable "existing_vnet_id" {
-  description = "ID of an existing VNet to use. When specified, other network variables are ignored."
+variable "existing_vnet_name" {
+  description = "Name of an existing VNet to use. When specified, other network variables are ignored."
   type        = string
   default     = null
 }
 
 variable "create_network" {
-  description = "Create a new Azure Virtual Network. Ignored if an existing existing_vnet_id is specified."
+  description = "Create a new Azure Virtual Network. Ignored if an existing existing_vnet_name is specified."
   type        = bool
   default     = true
 }
@@ -380,7 +380,7 @@ variable "create_postgres" {
 }
 
 variable "existing_postgres_subnet" {
-  description = "ID of existing virtual network subnet to create the PostgreSQL Flexible Server. The provided subnet should not have any other resource deployed in it and this subnet will be delegated to the PostgreSQL Flexible Server, if not already delegated."
+  description = "ID of existing virtual network subnet to create the PostgreSQL Flexible Server. The provided subnet should not have any other resource deployed in it and this subnet will be delegated to the PostgreSQL Flexible Server, if not already delegated. Required when an existing_network_id is specified. Ignored if create_network is true and no existing_network_id is specified."
   type        = string
   default     = null
 }
@@ -417,6 +417,130 @@ variable "postgres_backup_retention_days" {
 
 
 ################################################################################
+# Redis
+################################################################################
+
+variable "create_redis" {
+  description = "Whether to create an Azure Cache for Redis instance"
+  type        = bool
+  default     = false
+}
+
+variable "existing_redis_subnet" {
+  description = "ID of existing virtual network subnet to create the Azure Cache for Redis private endpoint in. Required when an existing_network_id is specified. Ignored if create_network is true and no existing_network_id is specified."
+  type        = string
+  default     = null
+}
+
+variable "redis_capacity" {
+  description = "The size of the Redis cache to deploy. Valid values for a SKU family of C (Basic/Standard) are 0, 1, 2, 3, 4, 5, 6, and for P (Premium) family are 1, 2, 3, 4, 5."
+  type        = number
+  default     = 4
+}
+
+variable "redis_version" {
+  description = "Redis version. Only major version needed. Possible values are 4 and 6. Defaults to 6."
+  type        = number
+  default     = null
+}
+
+
+################################################################################
+# MongoDB
+################################################################################
+
+variable "create_mongodb" {
+  description = "Whether to create a MongoDB Atlas instance"
+  type        = bool
+  default     = false
+}
+
+variable "existing_mongodb_subnet" {
+  description = "Existing subnet IDs to be used for the MongoDB Atlas instance. Required when an existing_network_id is specified."
+  type        = string
+  default     = null
+}
+
+variable "mongodb_version" {
+  description = "MongoDB version"
+  type        = string
+  default     = "7.0"
+}
+
+variable "mongodb_atlas_org_id" {
+  description = "Atlas organization ID"
+  type        = string
+  default     = null
+}
+
+variable "mongodb_atlas_public_key" {
+  description = "Public API key for Mongo Atlas"
+  type        = string
+  default     = ""
+}
+
+variable "mongodb_atlas_private_key" {
+  description = "Private API key for Mongo Atlas"
+  type        = string
+  default     = ""
+}
+
+variable "mongodb_termination_protection_enabled" {
+  description = "Enable protection to avoid accidental production cluster termination"
+  type        = bool
+  default     = false
+}
+
+variable "mongodb_audit_enable" {
+  type        = bool
+  description = "Enable database auditing for production instances only(cost incurred 10%)"
+  default     = false
+}
+
+variable "mongodb_atlas_auto_scaling_disk_gb_enabled" {
+  description = "Enable Atlas disk size autoscaling"
+  type        = bool
+  default     = true
+}
+
+variable "mongodb_atlas_disk_size" {
+  description = "Starting atlas disk size"
+  type        = string
+  default     = "20"
+}
+
+variable "mongodb_atlas_instance_type" {
+  description = "atlas instance type"
+  type        = string
+  default     = "M30"
+}
+
+variable "mongodb_admin_username" {
+  description = "MongoDB admin username"
+  type        = string
+  default     = "pcs-mongodb"
+}
+
+variable "mongodb_enable_slack_alerts" {
+  description = "Enable alert notifications to a Slack channel. When `true`, `slack_api_token` and `slack_notification_channel` must be set."
+  type        = string
+  default     = false
+}
+
+variable "mongodb_slack_api_token" {
+  description = "Slack API token to use for alert notifications. Required when `enable_slack_alerts` is `true`."
+  type        = string
+  default     = null
+}
+
+variable "mongodb_slack_notification_channel" {
+  description = "Slack channel to send alert notifications to. Required when `enable_slack_alerts` is `true`."
+  type        = string
+  default     = null
+}
+
+
+################################################################################
 # Helm Charts
 ################################################################################
 
@@ -436,6 +560,24 @@ variable "internet_facing_ingress_lb" {
   description = "Determines the type of Standard Load Balancer created for AKS ingress. If true, a public Standard Load Balancer will be created. If false, an internal Standard Load Balancer will be created."
   type        = bool
   default     = true
+}
+
+variable "create_ingress_pl_service" {
+  description = "Expose the internal LB created by the ingress-nginx controller as an Azure Private Link Service. Only applies if internet_facing_ingress_lb is false."
+  type        = bool
+  default     = false
+}
+
+variable "ingress_pl_visibility_subscription_ids" {
+  description = "A list of Subscription UUID/GUID's that will be able to see the ingress Private Link Service. Only applies if internet_facing_ingress_lb is false."
+  type        = list(string)
+  default     = null
+}
+
+variable "ingress_pl_auto_approval_subscription_ids" {
+  description = "A list of Subscription UUID/GUID's that will be automatically be able to use this Private Link Service. Only applies if internet_facing_ingress_lb is false."
+  type        = list(string)
+  default     = null
 }
 
 variable "ingress_nginx_values" {

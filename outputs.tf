@@ -122,7 +122,6 @@ output "aks_cluster_id" {
 # PostgreSQL
 ################################################################################
 
-
 output "postgres_endpoint" {
   description = "PostgreSQL Flexible Server endpoint"
   value       = try(module.postgres[0].endpoint, null)
@@ -132,4 +131,46 @@ output "postgres_password" {
   description = "PostgreSQL Flexible Server admin password"
   value       = try(module.postgres[0].password, null)
   sensitive   = true
+}
+
+
+################################################################################
+# Redis
+################################################################################
+
+output "redis_endpoint" {
+  description = "Azure Cache for Redis endpoint"
+  value       = try(module.redis[0].endpoint, null)
+}
+
+output "redis_password" {
+  description = "Azure Cache for Redis primary access key"
+  value       = try(module.redis[0].password, null)
+  sensitive   = true
+}
+
+
+################################################################################
+# MongoDB
+################################################################################
+
+output "mongodb_endpoint" {
+  description = "MongoDB endpoint"
+  value       = try(module.mongodb[0].endpoint, null)
+}
+
+output "mongodb_password" {
+  description = "MongoDB admin password"
+  value       = try(module.mongodb[0].password, null)
+  sensitive   = true
+}
+
+
+################################################################################
+# ingress-nginx
+################################################################################
+
+output "ingress_pl_service_alias" {
+  description = "A globally unique DNS Name for your Private Link Service. You can use this alias to request a connection to your Private Link Service"
+  value       = try(module.ingress_nginx[0].ingress_pl_service_alias, null)
 }

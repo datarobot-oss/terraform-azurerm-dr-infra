@@ -3,6 +3,14 @@
 All notable changes are documented in this file.
 
 
+
+## v1.2.0
+
+### Added
+- `postgres`, `redis`, and `mongodb` modules
+- Azure PrivateLink service pointing at internal kubernetes ingress
+
+
 ## v1.1.9
 
 ### Updated

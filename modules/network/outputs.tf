@@ -13,6 +13,16 @@ output "postgres_subnet_id" {
   value       = azurerm_subnet.postgres.id
 }
 
+output "redis_subnet_id" {
+  description = "ID of the subnet intended for the Azure Cache for Redis instance"
+  value       = azurerm_subnet.redis.id
+}
+
+output "mongodb_subnet_id" {
+  description = "ID of the subnet intended for the MongoDB Atlas private endpoint"
+  value       = azurerm_subnet.mongodb.id
+}
+
 output "nat_gateway_pip" {
   description = "Public IP of the NAT Gateway"
   value       = azurerm_public_ip.ng.ip_address

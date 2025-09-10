@@ -19,6 +19,8 @@ module "datarobot_infra" {
   create_kubernetes_cluster      = true
   create_app_identity            = true
   create_postgres                = true
+  create_redis                   = true
+  create_mongodb                 = true
 
   ingress_nginx                          = true
   internet_facing_ingress_lb             = true
@@ -155,7 +157,29 @@ TBD
 - `create_postgres` to create a new Azure PostgreSQL Flexible Server
 
 #### Description
-Create an Azure PostgreSQL Flexible Server connected to via private link.
+Create an Azure PostgreSQL Flexible Server deployed into a dedicated, delegated subnet and connected to via private link.
+
+#### Permissions
+TBD
+
+
+### Redis
+#### Toggle
+- `create_redis` to create a new Azure Cache for Redis instance
+
+#### Description
+Create an Azure Cache for Redis instance connected to via private link.
+
+#### Permissions
+TBD
+
+
+### MongoDB
+#### Toggle
+- `create_mongodb` to create a new MongoDB Atlas cluster
+
+#### Description
+Create a MongoDB Atlas project and cluster for use by the DataRobot application.
 
 #### Permissions
 TBD

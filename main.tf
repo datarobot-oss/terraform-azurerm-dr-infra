@@ -39,7 +39,7 @@ data "azurerm_virtual_network" "existing" {
 
 locals {
   vnet_id   = var.existing_vnet_name != null ? data.azurerm_virtual_network.existing[0].id : try(module.network[0].id, null)
-  vnet_cidr = try(data.azurerm_virtual_network.existing[0].address_space, var.network_address_space)
+  vnet_cidr = try(data.azurerm_virtual_network.existing[0].address_space[0], var.network_address_space)
 }
 
 module "network" {

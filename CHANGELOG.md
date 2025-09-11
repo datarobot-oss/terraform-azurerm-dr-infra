@@ -4,6 +4,12 @@ All notable changes are documented in this file.
 
 
 
+## v1.3.0
+
+### Updated
+- create `kubernetes_default_node_pool` and `kubernetes_node_pools` variables to make node pools more customizable
+
+
 ## v1.2.0
 
 ### Added

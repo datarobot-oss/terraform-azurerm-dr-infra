@@ -237,98 +237,49 @@ variable "kubernetes_dns_service_ip" {
   default     = null
 }
 
-variable "kubernetes_nodepool_availability_zones" {
-  description = "Availability zones to use for the AKS node pools"
-  type        = set(string)
-  default     = ["1", "2", "3"]
-}
-
-variable "kubernetes_primary_nodepool_name" {
-  description = "Name of the primary node pool"
-  type        = string
-  default     = "primary"
-}
-
-variable "kubernetes_primary_nodepool_vm_size" {
-  description = "VM size used for the primary node pool"
-  type        = string
-  default     = "Standard_D32s_v4"
-}
-
-variable "kubernetes_primary_nodepool_node_count" {
-  description = "Node count of the primary node pool"
-  type        = number
-  default     = 1
-}
-
-variable "kubernetes_primary_nodepool_min_count" {
-  description = "Minimum number of nodes in the primary node pool"
-  type        = number
-  default     = 1
-}
-
-variable "kubernetes_primary_nodepool_max_count" {
-  description = "Maximum number of nodes in the primary node pool"
-  type        = number
-  default     = 10
-}
-
-variable "kubernetes_primary_nodepool_labels" {
-  description = "A map of Kubernetes labels to apply to the primary node pool"
-  type        = map(string)
+variable "kubernetes_default_node_pool" {
+  description = "Specifies configuration for System mode node pool"
+  type        = any
   default = {
-    "datarobot.com/node-capability" = "cpu"
+    name                        = "system"
+    temporary_name_for_rotation = "systemtemp"
+    zones                       = ["1", "2"]
+    vm_size                     = "Standard_DS4_v2"
+    host_encryption_enabled     = false
+    fips_enabled                = false
+    auto_scaling_enabled        = true
+    node_count                  = 2
+    min_count                   = 2
+    max_count                   = 4
   }
 }
 
-variable "kubernetes_primary_nodepool_taints" {
-  description = "A list of Kubernetes taints to apply to the primary node pool"
-  type        = list(string)
-  default     = []
-}
-
-variable "kubernetes_gpu_nodepool_name" {
-  description = "Name of the GPU node pool"
-  type        = string
-  default     = "gpu"
-}
-
-variable "kubernetes_gpu_nodepool_vm_size" {
-  description = "VM size used for the GPU node pool"
-  type        = string
-  default     = "Standard_NC4as_T4_v3"
-}
-
-variable "kubernetes_gpu_nodepool_node_count" {
-  description = "Node count of the GPU node pool"
-  type        = number
-  default     = 0
-}
-
-variable "kubernetes_gpu_nodepool_min_count" {
-  description = "Minimum number of nodes in the GPU node pool"
-  type        = number
-  default     = 0
-}
-
-variable "kubernetes_gpu_nodepool_max_count" {
-  description = "Maximum number of nodes in the GPU node pool"
-  type        = number
-  default     = 10
-}
-
-variable "kubernetes_gpu_nodepool_labels" {
-  description = "A map of Kubernetes labels to apply to the GPU node pool"
-  type        = map(string)
+variable "kubernetes_node_pools" {
+  description = "Map of AKS node pools"
+  type        = any
   default = {
-    "datarobot.com/node-capability" = "gpu"
+    drcpu = {
+      zones      = ["1", "2"]
+      vm_size    = "Standard_D32s_v4"
+      node_count = 2
+      min_count  = 2
+      max_count  = 10
+      node_labels = {
+        "datarobot.com/node-capability" = "cpu"
+      }
+      node_taints = []
+    }
+    drgpu = {
+      vm_size    = "Standard_NC4as_T4_v3"
+      node_count = 0
+      min_count  = 0
+      max_count  = 10
+      node_labels = {
+        "datarobot.com/node-capability" = "gpu"
+      }
+      node_taints = ["nvidia.com/gpu=true:NoSchedule"]
+    }
   }
-}
-
-variable "kubernetes_gpu_nodepool_taints" {
-  description = "A list of Kubernetes taints to apply to the GPU node pool"
-  type        = list(string)
-  default     = ["nvidia.com/gpu=true:NoSchedule"]
 }
 
 

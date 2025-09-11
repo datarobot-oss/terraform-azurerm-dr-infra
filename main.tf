@@ -179,26 +179,12 @@ module "kubernetes" {
     try(["${module.network[0].nat_gateway_pip}/32"], [])
   ) : null
 
-  pod_cidr                    = var.kubernetes_pod_cidr
-  service_cidr                = var.kubernetes_service_cidr
-  dns_service_ip              = var.kubernetes_dns_service_ip
-  nodepool_subnet_id          = local.aks_nodes_subnet_id
-  nodepool_availability_zones = var.kubernetes_nodepool_availability_zones
-
-  primary_nodepool_name       = var.kubernetes_primary_nodepool_name
-  primary_nodepool_labels     = var.kubernetes_primary_nodepool_labels
-  primary_nodepool_taints     = var.kubernetes_primary_nodepool_taints
-  primary_nodepool_vm_size    = var.kubernetes_primary_nodepool_vm_size
-  primary_nodepool_node_count = var.kubernetes_primary_nodepool_node_count
-  primary_nodepool_min_count  = var.kubernetes_primary_nodepool_min_count
-  primary_nodepool_max_count  = var.kubernetes_primary_nodepool_max_count
-  gpu_nodepool_name           = var.kubernetes_gpu_nodepool_name
-  gpu_nodepool_labels         = var.kubernetes_gpu_nodepool_labels
-  gpu_nodepool_taints         = var.kubernetes_gpu_nodepool_taints
-  gpu_nodepool_vm_size        = var.kubernetes_gpu_nodepool_vm_size
-  gpu_nodepool_node_count     = var.kubernetes_gpu_nodepool_node_count
-  gpu_nodepool_min_count      = var.kubernetes_gpu_nodepool_min_count
-  gpu_nodepool_max_count      = var.kubernetes_gpu_nodepool_max_count
+  pod_cidr            = var.kubernetes_pod_cidr
+  service_cidr        = var.kubernetes_service_cidr
+  dns_service_ip      = var.kubernetes_dns_service_ip
+  node_pool_subnet_id = local.aks_nodes_subnet_id
+  default_node_pool   = var.kubernetes_default_node_pool
+  node_pools          = var.kubernetes_node_pools
 
   tags = var.tags
 }

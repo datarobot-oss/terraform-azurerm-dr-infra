@@ -48,84 +48,20 @@ variable "dns_service_ip" {
   type        = string
 }
 
-variable "nodepool_subnet_id" {
+variable "node_pool_subnet_id" {
   description = "ID of the subnet to use for the node pools"
   type        = string
 }
 
-variable "nodepool_availability_zones" {
-  description = "Availability zones to use for the node pools"
-  type        = set(string)
+variable "default_node_pool" {
+  description = "Specifies configuration for System mode node pool"
+  type        = any
 }
 
-variable "primary_nodepool_name" {
-  description = "Name of the primary node pool"
-  type        = string
-}
-
-variable "primary_nodepool_labels" {
-  description = "A map of Kubernetes labels to apply to the primary node pool"
-  type        = map(string)
-}
-
-variable "primary_nodepool_taints" {
-  description = "A list of Kubernetes taints to apply to the primary node pool"
-  type        = list(string)
-}
-
-variable "primary_nodepool_vm_size" {
-  description = "VM size used for the primary node pool"
-  type        = string
-}
-
-variable "primary_nodepool_node_count" {
-  description = "Node count of the primary node pool"
-  type        = number
-}
-
-variable "primary_nodepool_min_count" {
-  description = "Minimum number of nodes in the primary node pool"
-  type        = number
-}
-
-variable "primary_nodepool_max_count" {
-  description = "Maximum number of nodes in the primary node pool"
-  type        = number
-}
-
-variable "gpu_nodepool_name" {
-  description = "Name of the GPU node pool"
-  type        = string
-}
-
-variable "gpu_nodepool_labels" {
-  description = "A map of Kubernetes labels to apply to the GPU node pool"
-  type        = map(string)
-}
-
-variable "gpu_nodepool_taints" {
-  description = "A list of Kubernetes taints to apply to the GPU node pool"
-  type        = list(string)
-}
-
-variable "gpu_nodepool_vm_size" {
-  description = "VM size used for the GPU node pool"
-  type        = string
-}
-
-variable "gpu_nodepool_node_count" {
-  description = "Node count of the GPU node pool"
-  type        = number
-}
-
-variable "gpu_nodepool_min_count" {
-  description = "Minimum number of nodes in the GPU node pool"
-  type        = number
-}
-
-variable "gpu_nodepool_max_count" {
-  description = "Maximum number of nodes in the GPU node pool"
-  type        = number
+variable "node_pools" {
+  description = "Map of AKS node pools"
+  type        = any
+  default     = {}
 }
 
 variable "tags" {

@@ -67,25 +67,41 @@ module "datarobot_infra" {
   kubernetes_pod_cidr                             = "10.244.0.0/16"
   kubernetes_service_cidr                         = "10.0.0.0/16"
   kubernetes_dns_service_ip                       = "10.0.0.10"
-  kubernetes_nodepool_availability_zones          = ["1", "2", "3"]
-  kubernetes_primary_nodepool_name                = "primary"
-  kubernetes_primary_nodepool_vm_size             = "Standard_D32s_v4"
-  kubernetes_primary_nodepool_node_count          = 6
-  kubernetes_primary_nodepool_min_count           = 3
-  kubernetes_primary_nodepool_max_count           = 10
-  kubernetes_primary_nodepool_labels              = {}
-  kubernetes_primary_nodepool_taints              = []
-  kubernetes_gpu_nodepool_name                    = "gpu"
-  kubernetes_gpu_nodepool_vm_size                 = "Standard_NC4as_T4_v3"
-  kubernetes_gpu_nodepool_node_count              = 0
-  kubernetes_gpu_nodepool_min_count               = 0
-  kubernetes_gpu_nodepool_max_count               = 10
-  kubernetes_gpu_nodepool_labels = {
-    "datarobot.com/node-capability" = "gpu"
+  kubernetes_default_node_pool = {
+    name                        = "system"
+    temporary_name_for_rotation = "systemtemp"
+    zones                       = ["1", "2"]
+    vm_size                     = "Standard_DS4_v2"
+    host_encryption_enabled     = false
+    fips_enabled                = false
+    auto_scaling_enabled        = true
+    node_count                  = 2
+    min_count                   = 2
+    max_count                   = 4
   }
-  kubernetes_gpu_nodepool_taints = [
-    "nvidia.com/gpu:NoSchedule"
-  ]
+  kubernetes_node_pools = {
+    drcpu = {
+      zones      = ["1", "2"]
+      vm_size    = "Standard_D32s_v4"
+      node_count = 3
+      min_count  = 3
+      max_count  = 10
+      node_labels = {
+        "datarobot.com/node-capability" = "cpu"
+      }
+      node_taints = []
+    }
+    drgpu = {
+      vm_size    = "Standard_NC4as_T4_v3"
+      node_count = 0
+      min_count  = 0
+      max_count  = 10
+      node_labels = {
+        "datarobot.com/node-capability" = "gpu"
+      }
+      node_taints = ["nvidia.com/gpu=true:NoSchedule"]
+    }
+  }
 
   ################################################################################
   # App Identity

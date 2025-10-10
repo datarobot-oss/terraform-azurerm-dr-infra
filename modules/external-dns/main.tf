@@ -27,9 +27,9 @@ resource "azurerm_role_assignment" "external_dns_dns" {
 resource "helm_release" "external_dns" {
   name       = "external-dns"
   namespace  = "external-dns"
-  repository = "https://charts.bitnami.com/bitnami"
+  repository = "https://kubernetes-sigs.github.io/external-dns"
   chart      = "external-dns"
-  version    = "8.5.1"
+  version    = "1.19.0"
 
   create_namespace = true
 

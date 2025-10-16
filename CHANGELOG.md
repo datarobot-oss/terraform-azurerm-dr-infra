@@ -5,6 +5,7 @@ All notable changes are documented in this file.
 ## v1.3.3
 ### Updated
 - Add redis port to output
+- Set postgress auth method to `SCRAM-SHA-256`
 
 ## v1.3.2
 ### Updated

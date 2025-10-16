@@ -2,6 +2,10 @@
 
 All notable changes are documented in this file.
 
+## v1.3.3
+### Updated
+- Add redis port to output
+
 ## v1.3.2
 ### Updated
 - `external-dns` from bitnami to kubernetes-sigs `1.19.0`

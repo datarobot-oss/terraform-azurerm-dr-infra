@@ -143,6 +143,16 @@ output "redis_endpoint" {
   value       = try(module.redis[0].endpoint, null)
 }
 
+output "redis_ssl_port" {
+  description = "Azure Cache for Redis SSL port"
+  value       = try(module.redis[0].ssl_port, null)
+}
+
+output "redis_non_ssl_port" {
+  description = "Azure Cache for Redis non-SSL port"
+  value       = try(module.redis[0].port, null)
+}
+
 output "redis_password" {
   description = "Azure Cache for Redis primary access key"
   value       = try(module.redis[0].password, null)

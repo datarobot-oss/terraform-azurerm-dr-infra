@@ -8,3 +8,13 @@ output "password" {
   value       = azurerm_redis_cache.this.primary_access_key
   sensitive   = true
 }
+
+output "ssl_port" {
+  description = "Azure Cache for Redis instance SSL port"
+  value       = azurerm_redis_cache.this.ssl_port
+}
+
+output "non_ssl_port" {
+  description = "Azure Cache for Redis instance non-SSL port"
+  value       = azurerm_redis_cache.this.port
+}

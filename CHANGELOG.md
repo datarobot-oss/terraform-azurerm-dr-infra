@@ -2,6 +2,10 @@
 
 All notable changes are documented in this file.
 
+## v1.3.4
+### Updated
+- Do not create `azurerm_role_assignment` for storage when `existing_storage_account_id` is defined
+
 ## v1.3.3
 ### Updated
 - Add redis port to output

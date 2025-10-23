@@ -33,6 +33,11 @@ variable "storage_account_id" {
   type        = string
 }
 
+variable "existing_storage_account_id" {
+  description = "ID of existing Azure Storage Account to use for DataRobot file storage."
+  type        = string
+}
+
 variable "acr_id" {
   description = "ID of the Azure Container Registry to provide AcrPush access"
   type        = string

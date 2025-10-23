@@ -201,12 +201,13 @@ module "app_identity" {
   resource_group_name = local.resource_group_name
   location            = var.location
 
-  name                       = module.naming.user_assigned_identity.name
-  aks_oidc_issuer_url        = local.aks_cluster_oidc_issuer_url
-  storage_account_id         = local.storage_account_id
-  acr_id                     = local.container_registry_id
-  datarobot_namespace        = var.datarobot_namespace
-  datarobot_service_accounts = var.datarobot_service_accounts
+  name                        = module.naming.user_assigned_identity.name
+  aks_oidc_issuer_url         = local.aks_cluster_oidc_issuer_url
+  storage_account_id          = local.storage_account_id
+  acr_id                      = local.container_registry_id
+  datarobot_namespace         = var.datarobot_namespace
+  datarobot_service_accounts  = var.datarobot_service_accounts
+  existing_storage_account_id = var.existing_storage_account_id
 
   tags = var.tags
 }

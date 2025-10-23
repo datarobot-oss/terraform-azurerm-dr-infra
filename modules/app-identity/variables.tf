@@ -34,7 +34,7 @@ variable "storage_account_id" {
 }
 
 variable "existing_storage_account_id" {
-  description = "ID of existing Azure Storage Account to use for DataRobot file storage. When specified, all other storage variables will be ignored."
+  description = "ID of existing Azure Storage Account to use for DataRobot file storage."
   type        = string
 }
 

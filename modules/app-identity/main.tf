@@ -8,6 +8,7 @@ resource "azurerm_user_assigned_identity" "datarobot" {
 }
 
 resource "azurerm_role_assignment" "storage" {
+  count                            = var.existing_storage_account_id == null ? 1 : 0
   scope                            = var.storage_account_id
   role_definition_name             = "Storage Blob Data Contributor"
   principal_id                     = azurerm_user_assigned_identity.datarobot.principal_id

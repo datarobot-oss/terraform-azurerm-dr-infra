@@ -194,6 +194,12 @@ module "kubernetes" {
 # App Identity
 ################################################################################
 
+provider "databricks" {
+  host                        = try(module.app_identity[0].databricks_workspace_url, "")
+  azure_workspace_resource_id = try(module.app_identity[0].databricks_workspace_id, "")
+  azure_use_msi               = true
+}
+
 module "app_identity" {
   source = "./modules/app-identity"
   count  = var.create_app_identity ? 1 : 0

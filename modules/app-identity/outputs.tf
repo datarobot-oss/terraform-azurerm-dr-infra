@@ -22,3 +22,13 @@ output "tenant_id" {
   description = "Tenant ID of the user assigned identity"
   value       = azurerm_user_assigned_identity.datarobot.tenant_id
 }
+
+output "databricks_workspace_url" {
+  description = "URL of the DataBricks Workspace"
+  value       = azurerm_databricks_workspace.this.workspace_url
+}
+
+output "databricks_workspace_id" {
+  description = "ID of the DataBricks Workspace"
+  value       = azurerm_databricks_workspace.this.id
+}

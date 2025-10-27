@@ -17,5 +17,9 @@ terraform {
       source  = "mongodb/mongodbatlas"
       version = "~> 1.11"
     }
+    databricks = {
+      source  = "databricks/databricks"
+      version = "~> 1.0"
+    }
   }
 }

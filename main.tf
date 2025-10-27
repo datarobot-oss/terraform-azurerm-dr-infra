@@ -195,8 +195,9 @@ module "kubernetes" {
 ################################################################################
 
 provider "databricks" {
-  host  = try(module.app_identity[0].databricks_workspace_url, "")
-  token = "eyJhbGciOiJSUzI1NiIsImtpZCI6IjJWX25oNlFNVFV0LVI0bnROQlZKeTNLX0xFLUFnOFh6WTdUaDFKRkpwVzgifQ.eyJhdWQiOlsiYXBpOi8vQXp1cmVBRFRva2VuRXhjaGFuZ2UiXSwiZXhwIjoxNzYxNjA5MjA5LCJpYXQiOjE3NjE2MDU2MDksImlzcyI6Imh0dHBzOi8vZWFzdHVzMi5vaWMucHJvZC1ha3MuYXp1cmUuY29tLzY0NGQzY2ViLWU4MDQtNDQ3NC1iZDZhLTNkNjU0MzAzOWI0OS81OWVkOGNkYy1mYmVjLTQ1ZGUtYTVjYy0xOWI1MTM1MTA3MDgvIiwianRpIjoiMTZhZmI0ZGQtNjNkYi00YTBiLTgyNDQtNjk3OGRmMjU3OTgwIiwia3ViZXJuZXRlcy5pbyI6eyJuYW1lc3BhY2UiOiJkYXRhcGxhbmUtYWdlbnQiLCJub2RlIjp7Im5hbWUiOiJha3MtYWdlbnRwb29sMS0zODAyMDUzNi12bXNzMDAwMDAwIiwidWlkIjoiZTQwYmQxYmMtMzllNS00MTljLWJjYjYtMDY1NDcwYzIwOGViIn0sInBvZCI6eyJuYW1lIjoiZHAtYWdlbnQtNjhkOTc0OWI1Ny01Z3dzcCIsInVpZCI6IjhjNjA1YzNiLTMxZmMtNDhiYS05NDMwLTIxMzJiYWVjN2I1OCJ9LCJzZXJ2aWNlYWNjb3VudCI6eyJuYW1lIjoib21uaXN0cmF0ZS1kYS1vcmctZWR2c2JpczF4OSIsInVpZCI6IjliMmZkNDNjLTY4YmMtNDVjNy1iNzdiLTVjYjEzMmQzMTg2ZiJ9fSwibmJmIjoxNzYxNjA1NjA5LCJzdWIiOiJzeXN0ZW06c2VydmljZWFjY291bnQ6ZGF0YXBsYW5lLWFnZW50Om9tbmlzdHJhdGUtZGEtb3JnLWVkdnNiaXMxeDkifQ.ljiA39XDh8-a_9rUD_Qo42wUT6jJQeLGFhmmRqkCN8kGztrMB-GZK7QYjNXOGQXudg-EUq_hLFuV7-D5GEF5ttB--PgfGWtBiqWNYrgsgAZp6u-EcA5AA5ApMk8r4CtqzIAz5NLOas63QZdaSvMr0y30WEOmiuEM_49SFvSnvjswj-IVkepXlZ27UFL8e9MLd_IV3w4bVuACMa8mCcN6bTQUg_kpS6iOsz1cdUlAqF7aSjMPEfK_Okhr5nAIehGF9wZg25354ov2vTjOrFABk_1QOAZ8j12h3yBQLqs4Jn8q3Z2366LIuOfgx5iCSUSIoV8rHPmDK1Ss5Ag9x4iQDYroYBdEu9qyMarh_VoDe2zcW-lQ4ciSVZB1gHrxqE_5stJf4zrtg8aqvreNZvjkMLC1b-p7jEw2ZAXRhJAkwbYn07Ug-1xVkTr02k5sf1zhgAurrEKYGAQJlIYynXyiaHXRxRRzi55V7LHgcLl-KHjAFzNobv8b_Fx6UfNIlGPLxMjPeGCaRVi25JRdnTM-VPX3ORQ0BlfLQR_R2dvLJpnAwp-oCorSSmm3UCDRs3udUcVnA9bwZHIfy6OjZtkueGuGQbsjRex9HgOlAeiiaVgoDSkY-eAixk9TRl1S1cNgqqmvnsu68dBinnbz7MsG8Ad-eHy7LGLSXWtQLW0L_pE"
+  host                        = module.app_identity[0].databricks_workspace_url
+  account_id                  = "Account"
+  azure_workspace_resource_id = module.app_identity[0].databricks_workspace_id
 }
 
 module "app_identity" {

@@ -195,9 +195,7 @@ module "kubernetes" {
 ################################################################################
 
 provider "databricks" {
-  host      = try(module.app_identity[0].databricks_workspace_url, "")
-  auth_type = "env-oidc"
-  client_id = try(module.app_identity[0].client_id, "")
+  host = try(module.app_identity[0].databricks_workspace_url, "")
 }
 
 module "app_identity" {

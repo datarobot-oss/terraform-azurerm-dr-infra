@@ -112,6 +112,11 @@ output "databricks_workspace_url" {
   value       = try(module.app_identity[0].databricks_workspace_url, null)
 }
 
+output "databricks_workspace_id" {
+  description = "ID of the DataBricks Workspace"
+  value       = try(module.app_identity[0].databricks_workspace_id, null)
+}
+
 
 ################################################################################
 # Kubernetes

@@ -107,6 +107,11 @@ output "user_assigned_identity_tenant_id" {
   value       = try(module.app_identity[0].tenant_id, null)
 }
 
+output "databricks_workspace_url" {
+  description = "URL of the DataBricks Workspace"
+  value       = try(module.app_identity[0].databricks_workspace_url, null)
+}
+
 
 ################################################################################
 # Kubernetes

@@ -195,7 +195,9 @@ module "kubernetes" {
 ################################################################################
 
 provider "databricks" {
-  host = try(module.app_identity[0].databricks_workspace_url, "")
+  host            = try(module.app_identity[0].databricks_workspace_url, "")
+  azure_client_id = "cdad24eb-d074-45e1-a065-7c98581c9d5b"
+  azure_tenant_id = data.azurerm_subscription.current.tenant_id
 }
 
 module "app_identity" {

@@ -195,9 +195,9 @@ module "kubernetes" {
 ################################################################################
 
 provider "databricks" {
-  host                        = try(module.app_identity[0].databricks_workspace_url, "")
-  azure_workspace_resource_id = try(module.app_identity[0].databricks_workspace_id, "")
-  azure_use_msi               = true
+  host      = try(module.app_identity[0].databricks_workspace_url, "")
+  auth_type = "env-oidc"
+  client_id = try(module.app_identity[0].client_id, "")
 }
 
 module "app_identity" {

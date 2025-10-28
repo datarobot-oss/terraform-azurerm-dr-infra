@@ -218,10 +218,7 @@ module "app_identity" {
 ################################################################################
 
 provider "databricks" {
-  host                        = try(module.databricks[0].workspace_url, "")
-  account_id                  = data.azurerm_subscription.current.subscription_id
-  azure_workspace_resource_id = try(module.databricks[0].workspace_id, "")
-  auth_type                   = "azure-cli"
+  host = try(module.databricks[0].workspace_url, "")
 }
 
 module "databricks" {
@@ -232,7 +229,7 @@ module "databricks" {
   resource_group_name = local.resource_group_name
   location            = var.location
 
-  application_id = try(module.app_identity[0].principal_id, null)
+  application_id = try(module.app_identity[0].client_id, null)
 
   tags = var.tags
 }

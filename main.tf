@@ -229,7 +229,7 @@ module "databricks" {
   resource_group_name = local.resource_group_name
   location            = var.location
 
-  application_id = try(module.app_identity[0].principal_id, null)
+  application_id = try(module.app_identity[0].client_id, null)
 
   tags = var.tags
 }

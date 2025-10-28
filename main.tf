@@ -219,6 +219,8 @@ module "app_identity" {
 
 provider "databricks" {
   host = try(module.databricks[0].workspace_url, "")
+  # account = "Account"
+  azure_workspace_resource_id = try(module.databricks[0].workspace_id, "")
 }
 
 module "databricks" {
@@ -229,7 +231,7 @@ module "databricks" {
   resource_group_name = local.resource_group_name
   location            = var.location
 
-  application_id = try(module.app_identity[0].client_id, null)
+  application_id = try(module.app_identity[0].principal_id, null)
 
   tags = var.tags
 }

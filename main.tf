@@ -218,7 +218,8 @@ module "app_identity" {
 ################################################################################
 
 provider "databricks" {
-  host = try(module.databricks[0].workspace_url, "")
+  host      = try(module.databricks[0].workspace_url, "")
+  auth_type = "azure-cli"
 }
 
 module "databricks" {

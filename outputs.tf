@@ -109,12 +109,12 @@ output "user_assigned_identity_tenant_id" {
 
 output "databricks_workspace_url" {
   description = "URL of the DataBricks Workspace"
-  value       = try(module.app_identity[0].databricks_workspace_url, null)
+  value       = try(module.databricks[0].workspace_url, null)
 }
 
 output "databricks_workspace_id" {
   description = "ID of the DataBricks Workspace"
-  value       = try(module.app_identity[0].databricks_workspace_id, null)
+  value       = try(module.databricks[0].workspace_id, null)
 }
 
 

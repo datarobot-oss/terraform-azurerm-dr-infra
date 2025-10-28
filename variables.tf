@@ -321,6 +321,17 @@ variable "datarobot_service_accounts" {
 
 
 ################################################################################
+# Databricks
+################################################################################
+
+variable "create_databricks_workspace" {
+  description = "Create Azure Databricks workspace to use for DataRobot spark jobs"
+  type        = bool
+  default     = false
+}
+
+
+################################################################################
 # PostgreSQL
 ################################################################################
 

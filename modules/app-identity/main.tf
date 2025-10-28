@@ -34,20 +34,3 @@ resource "azurerm_federated_identity_credential" "datarobot" {
   subject   = "system:serviceaccount:${var.datarobot_namespace}:${each.value}"
   audience  = ["api://AzureADTokenExchange"]
 }
-
-resource "azurerm_databricks_workspace" "this" {
-  name                = var.name
-  location            = var.location
-  resource_group_name = var.resource_group_name
-  sku                 = "standard"
-
-  tags = var.tags
-}
-
-resource "databricks_service_principal" "datarobot" {
-  application_id        = azurerm_user_assigned_identity.datarobot.client_id
-  display_name          = var.name
-  allow_cluster_create  = true
-  databricks_sql_access = true
-  workspace_access      = true
-}

@@ -194,12 +194,6 @@ module "kubernetes" {
 # App Identity
 ################################################################################
 
-provider "databricks" {
-  host                        = module.app_identity[0].databricks_workspace_url
-  account_id                  = "Account"
-  azure_workspace_resource_id = module.app_identity[0].databricks_workspace_id
-}
-
 module "app_identity" {
   source = "./modules/app-identity"
   count  = var.create_app_identity ? 1 : 0
@@ -214,6 +208,28 @@ module "app_identity" {
   datarobot_namespace         = var.datarobot_namespace
   datarobot_service_accounts  = var.datarobot_service_accounts
   existing_storage_account_id = var.existing_storage_account_id
+
+  tags = var.tags
+}
+
+
+################################################################################
+# Databricks
+################################################################################
+
+provider "databricks" {
+  host = try(module.databricks[0].workspace_url, "")
+}
+
+module "databricks" {
+  source = "./modules/databricks"
+  count  = var.create_databricks_workspace ? 1 : 0
+
+  name                = module.naming.databricks_workspace.name
+  resource_group_name = local.resource_group_name
+  location            = var.location
+
+  application_id = try(module.app_identity[0].principal_id, null)
 
   tags = var.tags
 }

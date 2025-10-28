@@ -221,6 +221,7 @@ provider "databricks" {
   host                        = try(module.databricks[0].workspace_url, "")
   account_id                  = data.azurerm_subscription.current.subscription_id
   azure_workspace_resource_id = try(module.databricks[0].workspace_id, "")
+  auth_type                   = "azure-cli"
 }
 
 module "databricks" {

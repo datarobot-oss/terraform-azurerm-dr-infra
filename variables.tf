@@ -316,6 +316,7 @@ variable "datarobot_service_accounts" {
     "exec-manager-wrangling",
     "lrs-job-manager",
     "blob-view-service",
+    "spark-compute-services-sa",
   ]
 }
 

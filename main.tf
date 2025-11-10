@@ -305,6 +305,38 @@ module "mongodb" {
   tags = var.tags
 }
 
+################################################################################
+# Private Link Service
+################################################################################
+locals {
+  load_balancer_frontend_ip_configuration_ids = var.existing_load_balancer_name != null ? data.azurerm_lb.existing[0].id : try(module.ingress_nginx[0].load_balancer_frontend_ip_configuration_ids, null)
+}
+
+data "azurerm_lb" "existing" {
+  count = var.existing_load_balancer_name != null ? 1 : 0
+
+  name                = var.existing_load_balancer_name
+  resource_group_name = local.aks_managed_resource_group_name
+
+  depends_on = [module.ingress_nginx]
+}
+
+
+module "private_link_service" {
+  source = "./modules/private-link-service"
+  count  = var.create_ingress_pl_service ? 1 : 0
+
+  name                = var.name
+  resource_group_name = local.resource_group_name
+  location            = var.location
+
+  load_balancer_frontend_ip_configuration_ids = local.load_balancer_frontend_ip_configuration_ids
+  pl_subnet_id                                = local.aks_nodes_subnet_id
+  pl_visibility_subscription_ids              = var.ingress_pl_visibility_subscription_ids
+  pl_auto_approval_subscription_ids           = var.ingress_pl_auto_approval_subscription_ids
+
+  tags = var.tags
+}
 
 ################################################################################
 # Helm Charts
@@ -332,20 +364,10 @@ module "ingress_nginx" {
   source = "./modules/ingress-nginx"
   count  = var.install_helm_charts && var.ingress_nginx ? 1 : 0
 
-  name                                      = var.name
-  resource_group_name                       = local.resource_group_name
-  location                                  = var.location
-  aks_managed_resource_group_name           = local.aks_managed_resource_group_name
-  ingress_pl_subnet_id                      = local.aks_nodes_subnet_id
-  internet_facing_ingress_lb                = var.internet_facing_ingress_lb
-  create_ingress_pl_service                 = var.create_ingress_pl_service
-  ingress_pl_visibility_subscription_ids    = var.ingress_pl_visibility_subscription_ids
-  ingress_pl_auto_approval_subscription_ids = var.ingress_pl_auto_approval_subscription_ids
-
-  custom_values_templatefile = var.ingress_nginx_values
-  custom_values_variables    = var.ingress_nginx_variables
-
-  tags = var.tags
+  aks_managed_resource_group_name = local.aks_managed_resource_group_name
+  internet_facing_ingress_lb      = var.internet_facing_ingress_lb
+  custom_values_templatefile      = var.ingress_nginx_values
+  custom_values_variables         = var.ingress_nginx_variables
 
   depends_on = [local.aks_cluster_name]
 }

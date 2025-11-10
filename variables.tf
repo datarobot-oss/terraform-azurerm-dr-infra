@@ -514,12 +514,6 @@ variable "internet_facing_ingress_lb" {
   default     = true
 }
 
-variable "create_ingress_pl_service" {
-  description = "Expose the internal LB created by the ingress-nginx controller as an Azure Private Link Service. Only applies if internet_facing_ingress_lb is false."
-  type        = bool
-  default     = false
-}
-
 variable "ingress_pl_visibility_subscription_ids" {
   description = "A list of Subscription UUID/GUID's that will be able to see the ingress Private Link Service. Only applies if internet_facing_ingress_lb is false."
   type        = list(string)
@@ -626,4 +620,19 @@ variable "descheduler_variables" {
   description = "Variables passed to the descheduler templatefile"
   type        = any
   default     = {}
+}
+
+################################################################################
+# Privaete Link Service
+################################################################################
+variable "create_ingress_pl_service" {
+  description = "Expose the internal LB created by the ingress-nginx controller as an Azure Private Link Service. Only applies if internet_facing_ingress_lb is false."
+  type        = bool
+  default     = false
+}
+
+variable "existing_load_balancer_name" {
+  description = "Name of an existing Azure Load Balancer to expose via the Private Link Service."
+  type        = string
+  default     = null
 }

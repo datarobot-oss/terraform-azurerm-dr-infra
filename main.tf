@@ -313,7 +313,7 @@ locals {
 }
 
 data "azurerm_lb" "existing" {
-  count = var.existing_load_balancer_name != null ? 1 : 0
+  count = var.existing_load_balancer_name != null && var.create_ingress_pl_service ? 1 : 0
 
   name                = var.existing_load_balancer_name
   resource_group_name = local.aks_managed_resource_group_name

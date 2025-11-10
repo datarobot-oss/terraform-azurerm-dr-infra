@@ -514,18 +514,6 @@ variable "internet_facing_ingress_lb" {
   default     = true
 }
 
-variable "ingress_pl_visibility_subscription_ids" {
-  description = "A list of Subscription UUID/GUID's that will be able to see the ingress Private Link Service. Only applies if internet_facing_ingress_lb is false."
-  type        = list(string)
-  default     = null
-}
-
-variable "ingress_pl_auto_approval_subscription_ids" {
-  description = "A list of Subscription UUID/GUID's that will be automatically be able to use this Private Link Service. Only applies if internet_facing_ingress_lb is false."
-  type        = list(string)
-  default     = null
-}
-
 variable "ingress_nginx_values" {
   description = "Path to templatefile containing custom values for the ingress-nginx helm chart"
   type        = string
@@ -634,5 +622,17 @@ variable "create_ingress_pl_service" {
 variable "existing_load_balancer_name" {
   description = "Name of an existing Azure Load Balancer to expose via the Private Link Service."
   type        = string
+  default     = null
+}
+
+variable "pl_visibility_subscription_ids" {
+  description = "A list of Subscription UUID/GUID's that will be able to see the ingress Private Link Service. Only applies if internet_facing_ingress_lb is false."
+  type        = list(string)
+  default     = null
+}
+
+variable "pl_auto_approval_subscription_ids" {
+  description = "A list of Subscription UUID/GUID's that will be automatically be able to use this Private Link Service. Only applies if internet_facing_ingress_lb is false."
+  type        = list(string)
   default     = null
 }

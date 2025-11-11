@@ -625,13 +625,13 @@ variable "existing_load_balancer_name" {
   default     = null
 }
 
-variable "pl_visibility_subscription_ids" {
+variable "ingress_pl_visibility_subscription_ids" {
   description = "A list of Subscription UUID/GUID's that will be able to see the ingress Private Link Service. Only applies if internet_facing_ingress_lb is false."
   type        = list(string)
   default     = null
 }
 
-variable "pl_auto_approval_subscription_ids" {
+variable "ingress_pl_auto_approval_subscription_ids" {
   description = "A list of Subscription UUID/GUID's that will be automatically be able to use this Private Link Service. Only applies if internet_facing_ingress_lb is false."
   type        = list(string)
   default     = null

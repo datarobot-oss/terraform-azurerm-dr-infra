@@ -164,11 +164,11 @@ module "datarobot_infra" {
   ################################################################################
   # ingress-nginx
   ################################################################################
-  ingress_nginx                     = true
-  internet_facing_ingress_lb        = true
-  create_ingress_pl_service         = true
-  pl_visibility_subscription_ids    = ["00000000-0000-0000-0000-0000000000"]
-  pl_auto_approval_subscription_ids = ["00000000-0000-0000-0000-0000000000"]
+  ingress_nginx                             = true
+  internet_facing_ingress_lb                = true
+  create_ingress_pl_service                 = true
+  ingress_pl_visibility_subscription_ids    = ["00000000-0000-0000-0000-0000000000"]
+  ingress_pl_auto_approval_subscription_ids = ["00000000-0000-0000-0000-0000000000"]
 
   # in this case our custom values file override is formatted as a templatefile
   # so we can pass variables like our provisioner_public_ip to it.

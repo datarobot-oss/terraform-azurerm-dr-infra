@@ -3,8 +3,8 @@ resource "azurerm_private_link_service" "internal_ingress" {
   resource_group_name = var.resource_group_name
   location            = var.location
 
-  visibility_subscription_ids                 = var.pl_visibility_subscription_ids
-  auto_approval_subscription_ids              = var.pl_auto_approval_subscription_ids
+  visibility_subscription_ids                 = var.ingress_pl_visibility_subscription_ids
+  auto_approval_subscription_ids              = var.ingress_pl_auto_approval_subscription_ids
   load_balancer_frontend_ip_configuration_ids = var.load_balancer_frontend_ip_configuration_ids
 
   nat_ip_configuration {

@@ -332,8 +332,8 @@ module "private_link_service" {
 
   load_balancer_frontend_ip_configuration_ids = local.load_balancer_frontend_ip_configuration_ids
   pl_subnet_id                                = local.aks_nodes_subnet_id
-  pl_visibility_subscription_ids              = var.pl_visibility_subscription_ids
-  pl_auto_approval_subscription_ids           = var.pl_auto_approval_subscription_ids
+  ingress_pl_visibility_subscription_ids      = var.ingress_pl_visibility_subscription_ids
+  ingress_pl_auto_approval_subscription_ids   = var.ingress_pl_auto_approval_subscription_ids
 
   tags = var.tags
 }

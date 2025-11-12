@@ -1,4 +1,4 @@
-output "ingress_pl_service_alias" {
-  description = "A globally unique DNS Name for your Private Link Service. You can use this alias to request a connection to your Private Link Service"
-  value       = try(azurerm_private_link_service.internal_ingress[0].alias, null)
+output "load_balancer_frontend_ip_configuration_ids" {
+  description = "List of Azure Load Balancer frontend IP configuration resource IDs (strings)."
+  value       = try(data.azurerm_lb.internal_ingress[0].frontend_ip_configuration[0].id, null)
 }

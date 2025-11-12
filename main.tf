@@ -317,8 +317,6 @@ data "azurerm_lb" "existing" {
 
   name                = var.existing_load_balancer_name
   resource_group_name = local.aks_managed_resource_group_name
-
-  depends_on = [module.ingress_nginx]
 }
 
 
@@ -335,7 +333,8 @@ module "private_link_service" {
   ingress_pl_visibility_subscription_ids      = var.ingress_pl_visibility_subscription_ids
   ingress_pl_auto_approval_subscription_ids   = var.ingress_pl_auto_approval_subscription_ids
 
-  tags = var.tags
+  tags       = var.tags
+  depends_on = [module.ingress_nginx]
 }
 
 ################################################################################

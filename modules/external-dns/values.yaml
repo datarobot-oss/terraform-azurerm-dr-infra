@@ -1,0 +1,20 @@
+domainFilters:
+- ${domain}
+sources:
+- ingress
+txtOwnerId: ${clusterName}
+
+provider: azure
+extraVolumes:
+  - name: azure-config-file
+    secret:
+      secretName: external-dns-azure
+extraVolumeMounts:
+  - name: azure-config-file
+    mountPath: /etc/kubernetes
+    readOnly: true
+podLabels:
+  azure.workload.identity/use: "true"
+serviceAccount:
+  annotations:
+    azure.workload.identity/client-id: ${clientId}

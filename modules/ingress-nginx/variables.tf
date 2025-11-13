@@ -52,20 +52,14 @@ variable "ingress_pl_auto_approval_subscription_ids" {
   default     = null
 }
 
-variable "custom_values_templatefile" {
-  description = "Custom values templatefile to pass to the helm chart"
-  type        = string
-  default     = ""
-}
-
-variable "custom_values_variables" {
-  description = "Variables for the custom values templatefile"
-  type        = any
-  default     = {}
-}
-
 variable "tags" {
   description = "A map of tags to add to all created resources"
   type        = map(string)
+  default     = null
+}
+
+variable "values_overrides" {
+  description = "Values in raw yaml format to pass to helm."
+  type        = string
   default     = null
 }

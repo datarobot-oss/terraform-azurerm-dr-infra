@@ -24,12 +24,12 @@ output "vnet_id" {
 
 output "public_zone_id" {
   description = "ID of the public zone"
-  value       = try(module.dns[0].public_zone_id, null)
+  value       = local.public_zone_id
 }
 
 output "private_zone_id" {
   description = "ID of the private zone"
-  value       = try(module.dns[0].private_zone_id, null)
+  value       = local.private_zone_id
 }
 
 

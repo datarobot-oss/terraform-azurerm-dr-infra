@@ -61,27 +61,24 @@ module "network" {
 ################################################################################
 
 locals {
-  # create a public zone if we're using external_dns with internet_facing LB
-  # or we're using cert_manager with letsencrypt clusterissuers
-  create_public_zone = var.create_dns_zones && var.existing_public_dns_zone_id == null && ((var.external_dns && var.internet_facing_ingress_lb) || (var.cert_manager && var.cert_manager_letsencrypt_clusterissuers))
-  public_zone_id     = var.existing_public_dns_zone_id != null ? var.existing_public_dns_zone_id : try(module.dns[0].public_zone_id, null)
-
-  # create a private zone if we're using external_dns with an internal LB
-  create_private_zone = var.create_dns_zones && var.existing_private_dns_zone_id == null && (var.external_dns && !var.internet_facing_ingress_lb)
-  private_zone_id     = var.existing_private_dns_zone_id != null ? var.existing_private_dns_zone_id : try(module.dns[0].private_zone_id, null)
+  public_zone_id  = var.existing_public_dns_zone_id != null ? var.existing_public_dns_zone_id : try(azurerm_dns_zone.public[0].id, null)
+  private_zone_id = var.existing_private_dns_zone_id != null ? var.existing_private_dns_zone_id : try(azurerm_private_dns_zone.private[0].id, null)
 }
 
-module "dns" {
-  source = "./modules/dns"
-  count  = local.create_public_zone || local.create_private_zone ? 1 : 0
+resource "azurerm_dns_zone" "public" {
+  count = var.existing_public_dns_zone_id != null && var.create_dns_zones ? 1 : 0
 
   resource_group_name = local.resource_group_name
+  name                = var.domain_name
+  tags                = var.tags
+}
 
-  domain_name         = var.domain_name
-  create_public_zone  = local.create_public_zone
-  create_private_zone = local.create_private_zone
+resource "azurerm_private_dns_zone" "private" {
+  count = var.existing_private_dns_zone_id != null && var.create_dns_zones ? 1 : 0
 
-  tags = var.tags
+  resource_group_name = local.resource_group_name
+  name                = var.domain_name
+  tags                = var.tags
 }
 
 

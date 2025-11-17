@@ -1,49 +1,74 @@
-resource "azurerm_user_assigned_identity" "external_dns" {
+locals {
+  name            = "external-dns"
+  namespace       = "external-dns"
+  service_account = "external-dns"
+}
+
+resource "azurerm_user_assigned_identity" "this" {
   resource_group_name = var.resource_group_name
   location            = var.location
 
-  name = "external-dns-uai"
+  name = "${local.name}-uai"
 
   tags = var.tags
 }
 
-resource "azurerm_federated_identity_credential" "external_dns" {
+resource "azurerm_federated_identity_credential" "this" {
   resource_group_name = var.resource_group_name
 
-  name      = "external-dns-uai-fic"
-  parent_id = azurerm_user_assigned_identity.external_dns.id
+  name      = "${local.name}-uai-fic"
+  parent_id = azurerm_user_assigned_identity.this.id
   issuer    = var.aks_oidc_issuer_url
-  subject   = "system:serviceaccount:external-dns:external-dns"
+  subject   = "system:serviceaccount:${local.namespace}:${local.service_account}"
   audience  = ["api://AzureADTokenExchange"]
 }
 
-resource "azurerm_role_assignment" "external_dns_dns" {
+resource "azurerm_role_assignment" "dns_zone_contributor" {
   scope                            = var.hosted_zone_id
   role_definition_name             = "DNS Zone Contributor"
-  principal_id                     = azurerm_user_assigned_identity.external_dns.principal_id
+  principal_id                     = azurerm_user_assigned_identity.this.principal_id
   skip_service_principal_aad_check = true
 }
 
-resource "helm_release" "external_dns" {
-  name       = "external-dns"
-  namespace  = "external-dns"
+resource "kubectl_manifest" "azure_json" {
+  yaml_body = yamlencode({
+    apiVersion = "v1"
+    kind       = "Secret"
+    metadata = {
+      name      = "external-dns-azure"
+      namespace = local.namespace
+    }
+    data = {
+      "azure.json" = base64encode(jsonencode({
+        tenantId                     = azurerm_user_assigned_identity.this.tenant_id
+        subscriptionId               = var.subscription_id
+        resourceGroup                = var.resource_group_name
+        useWorkloadIdentityExtension = true
+      }))
+    }
+  })
+}
+
+resource "helm_release" "this" {
+  name       = local.name
+  namespace  = local.namespace
   repository = "https://kubernetes-sigs.github.io/external-dns"
-  chart      = "external-dns"
+  chart      = local.name
   version    = "1.19.0"
 
   create_namespace = true
 
   values = [
-    templatefile("${path.module}/values.tftpl", {
-      domain         = var.hosted_zone_name,
-      clusterName    = var.aks_cluster_name,
-      resourceGroup  = var.resource_group_name,
-      clientId       = azurerm_user_assigned_identity.external_dns.client_id,
-      tenantId       = azurerm_user_assigned_identity.external_dns.tenant_id,
-      subscriptionId = var.subscription_id
+    templatefile("${path.module}/values.yaml", {
+      domain      = var.hosted_zone_name
+      clusterName = var.aks_cluster_name
+      clientId    = azurerm_user_assigned_identity.this.client_id
     }),
-    var.custom_values_templatefile != "" ? templatefile(var.custom_values_templatefile, var.custom_values_variables) : ""
+    var.values_overrides
   ]
 
-  depends_on = [azurerm_role_assignment.external_dns_dns]
+  depends_on = [
+    azurerm_role_assignment.dns_zone_contributor,
+    kubectl_manifest.azure_json
+  ]
 }

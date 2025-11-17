@@ -10,14 +10,8 @@ variable "aks_managed_resource_group_name" {
   default     = null
 }
 
-variable "custom_values_templatefile" {
-  description = "Custom values templatefile to pass to the helm chart"
+variable "values_overrides" {
+  description = "Values in raw yaml format to pass to helm."
   type        = string
-  default     = ""
-}
-
-variable "custom_values_variables" {
-  description = "Variables for the custom values templatefile"
-  type        = any
-  default     = {}
+  default     = null
 }

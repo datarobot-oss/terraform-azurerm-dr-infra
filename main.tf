@@ -61,27 +61,24 @@ module "network" {
 ################################################################################
 
 locals {
-  # create a public zone if we're using external_dns with internet_facing LB
-  # or we're using cert_manager with letsencrypt clusterissuers
-  create_public_zone = var.create_dns_zones && var.existing_public_dns_zone_id == null && ((var.external_dns && var.internet_facing_ingress_lb) || (var.cert_manager && var.cert_manager_letsencrypt_clusterissuers))
-  public_zone_id     = var.existing_public_dns_zone_id != null ? var.existing_public_dns_zone_id : try(module.dns[0].public_zone_id, null)
-
-  # create a private zone if we're using external_dns with an internal LB
-  create_private_zone = var.create_dns_zones && var.existing_private_dns_zone_id == null && (var.external_dns && !var.internet_facing_ingress_lb)
-  private_zone_id     = var.existing_private_dns_zone_id != null ? var.existing_private_dns_zone_id : try(module.dns[0].private_zone_id, null)
+  public_zone_id  = var.existing_public_dns_zone_id != null ? var.existing_public_dns_zone_id : try(azurerm_dns_zone.public[0].id, null)
+  private_zone_id = var.existing_private_dns_zone_id != null ? var.existing_private_dns_zone_id : try(azurerm_private_dns_zone.private[0].id, null)
 }
 
-module "dns" {
-  source = "./modules/dns"
-  count  = local.create_public_zone || local.create_private_zone ? 1 : 0
+resource "azurerm_dns_zone" "public" {
+  count = var.existing_public_dns_zone_id != null && var.create_dns_zones ? 1 : 0
 
   resource_group_name = local.resource_group_name
+  name                = var.domain_name
+  tags                = var.tags
+}
 
-  domain_name         = var.domain_name
-  create_public_zone  = local.create_public_zone
-  create_private_zone = local.create_private_zone
+resource "azurerm_private_dns_zone" "private" {
+  count = var.existing_private_dns_zone_id != null && var.create_dns_zones ? 1 : 0
 
-  tags = var.tags
+  resource_group_name = local.resource_group_name
+  name                = var.domain_name
+  tags                = var.tags
 }
 
 
@@ -365,8 +362,7 @@ module "ingress_nginx" {
 
   aks_managed_resource_group_name = local.aks_managed_resource_group_name
   internet_facing_ingress_lb      = var.internet_facing_ingress_lb
-  custom_values_templatefile      = var.ingress_nginx_values
-  custom_values_variables         = var.ingress_nginx_variables
+  values_overrides                = var.ingress_nginx_values_overrides
 
   depends_on = [local.aks_cluster_name]
 }
@@ -385,8 +381,7 @@ module "cert_manager" {
   email_address              = var.cert_manager_letsencrypt_email_address
   subscription_id            = data.azurerm_subscription.current.subscription_id
 
-  custom_values_templatefile = var.cert_manager_values
-  custom_values_variables    = var.cert_manager_variables
+  values_overrides = var.cert_manager_values_overrides
 
   tags = var.tags
 }
@@ -403,8 +398,7 @@ module "external_dns" {
   hosted_zone_name    = var.domain_name
   hosted_zone_id      = var.internet_facing_ingress_lb ? local.public_zone_id : local.private_zone_id
 
-  custom_values_templatefile = var.external_dns_values
-  custom_values_variables    = var.external_dns_variables
+  values_overrides = var.external_dns_values_overrides
 
   tags = var.tags
 }
@@ -413,8 +407,7 @@ module "nvidia_device_plugin" {
   source = "./modules/nvidia-device-plugin"
   count  = var.install_helm_charts && var.nvidia_device_plugin ? 1 : 0
 
-  custom_values_templatefile = var.nvidia_device_plugin_values
-  custom_values_variables    = var.nvidia_device_plugin_variables
+  values_overrides = var.nvidia_device_plugin_values_overrides
 
   depends_on = [local.aks_cluster_name]
 }
@@ -423,8 +416,7 @@ module "descheduler" {
   source = "./modules/descheduler"
   count  = var.install_helm_charts && var.descheduler ? 1 : 0
 
-  custom_values_templatefile = var.descheduler_values
-  custom_values_variables    = var.descheduler_variables
+  values_overrides = var.descheduler_values_overrides
 
   depends_on = [local.aks_cluster_name]
 }

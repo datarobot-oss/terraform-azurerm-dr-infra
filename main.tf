@@ -334,6 +334,21 @@ module "private_link_service" {
   depends_on = [module.ingress_nginx]
 }
 
+module "observability" {
+  source = "./modules/observability"
+  count  = var.create_observability ? 1 : 0
+
+  resource_group_name = local.resource_group_name
+  location            = var.location
+
+  grafana_admin_principal_id   = var.observability_grafana_admin_principal_id
+  grafana_editor_principal_ids = var.observability_grafana_editor_principal_ids
+  grafana_viewer_principal_ids = var.observability_grafana_viewer_principal_ids
+  grafana_major_version        = var.observability_grafana_major_version
+
+  tags = var.tags
+}
+
 ################################################################################
 # Helm Charts
 ################################################################################

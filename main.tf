@@ -334,6 +334,9 @@ module "private_link_service" {
   depends_on = [module.ingress_nginx]
 }
 
+################################################################################
+# Observability
+################################################################################
 module "observability" {
   source = "./modules/observability"
   count  = var.create_observability ? 1 : 0

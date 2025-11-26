@@ -1,4 +1,4 @@
-variable "grafana_admin_principal_id" {
+variable "grafana_admin_principal_ids" {
   description = "The principal ID for Grafana admin access in the observability module."
   type        = list(string)
 }

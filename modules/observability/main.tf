@@ -1,5 +1,5 @@
 locals {
-  name = "observability"
+  name = "${var.name}-observability"
 }
 
 resource "azurerm_user_assigned_identity" "this" {

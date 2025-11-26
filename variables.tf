@@ -617,7 +617,7 @@ variable "create_observability" {
   default     = false
 }
 
-variable "observability_grafana_admin_principal_id" {
+variable "observability_grafana_admin_principal_ids" {
   description = "The principal ID for Grafana admin access in the observability module."
   type        = list(string)
   default     = []

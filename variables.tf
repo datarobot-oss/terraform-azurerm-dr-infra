@@ -606,3 +606,37 @@ variable "ingress_pl_auto_approval_subscription_ids" {
   type        = list(string)
   default     = null
 }
+
+################################################################################
+# Observability
+################################################################################
+
+variable "create_observability" {
+  description = "Whether to create the observability components."
+  type        = bool
+  default     = false
+}
+
+variable "observability_grafana_admin_principal_ids" {
+  description = "The principal ID for Grafana admin access in the observability module."
+  type        = list(string)
+  default     = []
+}
+
+variable "observability_grafana_editor_principal_ids" {
+  description = "The principal IDs for Grafana editor access in the observability module."
+  type        = list(string)
+  default     = []
+}
+
+variable "observability_grafana_viewer_principal_ids" {
+  description = "The principal IDs for Grafana viewer access in the observability module."
+  type        = list(string)
+  default     = []
+}
+
+variable "observability_grafana_major_version" {
+  description = "The major version of Grafana to deploy in the observability module."
+  type        = number
+  default     = 11
+}

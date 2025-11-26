@@ -49,7 +49,7 @@ resource "azurerm_dashboard_grafana" "observability_grafana" {
 }
 
 resource "azurerm_role_assignment" "grafana_admin_access" {
-  for_each             = toset(var.grafana_admin_principal_id)
+  for_each             = toset(var.grafana_admin_principal_ids)
   role_definition_name = "Grafana Admin"
   scope                = azurerm_dashboard_grafana.observability_grafana.id
   principal_id         = each.value

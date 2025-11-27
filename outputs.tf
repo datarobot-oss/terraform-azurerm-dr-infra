@@ -7,6 +7,11 @@ output "resource_group_id" {
   value       = try(azurerm_resource_group.this[0].id, null)
 }
 
+output "resource_group_name" {
+  description = "The name of the Resource Group"
+  value       = try(azurerm_resource_group.this[0].name, null)
+}
+
 
 ################################################################################
 # Network

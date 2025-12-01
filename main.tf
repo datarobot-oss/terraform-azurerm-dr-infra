@@ -66,7 +66,7 @@ locals {
 }
 
 resource "azurerm_dns_zone" "public" {
-  count = var.existing_public_dns_zone_id != null && var.create_dns_zones ? 1 : 0
+  count = var.existing_public_dns_zone_id == null && var.create_dns_zones ? 1 : 0
 
   resource_group_name = local.resource_group_name
   name                = var.domain_name
@@ -74,7 +74,7 @@ resource "azurerm_dns_zone" "public" {
 }
 
 resource "azurerm_private_dns_zone" "private" {
-  count = var.existing_private_dns_zone_id != null && var.create_dns_zones ? 1 : 0
+  count = var.existing_private_dns_zone_id == null && var.create_dns_zones ? 1 : 0
 
   resource_group_name = local.resource_group_name
   name                = var.domain_name

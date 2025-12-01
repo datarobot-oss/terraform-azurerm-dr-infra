@@ -32,6 +32,20 @@ output "private_zone_id" {
   value       = local.private_zone_id
 }
 
+output "public_dns_zone_name_servers" {
+  description = "Name servers of the public DNS zone"
+  value       = try(azurerm_dns_zone.public[0].name_servers, null)
+}
+
+output "public_dns_zone_name" {
+  description = "Name of the public zone"
+  value       = try(azurerm_dns_zone.public[0].name, null)
+}
+
+output "private_dns_zone_name" {
+  description = "Name of the private zone"
+  value       = try(azurerm_private_dns_zone.private[0].name, null)
+}
 
 ################################################################################
 # Storage

@@ -306,7 +306,7 @@ module "mongodb" {
 # Private Link Service
 ################################################################################
 locals {
-  load_balancer_frontend_ip_configuration_ids = try(data.azurerm_lb.existing[0].frontend_ip_configuration[0].id, module.ingress_nginx[0].load_balancer_frontend_ip_configuration_ids, null)
+  load_balancer_frontend_ip_configuration_ids = [try(data.azurerm_lb.existing[0].frontend_ip_configuration[0].id, module.ingress_nginx[0].load_balancer_frontend_ip_configuration_ids, null)]
 }
 
 data "azurerm_lb" "existing" {

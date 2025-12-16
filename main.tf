@@ -420,3 +420,24 @@ module "descheduler" {
 
   depends_on = [local.aks_cluster_name]
 }
+
+
+################################################################################
+# Custom Private Endpoints
+################################################################################
+
+module "custom_private_endpoints" {
+  source   = "./modules/custom-private-endpoints"
+  for_each = { for pe in var.custom_private_endpoints : pe.private_dns_name => pe }
+
+  resource_group_name = local.resource_group_name
+  location            = var.location
+  name                = var.name
+
+  network_id = local.vnet_id
+  subnet_id  = local.aks_nodes_subnet_id
+
+  endpoint_config = each.value
+
+  tags = var.tags
+}

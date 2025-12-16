@@ -606,3 +606,18 @@ variable "ingress_pl_auto_approval_subscription_ids" {
   type        = list(string)
   default     = null
 }
+
+################################################################################
+# Custom Private Endpoints
+################################################################################
+variable "custom_private_endpoints" {
+  description = "A list of custom private endpoints"
+  type = list(object({
+    resource_id       = string
+    subresource_names = list(string)
+    private_dns_zone  = optional(string, "")
+    private_dns_name  = optional(string, "")
+    create_dns_zone   = optional(bool, true)
+  }))
+  default = []
+}

@@ -43,7 +43,7 @@ resource "azurerm_private_dns_zone_virtual_network_link" "this" {
   tags                  = var.tags
 }
 
-resource "azurerm_private_dns_a_record" "blob" {
+resource "azurerm_private_dns_a_record" "this" {
   count               = var.endpoint_config.create_dns_zone ? 1 : 0
   name                = var.endpoint_config.private_dns_name
   zone_name           = azurerm_private_dns_zone.this[0].name

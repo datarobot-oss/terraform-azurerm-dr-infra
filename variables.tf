@@ -615,8 +615,8 @@ variable "custom_private_endpoints" {
   type = list(object({
     resource_id          = string
     subresource_names    = list(string)
-    private_dns_zone     = optional(string, "")
-    private_dns_name     = optional(string, "")
+    private_dns_zone     = string
+    private_dns_name     = string
     create_dns_zone      = optional(bool, true)
     is_manual_connection = optional(bool, false)
     request_message      = optional(string, "Private endpoint request for DataRobot")

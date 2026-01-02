@@ -19,7 +19,7 @@ locals {
       dns_zone_name        = ep.private_dns_zone
       resource_id          = ep.resource_id
       subresource_names    = ep.subresource_names
-      is_manual_connection = ep.is_manual_connection
+      is_manual_connection = true
       request_message      = ep.request_message
       create_dns_zone      = ep.create_dns_zone
     }

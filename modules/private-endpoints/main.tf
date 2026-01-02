@@ -7,7 +7,7 @@ locals {
       dns_zone_name        = "privatelink.${type}.core.windows.net"
       resource_id          = var.storage_account_id
       subresource_names    = [type]
-      is_manual_connection = false
+      is_manual_connection = true
       request_message      = "Private endpoint request for DataRobot"
       create_dns_zone      = true
     }

@@ -613,11 +613,19 @@ variable "ingress_pl_auto_approval_subscription_ids" {
 variable "custom_private_endpoints" {
   description = "A list of custom private endpoints"
   type = list(object({
-    resource_id       = string
-    subresource_names = list(string)
-    private_dns_zone  = optional(string, "")
-    private_dns_name  = optional(string, "")
-    create_dns_zone   = optional(bool, true)
+    resource_id          = string
+    subresource_names    = list(string)
+    private_dns_zone     = optional(string, "")
+    private_dns_name     = optional(string, "")
+    create_dns_zone      = optional(bool, true)
+    is_manual_connection = optional(bool, false)
+    request_message      = optional(string, "Private endpoint request for DataRobot")
   }))
   default = []
+}
+
+variable "private_storage_endpoints" {
+  description = "A list of private storage endpoints"
+  type        = list(string)
+  default     = ["blob", "dfs"]
 }

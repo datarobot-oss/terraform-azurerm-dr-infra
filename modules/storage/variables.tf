@@ -47,13 +47,3 @@ variable "virtual_network_subnet_ids" {
   description = "List of resource IDs for subnets which are allowed to access the storage account"
   type        = list(string)
 }
-
-variable "vnet_id" {
-  description = "ID of the VNet used for the private endpoint to storage"
-  type        = string
-}
-
-variable "subnet_id" {
-  description = "ID of the subnet used for the private endpoint to storage"
-  type        = string
-}

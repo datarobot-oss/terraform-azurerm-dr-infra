@@ -49,7 +49,7 @@ data "azurerm_private_dns_zone" "existing" {
 resource "azurerm_private_dns_zone_virtual_network_link" "this" {
   for_each = { for k, v in local.all_endpoints_map : k => v if v.create_dns_zone }
 
-  name                  = "${var.name}-${each.key}-link"
+  name                  = "${each.key}-link"
   resource_group_name   = var.resource_group_name
   private_dns_zone_name = azurerm_private_dns_zone.this[each.key].name
   virtual_network_id    = var.network_id

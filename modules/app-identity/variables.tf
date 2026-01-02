@@ -33,9 +33,9 @@ variable "storage_account_id" {
   type        = string
 }
 
-variable "existing_storage_account_id" {
-  description = "ID of existing Azure Storage Account to use for DataRobot file storage."
-  type        = string
+variable "create_storage" {
+  description = "Indicates whether storage account should be created by module or existing one used"
+  type        = bool
 }
 
 variable "acr_id" {

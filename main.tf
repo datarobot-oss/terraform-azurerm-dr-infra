@@ -88,7 +88,6 @@ resource "azurerm_private_dns_zone" "private" {
 
 locals {
   storage_account_id = var.existing_storage_account_id != null ? var.existing_storage_account_id : try(module.storage[0].account_id, null)
-
 }
 
 module "storage" {
@@ -197,13 +196,13 @@ module "app_identity" {
   resource_group_name = local.resource_group_name
   location            = var.location
 
-  name                        = module.naming.user_assigned_identity.name
-  aks_oidc_issuer_url         = local.aks_cluster_oidc_issuer_url
-  storage_account_id          = local.storage_account_id
-  acr_id                      = local.container_registry_id
-  datarobot_namespace         = var.datarobot_namespace
-  datarobot_service_accounts  = var.datarobot_service_accounts
-  existing_storage_account_id = var.existing_storage_account_id
+  name                       = module.naming.user_assigned_identity.name
+  aks_oidc_issuer_url        = local.aks_cluster_oidc_issuer_url
+  storage_account_id         = local.storage_account_id
+  acr_id                     = local.container_registry_id
+  datarobot_namespace        = var.datarobot_namespace
+  datarobot_service_accounts = var.datarobot_service_accounts
+  create_storage             = var.create_storage
 
   tags = var.tags
 }

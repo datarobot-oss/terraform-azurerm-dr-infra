@@ -1,7 +1,7 @@
 locals {
-  storage_account_name = element(split("/", var.storage_account_id), length(split("/", var.storage_account_id)) - 1)
+  storage_account_name = try(regex("storageAccounts/([^/]+)$", var.storage_account_id)[0], null)
 
-  storage_config = [
+  storage_config = local.storage_account_name != null ? [
     for type in var.private_storage_endpoints : {
       pe_name              = "${var.name}-${local.storage_account_name}-${type}-pe"
       dns_zone_name        = "privatelink.${type}.core.windows.net"
@@ -11,7 +11,7 @@ locals {
       request_message      = "Private endpoint request for DataRobot"
       create_dns_zone      = true
     }
-  ]
+  ] : []
 
   custom_config = [
     for ep in var.private_endpoint_config : {

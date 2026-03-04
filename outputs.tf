@@ -198,3 +198,27 @@ output "ingress_pl_service_alias" {
   description = "A globally unique DNS Name for your Private Link Service. You can use this alias to request a connection to your Private Link Service"
   value       = try(module.private_link_service[0].ingress_pl_service_alias, null)
 }
+
+################################################################################
+# Observability
+################################################################################
+
+output "observability_monitor_workspace_id" {
+  description = "The id of the monitor workspace for observability"
+  value       = try(module.observability[0].monitor_workspace_id, null)
+}
+
+output "observability_monitor_workspace_query_endpoint" {
+  description = "The query endpoint of the monitor workspace for observability"
+  value       = try(module.observability[0].monitor_workspace_query_endpoint, null)
+}
+
+output "observability_grafana_endpoint" {
+  description = "The endpoint URL for the Azure Managed Grafana instance for observability"
+  value       = try(module.observability[0].grafana_endpoint, null)
+}
+
+output "observability_user_assigned_identity_client_id" {
+  description = "The client_id of the user assigned identity"
+  value       = try(module.observability[0].user_assigned_identity_client_id, null)
+}

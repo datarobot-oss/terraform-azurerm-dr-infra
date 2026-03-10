@@ -1,3 +1,8 @@
+variable "name" {
+  description = "Name to use as a prefix for created resources"
+  type        = string
+}
+
 variable "grafana_admin_principal_ids" {
   description = "The principal ID for Grafana admin access in the observability module."
   type        = list(string)

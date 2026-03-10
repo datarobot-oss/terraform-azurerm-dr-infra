@@ -1,9 +1,7 @@
 locals {
-  storage_account_name = try(regex("storageAccounts/([^/]+)$", var.storage_account_id)[0], null)
-
-  storage_config = local.storage_account_name != null ? [
+  storage_config = [
     for type in var.private_storage_endpoints : {
-      pe_name              = "${var.name}-${local.storage_account_name}-${type}-pe"
+      pe_name              = "${var.name}-${type}-storage-pe"
       dns_zone_name        = "privatelink.${type}.core.windows.net"
       resource_id          = var.storage_account_id
       subresource_names    = [type]
@@ -11,7 +9,7 @@ locals {
       request_message      = "Private endpoint request for DataRobot"
       create_dns_zone      = true
     }
-  ] : []
+  ]
 
   custom_config = [
     for ep in var.private_endpoint_config : {
@@ -59,14 +57,14 @@ resource "azurerm_private_dns_zone_virtual_network_link" "this" {
 resource "azurerm_private_endpoint" "this" {
   for_each = local.all_endpoints_map
 
-  name                = each.key
+  name                = each.value.pe_name
   location            = var.location
   resource_group_name = var.resource_group_name
   subnet_id           = var.subnet_id
   tags                = var.tags
 
   private_service_connection {
-    name                           = "${each.key}-psc"
+    name                           = "${each.value.pe_name}-psc"
     private_connection_resource_id = each.value.resource_id
     subresource_names              = each.value.subresource_names
     is_manual_connection           = each.value.is_manual_connection

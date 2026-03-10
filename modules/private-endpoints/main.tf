@@ -1,6 +1,6 @@
 locals {
   storage_config = {
-    for type in(var.storage_account_id != null ? var.private_storage_endpoints : []) :
+    for type in var.private_storage_endpoints :
     "storage-${type}" => {
       pe_name              = "${var.name}-${type}-storage-pe"
       dns_zone_name        = "privatelink.${type}.core.windows.net"

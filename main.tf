@@ -341,6 +341,7 @@ module "observability" {
 
   resource_group_name = local.resource_group_name
   location            = var.location
+  name                = var.name
 
   grafana_admin_principal_ids  = var.observability_grafana_admin_principal_ids
   grafana_editor_principal_ids = var.observability_grafana_editor_principal_ids

@@ -1,7 +1,6 @@
 locals {
-  storage_config = {
-    for type in var.private_storage_endpoints :
-    "storage-${type}" => {
+  storage_config = [
+    for type in var.private_storage_endpoints : {
       pe_name              = "${var.name}-${type}-storage-pe"
       dns_zone_name        = "privatelink.${type}.core.windows.net"
       resource_id          = var.storage_account_id
@@ -10,11 +9,10 @@ locals {
       request_message      = "Private endpoint request for DataRobot"
       create_dns_zone      = true
     }
-  }
+  ]
 
-  custom_config = {
-    for i, ep in var.private_endpoint_config :
-    "custom-${i}" => {
+  custom_config = [
+    for ep in var.private_endpoint_config : {
       pe_name              = "${var.name}-${ep.private_dns_name}-pe"
       dns_zone_name        = ep.private_dns_zone
       resource_id          = ep.resource_id
@@ -23,9 +21,12 @@ locals {
       request_message      = ep.request_message
       create_dns_zone      = ep.create_dns_zone
     }
-  }
+  ]
 
-  all_endpoints_map = merge(local.storage_config, local.custom_config)
+  all_endpoints_map = {
+    for ep in concat(local.storage_config, local.custom_config) :
+    ep.pe_name => ep
+  }
 }
 
 resource "azurerm_private_dns_zone" "this" {

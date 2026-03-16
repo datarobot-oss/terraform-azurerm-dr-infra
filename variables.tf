@@ -367,7 +367,15 @@ variable "postgres_backup_retention_days" {
   default     = 7
 }
 
-
+variable "postgres_server_configurations" {
+  description = "A map of PostgreSQL Flexible Server configuration name/value pairs"
+  type        = map(string)
+  default = {
+    "azure.extensions"                    = "UUID-OSSP,PLPGSQL,PG_STAT_STATEMENTS"
+    "password_encryption"                 = "SCRAM-SHA-256"
+    "azure.accepted_password_auth_method" = "MD5,SCRAM-SHA-256"
+  }
+}
 ################################################################################
 # Redis
 ################################################################################

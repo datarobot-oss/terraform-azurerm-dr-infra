@@ -55,20 +55,10 @@ resource "azurerm_postgresql_flexible_server" "this" {
   }
 }
 
-resource "azurerm_postgresql_flexible_server_configuration" "azure_extensions" {
-  name      = "azure.extensions"
-  server_id = azurerm_postgresql_flexible_server.this.id
-  value     = "UUID-OSSP,PLPGSQL,PG_STAT_STATEMENTS"
-}
+resource "azurerm_postgresql_flexible_server_configuration" "this" {
+  for_each = var.server_configurations
 
-resource "azurerm_postgresql_flexible_server_configuration" "postgresql_password_encryption" {
-  name      = "password_encryption"
+  name      = each.key
   server_id = azurerm_postgresql_flexible_server.this.id
-  value     = "SCRAM-SHA-256"
-}
-
-resource "azurerm_postgresql_flexible_server_configuration" "postgresql_password_auth_method" {
-  name      = "azure.accepted_password_auth_method"
-  server_id = azurerm_postgresql_flexible_server.this.id
-  value     = "MD5,SCRAM-SHA-256"
+  value     = each.value
 }

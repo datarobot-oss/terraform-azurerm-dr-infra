@@ -54,6 +54,11 @@ variable "backup_retention_days" {
   default     = 7
 }
 
+variable "server_configurations" {
+  description = "A map of PostgreSQL Flexible Server configuration name/value pairs"
+  type        = map(string)
+}
+
 variable "tags" {
   description = "A map of tags to add to all created resources"
   type        = map(string)

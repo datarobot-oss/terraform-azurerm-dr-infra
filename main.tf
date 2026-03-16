@@ -231,6 +231,7 @@ module "postgres" {
   sku_name              = var.postgres_sku_name
   storage_mb            = var.postgres_storage_mb
   backup_retention_days = var.postgres_backup_retention_days
+  server_configurations = var.postgres_server_configurations
 
   tags = var.tags
 }

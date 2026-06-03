@@ -4,7 +4,7 @@ variable "name" {
 }
 
 variable "domain_name" {
-  description = "Name of the domain to use for the DataRobot application. If create_dns_zones is true then zones will be created for this domain. It is also used by the cert-manager helm chart for DNS validation and as a domain filter by the external-dns helm chart."
+  description = "Name of the domain to use for the DataRobot application. If create_dns_zone is true then a zone will be created for this domain. It is also used by the cert-manager helm chart for DNS validation and as a domain filter by the external-dns helm chart."
   type        = string
   default     = null
 }
@@ -67,20 +67,20 @@ variable "network_address_space" {
 # DNS
 ################################################################################
 
-variable "existing_public_dns_zone_id" {
-  description = "ID of existing public hosted zone to use for public DNS records created by external-dns and public LetsEncrypt certificate validation by cert-manager. This is required when create_dns_zones is false and ingress_nginx and internet_facing_ingress_lb are true or when cert_manager and cert_manager_letsencrypt_clusterissuers are true."
+variable "existing_dns_zone_id" {
+  description = "ID of an existing DNS zone to use. When specified, all other DNS variables will be ignored."
   type        = string
   default     = null
 }
 
-variable "existing_private_dns_zone_id" {
-  description = "ID of existing private hosted zone to use for private DNS records created by external-dns. This is required when create_dns_zones is false and ingress_nginx is true with internet_facing_ingress_lb false."
-  type        = string
-  default     = null
+variable "create_dns_zone" {
+  description = "Create a DNS zone for domain_name. Ignored if existing_dns_zone_id is specified."
+  type        = bool
+  default     = true
 }
 
-variable "create_dns_zones" {
-  description = "Create DNS zones for domain_name. Ignored if existing_public_dns_zone_id and existing_private_dns_zone_id are specified."
+variable "dns_zone_public" {
+  description = "Create a public DNS zone. When `false`, a private DNS zone will be created and linked to the given VNet."
   type        = bool
   default     = true
 }
@@ -535,7 +535,7 @@ variable "cert_manager" {
 }
 
 variable "cert_manager_letsencrypt_clusterissuers" {
-  description = "Whether to create letsencrypt-prod and letsencrypt-staging ClusterIssuers"
+  description = "Whether to create letsencrypt-prod and letsencrypt-staging ClusterIssuers. This will only work if the DNS zone is public."
   type        = bool
   default     = true
 }
@@ -553,7 +553,7 @@ variable "cert_manager_values_overrides" {
 }
 
 variable "external_dns" {
-  description = "Install the external_dns helm chart to create DNS records for ingress resources matching the domain_name variable. All other external_dns variables are ignored if this variable is false."
+  description = "Install the external_dns helm chart to manage DNS records for resources created by the application. All other external_dns variables are ignored if this variable is false."
   type        = bool
   default     = true
 }

@@ -1,0 +1,19 @@
+# Copy this file to terraform.tfvars and fill in the values before running terraform apply.
+
+name            = "datarobot"
+environment     = "dev" # must be one of: dev, staging, prod
+subscription_id = "00000000-0000-0000-0000-000000000000"
+location        = "westus2"
+domain_name     = "datarobot.example.com"
+email_address   = "you@example.com"
+
+# Existing network resources to deploy into.
+existing_vnet_name              = "existing-vnet-name"
+existing_kubernetes_node_subnet = "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/existing-rg/providers/Microsoft.Network/virtualNetworks/existing-vnet-name/subnets/existing-subnet-name"
+
+# CIDR block allowed to reach the internal ingress load balancer.
+ingress_allowed_cidr = "10.0.0.0/24"
+
+tags = {
+  managed-by = "terraform"
+}

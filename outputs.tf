@@ -131,6 +131,11 @@ output "postgres_endpoint" {
   value       = try(module.postgres[0].endpoint, null)
 }
 
+output "postgres_port" {
+  description = "PostgreSQL Flexible Server port"
+  value       = try(module.postgres[0].port, null)
+}
+
 output "postgres_password" {
   description = "PostgreSQL Flexible Server admin password"
   value       = try(module.postgres[0].password, null)

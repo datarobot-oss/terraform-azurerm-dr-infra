@@ -59,6 +59,32 @@ variable "server_configurations" {
   type        = map(string)
 }
 
+variable "private_dns_zone_name" {
+  description = "Name of the private DNS zone for PostgreSQL. Override to preserve an existing zone name during migration."
+  type        = string
+  default     = "privatelink.postgres.database.azure.com"
+}
+
+variable "password_constraints" {
+  description = "Constraints to put on any generated passwords"
+  type = object({
+    length           = number
+    min_lower        = optional(number)
+    min_numeric      = optional(number)
+    min_upper        = optional(number)
+    min_special      = optional(number, 0)
+    special          = optional(bool)
+    override_special = optional(string)
+  })
+  default = {
+    length           = 32
+    min_lower        = 1
+    min_numeric      = 1
+    min_upper        = 1
+    override_special = "-"
+  }
+}
+
 variable "tags" {
   description = "A map of tags to add to all created resources"
   type        = map(string)

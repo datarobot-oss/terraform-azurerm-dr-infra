@@ -376,6 +376,39 @@ variable "postgres_server_configurations" {
     "azure.accepted_password_auth_method" = "MD5,SCRAM-SHA-256"
   }
 }
+
+variable "password_constraints" {
+  description = "Constraints to put on any generated passwords"
+  type = object({
+    length           = number
+    min_lower        = optional(number)
+    min_numeric      = optional(number)
+    min_upper        = optional(number)
+    min_special      = optional(number, 0)
+    special          = optional(bool)
+    override_special = optional(string)
+  })
+  default = {
+    length           = 32
+    min_lower        = 1
+    min_numeric      = 1
+    min_upper        = 1
+    override_special = "-"
+  }
+}
+
+variable "postgres_name" {
+  description = "Name of the PostgreSQL Flexible Server. If not specified, the `name` variable will be used."
+  type        = string
+  default     = null
+}
+
+variable "postgres_private_dns_zone_name" {
+  description = "Override the private DNS zone name for PostgreSQL. Set to the existing zone name when migrating to avoid recreating the server."
+  type        = string
+  default     = "privatelink.postgres.database.azure.com"
+}
+
 ################################################################################
 # Redis
 ################################################################################
@@ -404,6 +437,12 @@ variable "redis_version" {
   default     = null
 }
 
+variable "redis_name" {
+  description = "Name of the Azure Cache for Redis instance. If not specified, the `name` variable will be used."
+  type        = string
+  default     = null
+}
+
 
 ################################################################################
 # MongoDB
@@ -417,6 +456,12 @@ variable "create_mongodb" {
 
 variable "existing_mongodb_subnet" {
   description = "Existing subnet IDs to be used for the MongoDB Atlas instance. Required when an existing_network_id is specified."
+  type        = string
+  default     = null
+}
+
+variable "mongodb_name" {
+  description = "Name of the MongoDB Atlas instance. If not specified, the `name` variable will be used."
   type        = string
   default     = null
 }

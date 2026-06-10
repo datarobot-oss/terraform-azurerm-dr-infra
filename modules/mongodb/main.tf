@@ -17,11 +17,11 @@ resource "mongodbatlas_project_ip_access_list" "this" {
 resource "mongodbatlas_privatelink_endpoint" "this" {
   project_id    = mongodbatlas_project.this.id
   provider_name = local.cloud_provider
-  region        = local.region
+  region        = var.location
 }
 
 resource "azurerm_private_endpoint" "this" {
-  name                = "${var.name}-mongodb"
+  name                = coalesce(var.private_endpoint_name, "${var.name}-mongodb")
   location            = var.location
   resource_group_name = var.resource_group_name
   subnet_id           = var.subnet_id
@@ -129,7 +129,7 @@ resource "mongodbatlas_cloud_backup_schedule" "this" {
 
 # https://www.mongodb.com/docs/atlas/security-private-endpoint/#port-ranges-used-for-private-endpoints
 resource "azurerm_network_security_group" "mongo_atlas_pl" {
-  name                = "${var.name}-mongodb"
+  name                = coalesce(var.private_endpoint_name, "${var.name}-mongodb")
   location            = var.location
   resource_group_name = var.resource_group_name
 

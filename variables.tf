@@ -443,6 +443,18 @@ variable "redis_name" {
   default     = null
 }
 
+variable "redis_private_endpoint_name" {
+  description = "Name of the Redis private endpoint. If not specified, defaults to `<redis_name>-redis`."
+  type        = string
+  default     = null
+}
+
+variable "redis_private_service_connection_name" {
+  description = "Name of the Redis private service connection. If not specified, defaults to the private endpoint name."
+  type        = string
+  default     = null
+}
+
 
 ################################################################################
 # MongoDB
@@ -462,6 +474,12 @@ variable "existing_mongodb_subnet" {
 
 variable "mongodb_name" {
   description = "Name of the MongoDB Atlas instance. If not specified, the `name` variable will be used."
+  type        = string
+  default     = null
+}
+
+variable "mongodb_private_endpoint_name" {
+  description = "Name of the MongoDB Atlas private endpoint. If not specified, defaults to `<mongodb_name>-mongodb`."
   type        = string
   default     = null
 }

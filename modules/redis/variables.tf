@@ -35,6 +35,18 @@ variable "redis_version" {
   default     = null
 }
 
+variable "private_endpoint_name" {
+  description = "Name of the Azure private endpoint. If not specified, defaults to `<name>-redis`."
+  type        = string
+  default     = null
+}
+
+variable "private_service_connection_name" {
+  description = "Name of the private service connection. If not specified, defaults to the private endpoint name."
+  type        = string
+  default     = null
+}
+
 variable "tags" {
   description = "A map of tags to add to all created resources"
   type        = map(string)

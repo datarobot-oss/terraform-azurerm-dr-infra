@@ -76,6 +76,12 @@ variable "atlas_instance_type" {
   type        = string
 }
 
+variable "private_endpoint_name" {
+  description = "Name of the Azure private endpoint. If not specified, the `name` variable will be used."
+  type        = string
+  default     = null
+}
+
 variable "mongodb_admin_username" {
   description = "MongoDB admin username"
   type        = string

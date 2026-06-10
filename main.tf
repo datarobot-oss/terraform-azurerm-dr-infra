@@ -266,10 +266,12 @@ module "redis" {
   resource_group_name = local.resource_group_name
   location            = var.location
 
-  vnet_id       = local.vnet_id
-  subnet_id     = local.redis_subnet
-  capacity      = var.redis_capacity
-  redis_version = var.redis_version
+  vnet_id                         = local.vnet_id
+  subnet_id                       = local.redis_subnet
+  capacity                        = var.redis_capacity
+  redis_version                   = var.redis_version
+  private_endpoint_name           = var.redis_private_endpoint_name
+  private_service_connection_name = var.redis_private_service_connection_name
 
   tags = var.tags
 }
@@ -293,12 +295,13 @@ module "mongodb" {
   source = "./modules/mongodb"
   count  = var.create_mongodb ? 1 : 0
 
-  name                 = local.mongodb_name
-  resource_group_name  = local.resource_group_name
-  location             = var.location
-  vnet_cidr            = local.vnet_cidr
-  subnet_id            = local.mongodb_subnets
-  password_constraints = var.password_constraints
+  name                  = local.mongodb_name
+  resource_group_name   = local.resource_group_name
+  location              = var.location
+  vnet_cidr             = local.vnet_cidr
+  subnet_id             = local.mongodb_subnets
+  private_endpoint_name = var.mongodb_private_endpoint_name
+  password_constraints  = var.password_constraints
 
   mongodb_version                    = var.mongodb_version
   atlas_org_id                       = var.mongodb_atlas_org_id

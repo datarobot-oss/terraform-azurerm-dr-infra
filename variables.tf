@@ -544,6 +544,24 @@ variable "mongodb_slack_notification_channel" {
   default     = null
 }
 
+variable "mongodb_atlas_compute_auto_scaling_enabled" {
+  description = "Enable Atlas compute autoscaling"
+  type        = bool
+  default     = false
+}
+
+variable "mongodb_atlas_compute_auto_scaling_min_instance_size" {
+  description = "Minimum instance size for Atlas compute autoscaling. Required when mongodb_atlas_compute_auto_scaling_enabled is true."
+  type        = string
+  default     = null
+}
+
+variable "mongodb_atlas_compute_auto_scaling_max_instance_size" {
+  description = "Maximum instance size for Atlas compute autoscaling"
+  type        = string
+  default     = "M80"
+}
+
 
 ################################################################################
 # Helm Charts

@@ -66,7 +66,11 @@ resource "mongodbatlas_advanced_cluster" "this" {
       }
 
       auto_scaling = {
-        disk_gb_enabled = var.atlas_auto_scaling_disk_gb_enabled
+        disk_gb_enabled            = var.atlas_auto_scaling_disk_gb_enabled
+        compute_enabled            = var.atlas_compute_auto_scaling_enabled
+        compute_scale_down_enabled = var.atlas_compute_auto_scaling_enabled
+        compute_min_instance_size  = var.atlas_compute_auto_scaling_enabled ? var.atlas_compute_auto_scaling_min_instance_size : null
+        compute_max_instance_size  = var.atlas_compute_auto_scaling_enabled ? var.atlas_compute_auto_scaling_max_instance_size : null
       }
     }]
   }]

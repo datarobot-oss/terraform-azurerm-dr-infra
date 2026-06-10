@@ -48,6 +48,24 @@ variable "atlas_auto_scaling_disk_gb_enabled" {
   type        = bool
 }
 
+variable "atlas_compute_auto_scaling_enabled" {
+  description = "Enable Atlas compute autoscaling"
+  type        = bool
+  default     = false
+}
+
+variable "atlas_compute_auto_scaling_min_instance_size" {
+  description = "Minimum instance size for Atlas compute autoscaling. Required when atlas_compute_auto_scaling_enabled is true."
+  type        = string
+  default     = null
+}
+
+variable "atlas_compute_auto_scaling_max_instance_size" {
+  description = "Maximum instance size for Atlas compute autoscaling"
+  type        = string
+  default     = "M80"
+}
+
 variable "atlas_disk_size" {
   description = "Starting atlas disk size"
   type        = string

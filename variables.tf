@@ -155,6 +155,24 @@ variable "create_container_registry" {
   default     = true
 }
 
+variable "container_registry_name" {
+  description = "Name of the container registry. If not specified, a unique name is generated from the `name` variable."
+  type        = string
+  default     = null
+}
+
+variable "container_registry_zone_redundancy_enabled" {
+  description = "Whether zone redundancy is enabled for the container registry"
+  type        = bool
+  default     = true
+}
+
+variable "container_registry_identity_type" {
+  description = "Type of managed identity to assign to the container registry. Set to 'SystemAssigned' when a credential set is attached."
+  type        = string
+  default     = null
+}
+
 variable "container_registry_public_network_access_enabled" {
   description = "Whether the public network access to the container registry is enabled"
   type        = bool

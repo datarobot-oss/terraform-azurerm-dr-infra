@@ -133,12 +133,14 @@ module "container_registry" {
   resource_group_name = local.resource_group_name
   location            = var.location
 
-  name                          = module.naming.container_registry.name_unique
+  name                          = coalesce(var.container_registry_name, module.naming.container_registry.name_unique)
   vnet_id                       = local.vnet_id
   subnet_id                     = local.aks_nodes_subnet_id
   public_network_access_enabled = var.container_registry_public_network_access_enabled
   network_rules_default_action  = var.container_registry_network_rules_default_action
   ip_allow_list                 = var.container_registry_ip_allow_list
+  zone_redundancy_enabled       = var.container_registry_zone_redundancy_enabled
+  identity_type                 = var.container_registry_identity_type
 
   tags = var.tags
 }

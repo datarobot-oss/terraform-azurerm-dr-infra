@@ -5,8 +5,16 @@ resource "azurerm_container_registry" "this" {
   name                          = var.name
   sku                           = "Premium"
   admin_enabled                 = true
-  zone_redundancy_enabled       = true
+  zone_redundancy_enabled       = var.zone_redundancy_enabled
   public_network_access_enabled = var.public_network_access_enabled
+
+  dynamic "identity" {
+    for_each = var.identity_type != null ? [1] : []
+    content {
+      type = var.identity_type
+    }
+  }
+
   network_rule_set {
     default_action = var.network_rules_default_action
 

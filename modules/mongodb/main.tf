@@ -37,7 +37,7 @@ resource "azurerm_private_endpoint" "this" {
 
 resource "mongodbatlas_privatelink_endpoint_service" "this" {
   project_id                  = mongodbatlas_privatelink_endpoint.this.project_id
-  private_link_id             = mongodbatlas_privatelink_endpoint.this.id
+  private_link_id             = mongodbatlas_privatelink_endpoint.this.private_link_id
   endpoint_service_id         = azurerm_private_endpoint.this.id
   private_endpoint_ip_address = azurerm_private_endpoint.this.private_service_connection[0].private_ip_address
   provider_name               = local.cloud_provider

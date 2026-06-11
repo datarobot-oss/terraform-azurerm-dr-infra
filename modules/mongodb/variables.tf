@@ -48,6 +48,24 @@ variable "atlas_auto_scaling_disk_gb_enabled" {
   type        = bool
 }
 
+variable "atlas_compute_auto_scaling_enabled" {
+  description = "Enable Atlas compute autoscaling"
+  type        = bool
+  default     = false
+}
+
+variable "atlas_compute_auto_scaling_min_instance_size" {
+  description = "Minimum instance size for Atlas compute autoscaling. Required when atlas_compute_auto_scaling_enabled is true."
+  type        = string
+  default     = null
+}
+
+variable "atlas_compute_auto_scaling_max_instance_size" {
+  description = "Maximum instance size for Atlas compute autoscaling"
+  type        = string
+  default     = "M80"
+}
+
 variable "atlas_disk_size" {
   description = "Starting atlas disk size"
   type        = string
@@ -56,6 +74,12 @@ variable "atlas_disk_size" {
 variable "atlas_instance_type" {
   description = "atlas instance type"
   type        = string
+}
+
+variable "private_endpoint_name" {
+  description = "Name of the Azure private endpoint. If not specified, the `name` variable will be used."
+  type        = string
+  default     = null
 }
 
 variable "mongodb_admin_username" {
@@ -85,6 +109,26 @@ variable "slack_notification_channel" {
   description = "Slack channel to send alert notifications to. Required when `enable_slack_alerts` is `true`."
   type        = string
   default     = null
+}
+
+variable "password_constraints" {
+  description = "Constraints to put on any generated passwords"
+  type = object({
+    length           = number
+    min_lower        = optional(number)
+    min_numeric      = optional(number)
+    min_upper        = optional(number)
+    min_special      = optional(number, 0)
+    special          = optional(bool)
+    override_special = optional(string)
+  })
+  default = {
+    length           = 32
+    min_lower        = 1
+    min_numeric      = 1
+    min_upper        = 1
+    override_special = "-"
+  }
 }
 
 variable "tags" {

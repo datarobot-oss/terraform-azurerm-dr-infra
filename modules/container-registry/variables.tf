@@ -42,3 +42,15 @@ variable "subnet_id" {
   description = "ID of the subnet used for the private endpoint to storage"
   type        = string
 }
+
+variable "zone_redundancy_enabled" {
+  description = "Whether zone redundancy is enabled for the container registry"
+  type        = bool
+  default     = true
+}
+
+variable "identity_type" {
+  description = "Type of managed identity to assign to the container registry. Set to 'SystemAssigned' when a credential set is attached."
+  type        = string
+  default     = null
+}

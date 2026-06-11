@@ -133,12 +133,14 @@ module "container_registry" {
   resource_group_name = local.resource_group_name
   location            = var.location
 
-  name                          = module.naming.container_registry.name_unique
+  name                          = coalesce(var.container_registry_name, module.naming.container_registry.name_unique)
   vnet_id                       = local.vnet_id
   subnet_id                     = local.aks_nodes_subnet_id
   public_network_access_enabled = var.container_registry_public_network_access_enabled
   network_rules_default_action  = var.container_registry_network_rules_default_action
   ip_allow_list                 = var.container_registry_ip_allow_list
+  zone_redundancy_enabled       = var.container_registry_zone_redundancy_enabled
+  identity_type                 = var.container_registry_identity_type
 
   tags = var.tags
 }
@@ -222,6 +224,7 @@ module "app_identity" {
 ################################################################################
 
 locals {
+  postgres_name      = coalesce(var.postgres_name, var.name)
   postgres_subnet_id = var.existing_postgres_subnet != null ? var.existing_postgres_subnet : try(module.network[0].postgres_subnet_id, null)
 }
 
@@ -229,7 +232,7 @@ module "postgres" {
   source = "./modules/postgres"
   count  = var.create_postgres ? 1 : 0
 
-  name                = var.name
+  name                = local.postgres_name
   resource_group_name = local.resource_group_name
   location            = var.location
 
@@ -241,6 +244,8 @@ module "postgres" {
   storage_mb            = var.postgres_storage_mb
   backup_retention_days = var.postgres_backup_retention_days
   server_configurations = var.postgres_server_configurations
+  private_dns_zone_name = var.postgres_private_dns_zone_name
+  password_constraints  = var.password_constraints
 
   tags = var.tags
 }
@@ -251,22 +256,24 @@ module "postgres" {
 ################################################################################
 
 locals {
+  redis_name   = coalesce(var.redis_name, var.name)
   redis_subnet = var.existing_redis_subnet != null ? var.existing_redis_subnet : try(module.network[0].redis_subnet_id, null)
 }
-
 
 module "redis" {
   source = "./modules/redis"
   count  = var.create_redis ? 1 : 0
 
-  name                = var.name
+  name                = local.redis_name
   resource_group_name = local.resource_group_name
   location            = var.location
 
-  vnet_id       = local.vnet_id
-  subnet_id     = local.redis_subnet
-  capacity      = var.redis_capacity
-  redis_version = var.redis_version
+  vnet_id                         = local.vnet_id
+  subnet_id                       = local.redis_subnet
+  capacity                        = var.redis_capacity
+  redis_version                   = var.redis_version
+  private_endpoint_name           = var.redis_private_endpoint_name
+  private_service_connection_name = var.redis_private_service_connection_name
 
   tags = var.tags
 }
@@ -282,6 +289,7 @@ provider "mongodbatlas" {
 }
 
 locals {
+  mongodb_name    = coalesce(var.mongodb_name, var.name)
   mongodb_subnets = var.existing_mongodb_subnet != null ? var.existing_mongodb_subnet : try(module.network[0].mongodb_subnet_id, null)
 }
 
@@ -289,11 +297,13 @@ module "mongodb" {
   source = "./modules/mongodb"
   count  = var.create_mongodb ? 1 : 0
 
-  name                = var.name
-  resource_group_name = local.resource_group_name
-  location            = var.location
-  vnet_cidr           = local.vnet_cidr
-  subnet_id           = local.mongodb_subnets
+  name                  = local.mongodb_name
+  resource_group_name   = local.resource_group_name
+  location              = var.location
+  vnet_cidr             = local.vnet_cidr
+  subnet_id             = local.mongodb_subnets
+  private_endpoint_name = var.mongodb_private_endpoint_name
+  password_constraints  = var.password_constraints
 
   mongodb_version                    = var.mongodb_version
   atlas_org_id                       = var.mongodb_atlas_org_id
@@ -306,6 +316,10 @@ module "mongodb" {
   enable_slack_alerts                = var.mongodb_enable_slack_alerts
   slack_api_token                    = var.mongodb_slack_api_token
   slack_notification_channel         = var.mongodb_slack_notification_channel
+
+  atlas_compute_auto_scaling_enabled           = var.mongodb_atlas_compute_auto_scaling_enabled
+  atlas_compute_auto_scaling_min_instance_size = var.mongodb_atlas_compute_auto_scaling_min_instance_size
+  atlas_compute_auto_scaling_max_instance_size = var.mongodb_atlas_compute_auto_scaling_max_instance_size
 
   tags = var.tags
 }

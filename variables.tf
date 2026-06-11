@@ -155,6 +155,24 @@ variable "create_container_registry" {
   default     = true
 }
 
+variable "container_registry_name" {
+  description = "Name of the container registry. If not specified, a unique name is generated from the `name` variable."
+  type        = string
+  default     = null
+}
+
+variable "container_registry_zone_redundancy_enabled" {
+  description = "Whether zone redundancy is enabled for the container registry"
+  type        = bool
+  default     = true
+}
+
+variable "container_registry_identity_type" {
+  description = "Type of managed identity to assign to the container registry. Set to 'SystemAssigned' when a credential set is attached."
+  type        = string
+  default     = null
+}
+
 variable "container_registry_public_network_access_enabled" {
   description = "Whether the public network access to the container registry is enabled"
   type        = bool
@@ -376,6 +394,39 @@ variable "postgres_server_configurations" {
     "azure.accepted_password_auth_method" = "MD5,SCRAM-SHA-256"
   }
 }
+
+variable "password_constraints" {
+  description = "Constraints to put on any generated passwords"
+  type = object({
+    length           = number
+    min_lower        = optional(number)
+    min_numeric      = optional(number)
+    min_upper        = optional(number)
+    min_special      = optional(number, 0)
+    special          = optional(bool)
+    override_special = optional(string)
+  })
+  default = {
+    length           = 32
+    min_lower        = 1
+    min_numeric      = 1
+    min_upper        = 1
+    override_special = "-"
+  }
+}
+
+variable "postgres_name" {
+  description = "Name of the PostgreSQL Flexible Server. If not specified, the `name` variable will be used."
+  type        = string
+  default     = null
+}
+
+variable "postgres_private_dns_zone_name" {
+  description = "Override the private DNS zone name for PostgreSQL. Set to the existing zone name when migrating to avoid recreating the server."
+  type        = string
+  default     = "privatelink.postgres.database.azure.com"
+}
+
 ################################################################################
 # Redis
 ################################################################################
@@ -404,6 +455,24 @@ variable "redis_version" {
   default     = null
 }
 
+variable "redis_name" {
+  description = "Name of the Azure Cache for Redis instance. If not specified, the `name` variable will be used."
+  type        = string
+  default     = null
+}
+
+variable "redis_private_endpoint_name" {
+  description = "Name of the Redis private endpoint. If not specified, defaults to `<redis_name>-redis`."
+  type        = string
+  default     = null
+}
+
+variable "redis_private_service_connection_name" {
+  description = "Name of the Redis private service connection. If not specified, defaults to the private endpoint name."
+  type        = string
+  default     = null
+}
+
 
 ################################################################################
 # MongoDB
@@ -417,6 +486,18 @@ variable "create_mongodb" {
 
 variable "existing_mongodb_subnet" {
   description = "Existing subnet IDs to be used for the MongoDB Atlas instance. Required when an existing_network_id is specified."
+  type        = string
+  default     = null
+}
+
+variable "mongodb_name" {
+  description = "Name of the MongoDB Atlas instance. If not specified, the `name` variable will be used."
+  type        = string
+  default     = null
+}
+
+variable "mongodb_private_endpoint_name" {
+  description = "Name of the MongoDB Atlas private endpoint. If not specified, defaults to `<mongodb_name>-mongodb`."
   type        = string
   default     = null
 }
@@ -497,6 +578,24 @@ variable "mongodb_slack_notification_channel" {
   description = "Slack channel to send alert notifications to. Required when `enable_slack_alerts` is `true`."
   type        = string
   default     = null
+}
+
+variable "mongodb_atlas_compute_auto_scaling_enabled" {
+  description = "Enable Atlas compute autoscaling"
+  type        = bool
+  default     = false
+}
+
+variable "mongodb_atlas_compute_auto_scaling_min_instance_size" {
+  description = "Minimum instance size for Atlas compute autoscaling. Required when mongodb_atlas_compute_auto_scaling_enabled is true."
+  type        = string
+  default     = null
+}
+
+variable "mongodb_atlas_compute_auto_scaling_max_instance_size" {
+  description = "Maximum instance size for Atlas compute autoscaling"
+  type        = string
+  default     = "M80"
 }
 
 

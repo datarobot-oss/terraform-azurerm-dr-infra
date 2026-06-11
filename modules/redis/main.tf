@@ -13,15 +13,20 @@ resource "azurerm_redis_cache" "this" {
   tags = var.tags
 }
 
+locals {
+  private_endpoint_name           = coalesce(var.private_endpoint_name, "${var.name}-redis")
+  private_service_connection_name = coalesce(var.private_service_connection_name, local.private_endpoint_name)
+}
+
 resource "azurerm_private_endpoint" "this" {
-  name                = "${var.name}-redis"
+  name                = local.private_endpoint_name
   location            = var.location
   resource_group_name = var.resource_group_name
   subnet_id           = var.subnet_id
   tags                = var.tags
 
   private_service_connection {
-    name                           = "${var.name}-redis"
+    name                           = local.private_service_connection_name
     is_manual_connection           = false
     private_connection_resource_id = azurerm_redis_cache.this.id
     subresource_names              = ["redisCache"]
@@ -40,7 +45,7 @@ resource "azurerm_private_dns_zone" "this" {
 }
 
 resource "azurerm_private_dns_zone_virtual_network_link" "this" {
-  name                  = "${var.name}-redis"
+  name                  = local.private_endpoint_name
   resource_group_name   = var.resource_group_name
   private_dns_zone_name = azurerm_private_dns_zone.this.name
   virtual_network_id    = var.vnet_id

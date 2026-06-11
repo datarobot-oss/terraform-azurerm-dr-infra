@@ -1,5 +1,5 @@
 resource "azurerm_private_dns_zone" "this" {
-  name                = "privatelink.postgres.database.azure.com"
+  name                = var.private_dns_zone_name
   resource_group_name = var.resource_group_name
 }
 
@@ -13,12 +13,13 @@ resource "azurerm_private_dns_zone_virtual_network_link" "this" {
 }
 
 resource "random_password" "admin" {
-  length      = 20
-  special     = false
-  min_lower   = 1
-  min_upper   = 1
-  min_numeric = 1
-  min_special = 1
+  length           = var.password_constraints.length
+  min_lower        = var.password_constraints.min_lower
+  min_upper        = var.password_constraints.min_upper
+  min_numeric      = var.password_constraints.min_numeric
+  min_special      = var.password_constraints.min_special
+  special          = var.password_constraints.special
+  override_special = var.password_constraints.override_special
 }
 
 resource "azurerm_postgresql_flexible_server" "this" {

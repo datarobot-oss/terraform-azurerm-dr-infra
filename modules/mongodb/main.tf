@@ -17,11 +17,11 @@ resource "mongodbatlas_project_ip_access_list" "this" {
 resource "mongodbatlas_privatelink_endpoint" "this" {
   project_id    = mongodbatlas_project.this.id
   provider_name = local.cloud_provider
-  region        = local.region
+  region        = var.location
 }
 
 resource "azurerm_private_endpoint" "this" {
-  name                = "${var.name}-mongodb"
+  name                = coalesce(var.private_endpoint_name, "${var.name}-mongodb")
   location            = var.location
   resource_group_name = var.resource_group_name
   subnet_id           = var.subnet_id
@@ -37,7 +37,7 @@ resource "azurerm_private_endpoint" "this" {
 
 resource "mongodbatlas_privatelink_endpoint_service" "this" {
   project_id                  = mongodbatlas_privatelink_endpoint.this.project_id
-  private_link_id             = mongodbatlas_privatelink_endpoint.this.id
+  private_link_id             = mongodbatlas_privatelink_endpoint.this.private_link_id
   endpoint_service_id         = azurerm_private_endpoint.this.id
   private_endpoint_ip_address = azurerm_private_endpoint.this.private_service_connection[0].private_ip_address
   provider_name               = local.cloud_provider
@@ -66,7 +66,11 @@ resource "mongodbatlas_advanced_cluster" "this" {
       }
 
       auto_scaling = {
-        disk_gb_enabled = var.atlas_auto_scaling_disk_gb_enabled
+        disk_gb_enabled            = var.atlas_auto_scaling_disk_gb_enabled
+        compute_enabled            = var.atlas_compute_auto_scaling_enabled
+        compute_scale_down_enabled = var.atlas_compute_auto_scaling_enabled
+        compute_min_instance_size  = var.atlas_compute_auto_scaling_enabled ? var.atlas_compute_auto_scaling_min_instance_size : null
+        compute_max_instance_size  = var.atlas_compute_auto_scaling_enabled ? var.atlas_compute_auto_scaling_max_instance_size : null
       }
     }]
   }]
@@ -125,7 +129,7 @@ resource "mongodbatlas_cloud_backup_schedule" "this" {
 
 # https://www.mongodb.com/docs/atlas/security-private-endpoint/#port-ranges-used-for-private-endpoints
 resource "azurerm_network_security_group" "mongo_atlas_pl" {
-  name                = "${var.name}-mongodb"
+  name                = coalesce(var.private_endpoint_name, "${var.name}-mongodb")
   location            = var.location
   resource_group_name = var.resource_group_name
 

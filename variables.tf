@@ -364,7 +364,7 @@ variable "postgres_multi_az" {
 variable "postgres_version" {
   description = "The version of PostgreSQL Flexible Server to use"
   type        = string
-  default     = "13"
+  default     = "17"
 }
 
 variable "postgres_sku_name" {

@@ -714,6 +714,12 @@ variable "ingress_pl_auto_approval_subscription_ids" {
   default     = null
 }
 
+variable "ingress_pl_service_name" {
+  description = "Name of the Azure Private Link Service. If not specified, defaults to `<name>-ingress-pl-service`."
+  type        = string
+  default     = null
+}
+
 ################################################################################
 # Observability
 ################################################################################
@@ -759,6 +765,7 @@ variable "custom_private_endpoints" {
     private_dns_name  = string
     create_dns_zone   = optional(bool, true)
     request_message   = optional(string, "Private endpoint request for DataRobot")
+    name_override     = optional(string, null)
   }))
   default = []
 }

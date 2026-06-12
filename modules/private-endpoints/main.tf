@@ -13,7 +13,7 @@ locals {
 
   custom_config = [
     for ep in var.private_endpoint_config : {
-      pe_name              = "${var.name}-${ep.private_dns_name}-pe"
+      pe_name              = coalesce(ep.name_override, "${var.name}-${ep.private_dns_name}-pe")
       dns_zone_name        = ep.private_dns_zone
       resource_id          = ep.resource_id
       subresource_names    = ep.subresource_names

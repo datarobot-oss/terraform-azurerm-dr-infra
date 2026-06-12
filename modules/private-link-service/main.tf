@@ -1,5 +1,5 @@
 resource "azurerm_private_link_service" "internal_ingress" {
-  name                = "${var.name}-ingress-pl-service"
+  name                = coalesce(var.private_link_service_name, "${var.name}-ingress-pl-service")
   resource_group_name = var.resource_group_name
   location            = var.location
 

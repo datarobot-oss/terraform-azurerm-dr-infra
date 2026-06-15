@@ -37,6 +37,7 @@ variable "private_endpoint_config" {
     private_dns_name  = string
     create_dns_zone   = optional(bool, true)
     request_message   = optional(string, "Private endpoint request for DataRobot")
+    name_override     = optional(string, null)
   }))
 }
 

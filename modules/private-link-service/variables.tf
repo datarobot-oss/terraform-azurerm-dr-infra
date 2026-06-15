@@ -40,6 +40,12 @@ variable "load_balancer_frontend_ip_configuration_ids" {
   default     = null
 }
 
+variable "private_link_service_name" {
+  description = "Name of the Azure Private Link Service. If not specified, defaults to `<name>-ingress-pl-service`."
+  type        = string
+  default     = null
+}
+
 variable "tags" {
   description = "A map of tags to add to all created resources"
   type        = map(string)

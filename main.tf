@@ -351,6 +351,7 @@ module "private_link_service" {
   pl_subnet_id                                = local.aks_nodes_subnet_id
   ingress_pl_visibility_subscription_ids      = var.ingress_pl_visibility_subscription_ids
   ingress_pl_auto_approval_subscription_ids   = var.ingress_pl_auto_approval_subscription_ids
+  private_link_service_name                   = var.ingress_pl_service_name
 
   tags       = var.tags
   depends_on = [module.ingress_nginx]

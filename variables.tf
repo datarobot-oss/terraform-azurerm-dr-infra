@@ -389,7 +389,7 @@ variable "postgres_server_configurations" {
   description = "A map of PostgreSQL Flexible Server configuration name/value pairs"
   type        = map(string)
   default = {
-    "azure.extensions"                    = "UUID-OSSP,PLPGSQL,PG_STAT_STATEMENTS,VECTOR"
+    "azure.extensions"                    = "UUID-OSSP,PLPGSQL,PG_STAT_STATEMENTS,VECTOR,PG_TRGM,PGCRYPTO"
     "password_encryption"                 = "SCRAM-SHA-256"
     "azure.accepted_password_auth_method" = "MD5,SCRAM-SHA-256"
   }

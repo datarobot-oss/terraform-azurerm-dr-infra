@@ -48,5 +48,8 @@ variable "storage_account_id" {
 
 variable "private_storage_endpoints" {
   description = "A list of private storage endpoints"
-  type        = list(string)
+  type = list(object({
+    type          = string
+    name_override = optional(string, null)
+  }))
 }

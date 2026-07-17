@@ -772,6 +772,12 @@ variable "custom_private_endpoints" {
 
 variable "private_storage_endpoints" {
   description = "A list of private storage endpoints"
-  type        = list(string)
-  default     = ["blob", "dfs"]
+  type = list(object({
+    type          = string
+    name_override = optional(string, null)
+  }))
+  default = [
+    { type = "blob" },
+    { type = "dfs" },
+  ]
 }

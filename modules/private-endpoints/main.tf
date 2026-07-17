@@ -1,10 +1,10 @@
 locals {
   storage_config = [
-    for type in var.private_storage_endpoints : {
-      pe_name              = "${var.name}-${type}-storage-pe"
-      dns_zone_name        = "privatelink.${type}.core.windows.net"
+    for ep in var.private_storage_endpoints : {
+      pe_name              = coalesce(ep.name_override, "${var.name}-${ep.type}-storage-pe")
+      dns_zone_name        = "privatelink.${ep.type}.core.windows.net"
       resource_id          = var.storage_account_id
-      subresource_names    = [type]
+      subresource_names    = [ep.type]
       is_manual_connection = true
       request_message      = "Private endpoint request for DataRobot"
       create_dns_zone      = true

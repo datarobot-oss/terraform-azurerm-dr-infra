@@ -320,6 +320,7 @@ module "mongodb" {
   atlas_compute_auto_scaling_enabled           = var.mongodb_atlas_compute_auto_scaling_enabled
   atlas_compute_auto_scaling_min_instance_size = var.mongodb_atlas_compute_auto_scaling_min_instance_size
   atlas_compute_auto_scaling_max_instance_size = var.mongodb_atlas_compute_auto_scaling_max_instance_size
+  backup_schedule                              = var.mongodb_backup_schedule
 
   tags = var.tags
 }

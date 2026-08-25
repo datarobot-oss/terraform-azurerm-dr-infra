@@ -22,19 +22,29 @@ output "vnet_id" {
 # DNS
 ################################################################################
 
-output "dns_zone_id" {
-  description = "ID of the DNS zone"
-  value       = local.dns_zone_id
+output "public_zone_id" {
+  description = "ID of the public zone"
+  value       = local.public_zone_id
 }
 
-output "dns_zone_name" {
-  description = "Name of the DNS zone"
-  value       = try(azurerm_dns_zone.this[0].name, azurerm_private_dns_zone.this[0].name, null)
+output "private_zone_id" {
+  description = "ID of the private zone"
+  value       = local.private_zone_id
 }
 
-output "dns_zone_name_servers" {
-  description = "Name servers of the DNS zone"
-  value       = try(azurerm_dns_zone.this[0].name_servers, null)
+output "public_dns_zone_name_servers" {
+  description = "Name servers of the public DNS zone"
+  value       = try(azurerm_dns_zone.public[0].name_servers, null)
+}
+
+output "public_dns_zone_name" {
+  description = "Name of the public zone"
+  value       = try(azurerm_dns_zone.public[0].name, null)
+}
+
+output "private_dns_zone_name" {
+  description = "Name of the private zone"
+  value       = try(azurerm_private_dns_zone.private[0].name, null)
 }
 
 ################################################################################

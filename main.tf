@@ -61,33 +61,24 @@ module "network" {
 ################################################################################
 
 locals {
-  dns_zone_id = var.existing_dns_zone_id != null ? var.existing_dns_zone_id : try(azurerm_dns_zone.this[0].id, azurerm_private_dns_zone.this[0].id, null)
+  public_zone_id  = var.existing_public_dns_zone_id != null ? var.existing_public_dns_zone_id : try(azurerm_dns_zone.public[0].id, null)
+  private_zone_id = var.existing_private_dns_zone_id != null ? var.existing_private_dns_zone_id : try(azurerm_private_dns_zone.private[0].id, null)
 }
 
-resource "azurerm_dns_zone" "this" {
-  count = var.existing_dns_zone_id == null && var.create_dns_zone && var.dns_zone_public ? 1 : 0
+resource "azurerm_dns_zone" "public" {
+  count = var.existing_public_dns_zone_id == null && var.create_dns_zones ? 1 : 0
 
   resource_group_name = local.resource_group_name
   name                = var.domain_name
   tags                = var.tags
 }
 
-resource "azurerm_private_dns_zone" "this" {
-  count = var.existing_dns_zone_id == null && var.create_dns_zone && !var.dns_zone_public ? 1 : 0
+resource "azurerm_private_dns_zone" "private" {
+  count = var.existing_private_dns_zone_id == null && var.create_dns_zones ? 1 : 0
 
   resource_group_name = local.resource_group_name
   name                = var.domain_name
   tags                = var.tags
-}
-
-resource "azurerm_private_dns_zone_virtual_network_link" "this" {
-  count = var.existing_dns_zone_id == null && var.create_dns_zone && !var.dns_zone_public ? 1 : 0
-
-  name                  = "${var.name}-dns-link"
-  resource_group_name   = local.resource_group_name
-  private_dns_zone_name = azurerm_private_dns_zone.this[0].name
-  virtual_network_id    = local.vnet_id
-  tags                  = var.tags
 }
 
 
@@ -418,7 +409,7 @@ module "cert_manager" {
   location            = var.location
 
   aks_oidc_issuer_url        = local.aks_cluster_oidc_issuer_url
-  hosted_zone_id             = local.dns_zone_id
+  hosted_zone_id             = local.public_zone_id
   letsencrypt_clusterissuers = var.cert_manager_letsencrypt_clusterissuers
   hosted_zone_name           = var.domain_name
   email_address              = var.cert_manager_letsencrypt_email_address
@@ -439,7 +430,7 @@ module "external_dns" {
   aks_cluster_name    = local.aks_cluster_name
   aks_oidc_issuer_url = local.aks_cluster_oidc_issuer_url
   hosted_zone_name    = var.domain_name
-  hosted_zone_id      = local.dns_zone_id
+  hosted_zone_id      = var.internet_facing_ingress_lb ? local.public_zone_id : local.private_zone_id
 
   values_overrides = var.external_dns_values_overrides
 

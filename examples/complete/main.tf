@@ -107,6 +107,8 @@ module "datarobot_infra" {
   # App Identity
   ################################################################################
   create_app_identity = true
+  # Use "azuread_application" when DataRobot needs access to a storage account in another Azure tenant
+  app_identity_type   = "user_assigned_identity"
   datarobot_namespace = "dr-app"
   datarobot_service_accounts = [
     "dr",

@@ -98,27 +98,58 @@ output "container_registry_admin_password" {
 
 output "user_assigned_identity_id" {
   description = "ID of the user assigned identity"
-  value       = try(module.app_identity[0].id, null)
+  value       = var.app_identity_type == "user_assigned_identity" ? try(module.app_identity[0].id, null) : null
 }
 
 output "user_assigned_identity_name" {
   description = "Name of the user assigned identity"
-  value       = try(module.app_identity[0].name, null)
+  value       = var.app_identity_type == "user_assigned_identity" ? try(module.app_identity[0].name, null) : null
 }
 
 output "user_assigned_identity_client_id" {
   description = "Client ID of the user assigned identity"
-  value       = try(module.app_identity[0].client_id, null)
+  value       = var.app_identity_type == "user_assigned_identity" ? try(module.app_identity[0].client_id, null) : null
 }
 
 output "user_assigned_identity_principal_id" {
   description = "Principal ID of the user assigned identity"
-  value       = try(module.app_identity[0].principal_id, null)
+  value       = var.app_identity_type == "user_assigned_identity" ? try(module.app_identity[0].principal_id, null) : null
 }
 
 output "user_assigned_identity_tenant_id" {
   description = "Tenant ID of the user assigned identity"
+  value       = var.app_identity_type == "user_assigned_identity" ? try(module.app_identity[0].tenant_id, null) : null
+}
+
+output "app_identity_type" {
+  description = "Type of identity created for the DataRobot application"
+  value       = try(module.app_identity[0].identity_type, null)
+}
+
+output "app_identity_client_id" {
+  description = "Client ID of the DataRobot application identity"
+  value       = try(module.app_identity[0].client_id, null)
+}
+
+output "app_identity_principal_id" {
+  description = "Principal ID of the DataRobot application identity"
+  value       = try(module.app_identity[0].principal_id, null)
+}
+
+output "app_identity_tenant_id" {
+  description = "Tenant ID of the DataRobot application identity"
   value       = try(module.app_identity[0].tenant_id, null)
+}
+
+output "azuread_application_object_id" {
+  description = "Object ID of the AzureAD application"
+  value       = try(module.app_identity[0].application_object_id, null)
+}
+
+output "azuread_application_client_secret" {
+  description = "Client secret of the AzureAD application"
+  value       = try(module.app_identity[0].client_secret, null)
+  sensitive   = true
 }
 
 

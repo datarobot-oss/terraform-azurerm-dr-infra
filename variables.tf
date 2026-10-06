@@ -306,9 +306,32 @@ variable "kubernetes_node_pools" {
 ################################################################################
 
 variable "create_app_identity" {
-  description = "Create a new user assigned identity for the DataRobot application"
+  description = "Create a new identity for the DataRobot application"
   type        = bool
   default     = true
+}
+
+variable "app_identity_type" {
+  description = "Type of identity to create for the DataRobot application. Use azuread_application when the application needs access to resources in another Azure tenant, such as a customer-managed storage account. Creating an AzureAD application requires Microsoft Graph permissions (e.g. Application.ReadWrite.OwnedBy)."
+  type        = string
+  default     = "user_assigned_identity"
+
+  validation {
+    condition     = contains(["user_assigned_identity", "azuread_application"], var.app_identity_type)
+    error_message = "app_identity_type must be one of: user_assigned_identity, azuread_application."
+  }
+}
+
+variable "app_identity_azuread_application_owners" {
+  description = "Object IDs to set as owners of the AzureAD application and service principal when app_identity_type is azuread_application. Defaults to the identity running Terraform."
+  type        = list(string)
+  default     = []
+}
+
+variable "app_identity_create_client_secret" {
+  description = "Create a client secret for the AzureAD application when app_identity_type is azuread_application"
+  type        = bool
+  default     = false
 }
 
 variable "datarobot_namespace" {

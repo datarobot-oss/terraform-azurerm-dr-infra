@@ -199,12 +199,16 @@ module "app_identity" {
   location            = var.location
 
   name                       = module.naming.user_assigned_identity.name
+  identity_type              = var.app_identity_type
   aks_oidc_issuer_url        = local.aks_cluster_oidc_issuer_url
   storage_account_id         = local.storage_account_id
   acr_id                     = local.container_registry_id
   datarobot_namespace        = var.datarobot_namespace
   datarobot_service_accounts = var.datarobot_service_accounts
   create_storage             = var.create_storage
+
+  azuread_application_owners          = var.app_identity_azuread_application_owners
+  create_azuread_application_password = var.app_identity_create_client_secret
 
   tags = var.tags
 }

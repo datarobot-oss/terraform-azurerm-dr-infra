@@ -152,6 +152,24 @@ By default, Azure uses `10.0.0.0/16` for Kubernetes services and `10.244.0.0/16`
 TBD
 
 
+### App Identity
+#### Toggle
+- `create_app_identity` to create a new identity for the DataRobot application
+- `app_identity_type` to select the type of identity: `user_assigned_identity` (default) or `azuread_application`
+
+#### Description
+Create an identity for the DataRobot application with `Storage Blob Data Contributor` access to the storage account and `AcrPush` access to the container registry. Federated Identity Credentials are created for each of the `datarobot_service_accounts` in the `datarobot_namespace` so those pods can authenticate via AKS workload identity.
+
+By default, a User Assigned Identity is created. Managed identities cannot be used to access resources in another Azure tenant, so when the DataRobot application needs access to resources such as a customer-managed storage account in a different tenant, set `app_identity_type = "azuread_application"`. This creates a multi-tenant AzureAD application and service principal instead. To grant access, the owner of the other tenant creates a service principal for the application in their tenant (for example `az ad sp create --id <app_identity_client_id>`) and assigns it the required roles. A client secret can optionally be created with `app_identity_create_client_secret`.
+
+The `azuread` provider must be able to authenticate even when `app_identity_type` is `user_assigned_identity`. It uses the same authentication methods as the `azurerm` provider (Azure CLI, `ARM_*` environment variables, managed identity, OIDC), and no Microsoft Graph API permissions are required unless an AzureAD application is created.
+
+#### Permissions
+`Managed Identity Contributor` and `Role Based Access Control Administrator`
+
+When `app_identity_type` is `azuread_application`, the Microsoft Graph `Application.ReadWrite.OwnedBy` application permission (or the `Application Developer` Entra role) is also required.
+
+
 ### Postgres
 #### Toggle
 - `create_postgres` to create a new Azure PostgreSQL Flexible Server
@@ -279,7 +297,7 @@ The default installation supports DataRobot versions >= 10.0.
 ## Requirements
 
 | Name | Version |
-|------|---------|
+| ---- | ------- |
 | <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.5.7 |
 | <a name="requirement_azurerm"></a> [azurerm](#requirement\_azurerm) | >= 4.3.0 |
 | <a name="requirement_helm"></a> [helm](#requirement\_helm) | >= 3.0.2 |
@@ -289,13 +307,13 @@ The default installation supports DataRobot versions >= 10.0.
 ## Providers
 
 | Name | Version |
-|------|---------|
-| <a name="provider_azurerm"></a> [azurerm](#provider\_azurerm) | 4.54.0 |
+| ---- | ------- |
+| <a name="provider_azurerm"></a> [azurerm](#provider\_azurerm) | >= 4.3.0 |
 
 ## Modules
 
 | Name | Source | Version |
-|------|--------|---------|
+| ---- | ------ | ------- |
 | <a name="module_app_identity"></a> [app\_identity](#module\_app\_identity) | ./modules/app-identity | n/a |
 | <a name="module_cert_manager"></a> [cert\_manager](#module\_cert\_manager) | ./modules/cert-manager | n/a |
 | <a name="module_container_registry"></a> [container\_registry](#module\_container\_registry) | ./modules/container-registry | n/a |
@@ -309,6 +327,7 @@ The default installation supports DataRobot versions >= 10.0.
 | <a name="module_nvidia_device_plugin"></a> [nvidia\_device\_plugin](#module\_nvidia\_device\_plugin) | ./modules/nvidia-device-plugin | n/a |
 | <a name="module_observability"></a> [observability](#module\_observability) | ./modules/observability | n/a |
 | <a name="module_postgres"></a> [postgres](#module\_postgres) | ./modules/postgres | n/a |
+| <a name="module_private_endpoints"></a> [private\_endpoints](#module\_private\_endpoints) | ./modules/private-endpoints | n/a |
 | <a name="module_private_link_service"></a> [private\_link\_service](#module\_private\_link\_service) | ./modules/private-link-service | n/a |
 | <a name="module_redis"></a> [redis](#module\_redis) | ./modules/redis | n/a |
 | <a name="module_storage"></a> [storage](#module\_storage) | ./modules/storage | n/a |
@@ -316,7 +335,7 @@ The default installation supports DataRobot versions >= 10.0.
 ## Resources
 
 | Name | Type |
-|------|------|
+| ---- | ---- |
 | [azurerm_dns_zone.public](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/dns_zone) | resource |
 | [azurerm_private_dns_zone.private](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/private_dns_zone) | resource |
 | [azurerm_resource_group.this](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/resource_group) | resource |
@@ -328,15 +347,21 @@ The default installation supports DataRobot versions >= 10.0.
 ## Inputs
 
 | Name | Description | Type | Default | Required |
-|------|-------------|------|---------|:--------:|
+| ---- | ----------- | ---- | ------- | :------: |
+| <a name="input_app_identity_azuread_application_owners"></a> [app\_identity\_azuread\_application\_owners](#input\_app\_identity\_azuread\_application\_owners) | Object IDs to set as owners of the AzureAD application and service principal when app\_identity\_type is azuread\_application. Defaults to the identity running Terraform. | `list(string)` | `[]` | no |
+| <a name="input_app_identity_create_client_secret"></a> [app\_identity\_create\_client\_secret](#input\_app\_identity\_create\_client\_secret) | Create a client secret for the AzureAD application when app\_identity\_type is azuread\_application | `bool` | `false` | no |
+| <a name="input_app_identity_type"></a> [app\_identity\_type](#input\_app\_identity\_type) | Type of identity to create for the DataRobot application. Use azuread\_application when the application needs access to resources in another Azure tenant, such as a customer-managed storage account. Creating an AzureAD application requires Microsoft Graph permissions (e.g. Application.ReadWrite.OwnedBy). | `string` | `"user_assigned_identity"` | no |
 | <a name="input_cert_manager"></a> [cert\_manager](#input\_cert\_manager) | Install the cert-manager helm chart. All other cert\_manager variables are ignored if this variable is false. | `bool` | `true` | no |
 | <a name="input_cert_manager_letsencrypt_clusterissuers"></a> [cert\_manager\_letsencrypt\_clusterissuers](#input\_cert\_manager\_letsencrypt\_clusterissuers) | Whether to create letsencrypt-prod and letsencrypt-staging ClusterIssuers | `bool` | `true` | no |
 | <a name="input_cert_manager_letsencrypt_email_address"></a> [cert\_manager\_letsencrypt\_email\_address](#input\_cert\_manager\_letsencrypt\_email\_address) | Email address for the certificate owner. Let's Encrypt will use this to contact you about expiring certificates, and issues related to your account. Only required if cert\_manager\_letsencrypt\_clusterissuers is true. | `string` | `"user@example.com"` | no |
 | <a name="input_cert_manager_values_overrides"></a> [cert\_manager\_values\_overrides](#input\_cert\_manager\_values\_overrides) | Values in raw yaml format to pass to helm. | `string` | `null` | no |
+| <a name="input_container_registry_identity_type"></a> [container\_registry\_identity\_type](#input\_container\_registry\_identity\_type) | Type of managed identity to assign to the container registry. Set to 'SystemAssigned' when a credential set is attached. | `string` | `null` | no |
 | <a name="input_container_registry_ip_allow_list"></a> [container\_registry\_ip\_allow\_list](#input\_container\_registry\_ip\_allow\_list) | List of CIDR blocks to allow access to the container registry. Only IPv4 addresses are allowed | `list(string)` | `[]` | no |
+| <a name="input_container_registry_name"></a> [container\_registry\_name](#input\_container\_registry\_name) | Name of the container registry. If not specified, a unique name is generated from the `name` variable. | `string` | `null` | no |
 | <a name="input_container_registry_network_rules_default_action"></a> [container\_registry\_network\_rules\_default\_action](#input\_container\_registry\_network\_rules\_default\_action) | Specifies the default action of allow or deny when no other rules match | `string` | `"Allow"` | no |
 | <a name="input_container_registry_public_network_access_enabled"></a> [container\_registry\_public\_network\_access\_enabled](#input\_container\_registry\_public\_network\_access\_enabled) | Whether the public network access to the container registry is enabled | `bool` | `true` | no |
-| <a name="input_create_app_identity"></a> [create\_app\_identity](#input\_create\_app\_identity) | Create a new user assigned identity for the DataRobot application | `bool` | `true` | no |
+| <a name="input_container_registry_zone_redundancy_enabled"></a> [container\_registry\_zone\_redundancy\_enabled](#input\_container\_registry\_zone\_redundancy\_enabled) | Whether zone redundancy is enabled for the container registry | `bool` | `true` | no |
+| <a name="input_create_app_identity"></a> [create\_app\_identity](#input\_create\_app\_identity) | Create a new identity for the DataRobot application | `bool` | `true` | no |
 | <a name="input_create_container_registry"></a> [create\_container\_registry](#input\_create\_container\_registry) | Create a new Azure Container Registry. Ignored if an existing existing\_container\_registry\_id is specified. | `bool` | `true` | no |
 | <a name="input_create_dns_zones"></a> [create\_dns\_zones](#input\_create\_dns\_zones) | Create DNS zones for domain\_name. Ignored if existing\_public\_dns\_zone\_id and existing\_private\_dns\_zone\_id are specified. | `bool` | `true` | no |
 | <a name="input_create_ingress_pl_service"></a> [create\_ingress\_pl\_service](#input\_create\_ingress\_pl\_service) | Expose the internal LB created by the ingress-nginx controller as an Azure Private Link Service. Only applies if internet\_facing\_ingress\_lb is false. | `bool` | `false` | no |
@@ -348,6 +373,7 @@ The default installation supports DataRobot versions >= 10.0.
 | <a name="input_create_redis"></a> [create\_redis](#input\_create\_redis) | Whether to create an Azure Cache for Redis instance | `bool` | `false` | no |
 | <a name="input_create_resource_group"></a> [create\_resource\_group](#input\_create\_resource\_group) | Create a new Azure resource group. Ignored if existing existing\_resource\_group\_name is specified. | `bool` | `true` | no |
 | <a name="input_create_storage"></a> [create\_storage](#input\_create\_storage) | Create a new Azure Storage account and container. Ignored if an existing\_storage\_account\_id is specified. | `bool` | `true` | no |
+| <a name="input_custom_private_endpoints"></a> [custom\_private\_endpoints](#input\_custom\_private\_endpoints) | A list of custom private endpoints | <pre>list(object({<br/>    resource_id       = string<br/>    subresource_names = list(string)<br/>    private_dns_zone  = string<br/>    private_dns_name  = string<br/>    create_dns_zone   = optional(bool, true)<br/>    request_message   = optional(string, "Private endpoint request for DataRobot")<br/>    name_override     = optional(string, null)<br/>  }))</pre> | `[]` | no |
 | <a name="input_datarobot_namespace"></a> [datarobot\_namespace](#input\_datarobot\_namespace) | Kubernetes namespace in which the DataRobot application will be installed | `string` | `"dr-app"` | no |
 | <a name="input_datarobot_service_accounts"></a> [datarobot\_service\_accounts](#input\_datarobot\_service\_accounts) | Kubernetes service accounts in the datarobot\_namespace to provide with Storage Blob Data Contributor and AcrPush access | `set(string)` | <pre>[<br/>  "datarobot-storage-sa",<br/>  "dynamic-worker",<br/>  "kubeworker-sa",<br/>  "prediction-server-sa",<br/>  "internal-api-sa",<br/>  "build-service",<br/>  "tileservergl-sa",<br/>  "nbx-notebook-revisions-account",<br/>  "buzok-account",<br/>  "exec-manager-qw",<br/>  "exec-manager-wrangling",<br/>  "lrs-job-manager",<br/>  "blob-view-service",<br/>  "spark-compute-services-sa"<br/>]</pre> | no |
 | <a name="input_descheduler"></a> [descheduler](#input\_descheduler) | Install the descheduler helm chart to enable rescheduling of pods. All other descheduler variables are ignored if this variable is false | `bool` | `true` | no |
@@ -370,6 +396,7 @@ The default installation supports DataRobot versions >= 10.0.
 | <a name="input_ingress_nginx"></a> [ingress\_nginx](#input\_ingress\_nginx) | Install the ingress-nginx helm chart to use as the ingress controller for the AKS cluster. All other ingress\_nginx variables are ignored if this variable is false. | `bool` | `true` | no |
 | <a name="input_ingress_nginx_values_overrides"></a> [ingress\_nginx\_values\_overrides](#input\_ingress\_nginx\_values\_overrides) | Values in raw yaml format to pass to helm. | `string` | `null` | no |
 | <a name="input_ingress_pl_auto_approval_subscription_ids"></a> [ingress\_pl\_auto\_approval\_subscription\_ids](#input\_ingress\_pl\_auto\_approval\_subscription\_ids) | A list of Subscription UUID/GUID's that will be automatically be able to use this Private Link Service. Only applies if internet\_facing\_ingress\_lb is false. | `list(string)` | `null` | no |
+| <a name="input_ingress_pl_service_name"></a> [ingress\_pl\_service\_name](#input\_ingress\_pl\_service\_name) | Name of the Azure Private Link Service. If not specified, defaults to `<name>-ingress-pl-service`. | `string` | `null` | no |
 | <a name="input_ingress_pl_visibility_subscription_ids"></a> [ingress\_pl\_visibility\_subscription\_ids](#input\_ingress\_pl\_visibility\_subscription\_ids) | A list of Subscription UUID/GUID's that will be able to see the ingress Private Link Service. Only applies if internet\_facing\_ingress\_lb is false. | `list(string)` | `null` | no |
 | <a name="input_install_helm_charts"></a> [install\_helm\_charts](#input\_install\_helm\_charts) | Whether to install helm charts into the target EKS cluster. All other helm chart variables are ignored if this is `false`. | `bool` | `true` | no |
 | <a name="input_internet_facing_ingress_lb"></a> [internet\_facing\_ingress\_lb](#input\_internet\_facing\_ingress\_lb) | Determines the type of Standard Load Balancer created for AKS ingress. If true, a public Standard Load Balancer will be created. If false, an internal Standard Load Balancer will be created. | `bool` | `true` | no |
@@ -384,6 +411,9 @@ The default installation supports DataRobot versions >= 10.0.
 | <a name="input_location"></a> [location](#input\_location) | Azure location to create resources in | `string` | n/a | yes |
 | <a name="input_mongodb_admin_username"></a> [mongodb\_admin\_username](#input\_mongodb\_admin\_username) | MongoDB admin username | `string` | `"pcs-mongodb"` | no |
 | <a name="input_mongodb_atlas_auto_scaling_disk_gb_enabled"></a> [mongodb\_atlas\_auto\_scaling\_disk\_gb\_enabled](#input\_mongodb\_atlas\_auto\_scaling\_disk\_gb\_enabled) | Enable Atlas disk size autoscaling | `bool` | `true` | no |
+| <a name="input_mongodb_atlas_compute_auto_scaling_enabled"></a> [mongodb\_atlas\_compute\_auto\_scaling\_enabled](#input\_mongodb\_atlas\_compute\_auto\_scaling\_enabled) | Enable Atlas compute autoscaling | `bool` | `false` | no |
+| <a name="input_mongodb_atlas_compute_auto_scaling_max_instance_size"></a> [mongodb\_atlas\_compute\_auto\_scaling\_max\_instance\_size](#input\_mongodb\_atlas\_compute\_auto\_scaling\_max\_instance\_size) | Maximum instance size for Atlas compute autoscaling | `string` | `"M80"` | no |
+| <a name="input_mongodb_atlas_compute_auto_scaling_min_instance_size"></a> [mongodb\_atlas\_compute\_auto\_scaling\_min\_instance\_size](#input\_mongodb\_atlas\_compute\_auto\_scaling\_min\_instance\_size) | Minimum instance size for Atlas compute autoscaling. Required when mongodb\_atlas\_compute\_auto\_scaling\_enabled is true. | `string` | `null` | no |
 | <a name="input_mongodb_atlas_disk_size"></a> [mongodb\_atlas\_disk\_size](#input\_mongodb\_atlas\_disk\_size) | Starting atlas disk size | `string` | `"20"` | no |
 | <a name="input_mongodb_atlas_instance_type"></a> [mongodb\_atlas\_instance\_type](#input\_mongodb\_atlas\_instance\_type) | atlas instance type | `string` | `"M30"` | no |
 | <a name="input_mongodb_atlas_org_id"></a> [mongodb\_atlas\_org\_id](#input\_mongodb\_atlas\_org\_id) | Atlas organization ID | `string` | `null` | no |
@@ -392,6 +422,8 @@ The default installation supports DataRobot versions >= 10.0.
 | <a name="input_mongodb_audit_enable"></a> [mongodb\_audit\_enable](#input\_mongodb\_audit\_enable) | Enable database auditing for production instances only(cost incurred 10%) | `bool` | `false` | no |
 | <a name="input_mongodb_backup_schedule"></a> [mongodb\_backup\_schedule](#input\_mongodb\_backup\_schedule) | Configuration for the MongoDB Atlas cloud backup schedule policy items and cross-region copy settings | <pre>object({<br/>    policy_item_hourly = optional(object({<br/>      frequency_interval = optional(number, 6)<br/>      retention_unit     = optional(string, "days")<br/>      retention_value    = optional(number, 7)<br/>    }), {})<br/>    policy_item_daily = optional(object({<br/>      frequency_interval = optional(number, 1)<br/>      retention_unit     = optional(string, "days")<br/>      retention_value    = optional(number, 30)<br/>    }), {})<br/>    policy_item_weekly = optional(object({<br/>      frequency_interval = optional(number, 6)<br/>      retention_unit     = optional(string, "days")<br/>      retention_value    = optional(number, 30)<br/>    }), {})<br/>    policy_item_monthly = optional(object({<br/>      frequency_interval = optional(number, 1)<br/>      retention_unit     = optional(string, "months")<br/>      retention_value    = optional(number, 1)<br/>    }), {})<br/>    copy_settings = optional(object({<br/>      enabled            = optional(bool, true)<br/>      cloud_provider     = optional(string, "AZURE")<br/>      frequencies        = optional(list(string), ["DAILY"])<br/>      should_copy_oplogs = optional(bool, false)<br/>    }), {})<br/>  })</pre> | `{}` | no |
 | <a name="input_mongodb_enable_slack_alerts"></a> [mongodb\_enable\_slack\_alerts](#input\_mongodb\_enable\_slack\_alerts) | Enable alert notifications to a Slack channel. When `true`, `slack_api_token` and `slack_notification_channel` must be set. | `string` | `false` | no |
+| <a name="input_mongodb_name"></a> [mongodb\_name](#input\_mongodb\_name) | Name of the MongoDB Atlas instance. If not specified, the `name` variable will be used. | `string` | `null` | no |
+| <a name="input_mongodb_private_endpoint_name"></a> [mongodb\_private\_endpoint\_name](#input\_mongodb\_private\_endpoint\_name) | Name of the MongoDB Atlas private endpoint. If not specified, defaults to `<mongodb_name>-mongodb`. | `string` | `null` | no |
 | <a name="input_mongodb_slack_api_token"></a> [mongodb\_slack\_api\_token](#input\_mongodb\_slack\_api\_token) | Slack API token to use for alert notifications. Required when `enable_slack_alerts` is `true`. | `string` | `null` | no |
 | <a name="input_mongodb_slack_notification_channel"></a> [mongodb\_slack\_notification\_channel](#input\_mongodb\_slack\_notification\_channel) | Slack channel to send alert notifications to. Required when `enable_slack_alerts` is `true`. | `string` | `null` | no |
 | <a name="input_mongodb_termination_protection_enabled"></a> [mongodb\_termination\_protection\_enabled](#input\_mongodb\_termination\_protection\_enabled) | Enable protection to avoid accidental production cluster termination | `bool` | `false` | no |
@@ -404,12 +436,20 @@ The default installation supports DataRobot versions >= 10.0.
 | <a name="input_observability_grafana_editor_principal_ids"></a> [observability\_grafana\_editor\_principal\_ids](#input\_observability\_grafana\_editor\_principal\_ids) | The principal IDs for Grafana editor access in the observability module. | `list(string)` | `[]` | no |
 | <a name="input_observability_grafana_major_version"></a> [observability\_grafana\_major\_version](#input\_observability\_grafana\_major\_version) | The major version of Grafana to deploy in the observability module. | `number` | `11` | no |
 | <a name="input_observability_grafana_viewer_principal_ids"></a> [observability\_grafana\_viewer\_principal\_ids](#input\_observability\_grafana\_viewer\_principal\_ids) | The principal IDs for Grafana viewer access in the observability module. | `list(string)` | `[]` | no |
+| <a name="input_password_constraints"></a> [password\_constraints](#input\_password\_constraints) | Constraints to put on any generated passwords | <pre>object({<br/>    length           = number<br/>    min_lower        = optional(number)<br/>    min_numeric      = optional(number)<br/>    min_upper        = optional(number)<br/>    min_special      = optional(number, 0)<br/>    special          = optional(bool)<br/>    override_special = optional(string)<br/>  })</pre> | <pre>{<br/>  "length": 32,<br/>  "min_lower": 1,<br/>  "min_numeric": 1,<br/>  "min_upper": 1,<br/>  "override_special": "-"<br/>}</pre> | no |
 | <a name="input_postgres_backup_retention_days"></a> [postgres\_backup\_retention\_days](#input\_postgres\_backup\_retention\_days) | The backup retention days for the PostgreSQL Flexible Server. Possible values are between 7 and 35 days. | `number` | `7` | no |
 | <a name="input_postgres_multi_az"></a> [postgres\_multi\_az](#input\_postgres\_multi\_az) | Create Postgres PostgreSQL Flexible Server in ZoneRedundant high availability mode | `bool` | `false` | no |
+| <a name="input_postgres_name"></a> [postgres\_name](#input\_postgres\_name) | Name of the PostgreSQL Flexible Server. If not specified, the `name` variable will be used. | `string` | `null` | no |
+| <a name="input_postgres_private_dns_zone_name"></a> [postgres\_private\_dns\_zone\_name](#input\_postgres\_private\_dns\_zone\_name) | Override the private DNS zone name for PostgreSQL. Set to the existing zone name when migrating to avoid recreating the server. | `string` | `"privatelink.postgres.database.azure.com"` | no |
+| <a name="input_postgres_server_configurations"></a> [postgres\_server\_configurations](#input\_postgres\_server\_configurations) | A map of PostgreSQL Flexible Server configuration name/value pairs | `map(string)` | <pre>{<br/>  "azure.accepted_password_auth_method": "MD5,SCRAM-SHA-256",<br/>  "azure.extensions": "UUID-OSSP,PLPGSQL,PG_STAT_STATEMENTS,VECTOR,PG_TRGM,PGCRYPTO",<br/>  "password_encryption": "SCRAM-SHA-256"<br/>}</pre> | no |
 | <a name="input_postgres_sku_name"></a> [postgres\_sku\_name](#input\_postgres\_sku\_name) | The SKU Name for the PostgreSQL Flexible Server | `string` | `"GP_Standard_D2ds_v4"` | no |
 | <a name="input_postgres_storage_mb"></a> [postgres\_storage\_mb](#input\_postgres\_storage\_mb) | The max storage allowed for the PostgreSQL Flexible Server in MB. Default is 32768. | `number` | `null` | no |
-| <a name="input_postgres_version"></a> [postgres\_version](#input\_postgres\_version) | The version of PostgreSQL Flexible Server to use | `string` | `"13"` | no |
+| <a name="input_postgres_version"></a> [postgres\_version](#input\_postgres\_version) | The version of PostgreSQL Flexible Server to use | `string` | `"17"` | no |
+| <a name="input_private_storage_endpoints"></a> [private\_storage\_endpoints](#input\_private\_storage\_endpoints) | A list of private storage endpoints | <pre>list(object({<br/>    type          = string<br/>    name_override = optional(string, null)<br/>  }))</pre> | <pre>[<br/>  {<br/>    "type": "blob"<br/>  },<br/>  {<br/>    "type": "dfs"<br/>  }<br/>]</pre> | no |
 | <a name="input_redis_capacity"></a> [redis\_capacity](#input\_redis\_capacity) | The size of the Redis cache to deploy. Valid values for a SKU family of C (Basic/Standard) are 0, 1, 2, 3, 4, 5, 6, and for P (Premium) family are 1, 2, 3, 4, 5. | `number` | `4` | no |
+| <a name="input_redis_name"></a> [redis\_name](#input\_redis\_name) | Name of the Azure Cache for Redis instance. If not specified, the `name` variable will be used. | `string` | `null` | no |
+| <a name="input_redis_private_endpoint_name"></a> [redis\_private\_endpoint\_name](#input\_redis\_private\_endpoint\_name) | Name of the Redis private endpoint. If not specified, defaults to `<redis_name>-redis`. | `string` | `null` | no |
+| <a name="input_redis_private_service_connection_name"></a> [redis\_private\_service\_connection\_name](#input\_redis\_private\_service\_connection\_name) | Name of the Redis private service connection. If not specified, defaults to the private endpoint name. | `string` | `null` | no |
 | <a name="input_redis_version"></a> [redis\_version](#input\_redis\_version) | Redis version. Only major version needed. Possible values are 4 and 6. Defaults to 6. | `number` | `null` | no |
 | <a name="input_storage_account_replication_type"></a> [storage\_account\_replication\_type](#input\_storage\_account\_replication\_type) | Storage account data replication type as described in https://learn.microsoft.com/en-us/azure/storage/common/storage-redundancy | `string` | `"ZRS"` | no |
 | <a name="input_storage_network_rules_default_action"></a> [storage\_network\_rules\_default\_action](#input\_storage\_network\_rules\_default\_action) | Specifies the default action of the storage firewall to allow or deny when no other rules match | `string` | `"Allow"` | no |
@@ -421,8 +461,14 @@ The default installation supports DataRobot versions >= 10.0.
 ## Outputs
 
 | Name | Description |
-|------|-------------|
+| ---- | ----------- |
 | <a name="output_aks_cluster_id"></a> [aks\_cluster\_id](#output\_aks\_cluster\_id) | ID of the Azure Kubernetes Service cluster |
+| <a name="output_app_identity_client_id"></a> [app\_identity\_client\_id](#output\_app\_identity\_client\_id) | Client ID of the DataRobot application identity |
+| <a name="output_app_identity_principal_id"></a> [app\_identity\_principal\_id](#output\_app\_identity\_principal\_id) | Principal ID of the DataRobot application identity |
+| <a name="output_app_identity_tenant_id"></a> [app\_identity\_tenant\_id](#output\_app\_identity\_tenant\_id) | Tenant ID of the DataRobot application identity |
+| <a name="output_app_identity_type"></a> [app\_identity\_type](#output\_app\_identity\_type) | Type of identity created for the DataRobot application |
+| <a name="output_azuread_application_client_secret"></a> [azuread\_application\_client\_secret](#output\_azuread\_application\_client\_secret) | Client secret of the AzureAD application |
+| <a name="output_azuread_application_object_id"></a> [azuread\_application\_object\_id](#output\_azuread\_application\_object\_id) | Object ID of the AzureAD application |
 | <a name="output_container_registry_admin_password"></a> [container\_registry\_admin\_password](#output\_container\_registry\_admin\_password) | Admin password of the container registry |
 | <a name="output_container_registry_admin_username"></a> [container\_registry\_admin\_username](#output\_container\_registry\_admin\_username) | Admin username of the container registry |
 | <a name="output_container_registry_id"></a> [container\_registry\_id](#output\_container\_registry\_id) | ID of the container registry |
@@ -436,7 +482,10 @@ The default installation supports DataRobot versions >= 10.0.
 | <a name="output_observability_user_assigned_identity_client_id"></a> [observability\_user\_assigned\_identity\_client\_id](#output\_observability\_user\_assigned\_identity\_client\_id) | The client\_id of the user assigned identity |
 | <a name="output_postgres_endpoint"></a> [postgres\_endpoint](#output\_postgres\_endpoint) | PostgreSQL Flexible Server endpoint |
 | <a name="output_postgres_password"></a> [postgres\_password](#output\_postgres\_password) | PostgreSQL Flexible Server admin password |
+| <a name="output_private_dns_zone_name"></a> [private\_dns\_zone\_name](#output\_private\_dns\_zone\_name) | Name of the private zone |
 | <a name="output_private_zone_id"></a> [private\_zone\_id](#output\_private\_zone\_id) | ID of the private zone |
+| <a name="output_public_dns_zone_name"></a> [public\_dns\_zone\_name](#output\_public\_dns\_zone\_name) | Name of the public zone |
+| <a name="output_public_dns_zone_name_servers"></a> [public\_dns\_zone\_name\_servers](#output\_public\_dns\_zone\_name\_servers) | Name servers of the public DNS zone |
 | <a name="output_public_zone_id"></a> [public\_zone\_id](#output\_public\_zone\_id) | ID of the public zone |
 | <a name="output_redis_endpoint"></a> [redis\_endpoint](#output\_redis\_endpoint) | Azure Cache for Redis endpoint |
 | <a name="output_redis_non_ssl_port"></a> [redis\_non\_ssl\_port](#output\_redis\_non\_ssl\_port) | Azure Cache for Redis non-SSL port |

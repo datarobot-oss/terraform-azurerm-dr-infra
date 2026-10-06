@@ -9,8 +9,19 @@ variable "location" {
 }
 
 variable "name" {
-  description = "Name of the user assigned identity"
+  description = "Name of the user assigned identity or display name of the AzureAD application"
   type        = string
+}
+
+variable "identity_type" {
+  description = "Type of identity to create for the DataRobot application. Use azuread_application when the application needs access to resources in another Azure tenant, such as a customer-managed storage account."
+  type        = string
+  default     = "user_assigned_identity"
+
+  validation {
+    condition     = contains(["user_assigned_identity", "azuread_application"], var.identity_type)
+    error_message = "identity_type must be one of: user_assigned_identity, azuread_application."
+  }
 }
 
 variable "aks_oidc_issuer_url" {
@@ -46,4 +57,22 @@ variable "acr_id" {
 variable "tags" {
   description = "A map of tags to add to all created resources"
   type        = map(string)
+}
+
+variable "azuread_application_owners" {
+  description = "Object IDs to set as owners of the AzureAD application and service principal. Defaults to the identity running Terraform."
+  type        = list(string)
+  default     = []
+}
+
+variable "azuread_application_sign_in_audience" {
+  description = "Sign-in audience of the AzureAD application. AzureADMultipleOrgs allows the application to be used in other Azure tenants."
+  type        = string
+  default     = "AzureADMultipleOrgs"
+}
+
+variable "create_azuread_application_password" {
+  description = "Create a client secret for the AzureAD application"
+  type        = bool
+  default     = false
 }

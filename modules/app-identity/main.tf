@@ -48,7 +48,8 @@ data "azuread_client_config" "current" {
 }
 
 locals {
-  azuread_application_owners = local.create_app ? coalescelist(var.azuread_application_owners, [data.azuread_client_config.current[0].object_id]) : []
+  # Always include the identity running Terraform so it can continue to manage the application
+  azuread_application_owners = local.create_app ? distinct(concat([data.azuread_client_config.current[0].object_id], var.azuread_application_owners)) : []
 }
 
 resource "azuread_application" "datarobot" {

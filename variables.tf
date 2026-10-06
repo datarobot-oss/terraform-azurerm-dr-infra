@@ -323,7 +323,7 @@ variable "app_identity_type" {
 }
 
 variable "app_identity_azuread_application_owners" {
-  description = "Object IDs to set as owners of the AzureAD application and service principal when app_identity_type is azuread_application. Defaults to the identity running Terraform."
+  description = "Additional object IDs to set as owners of the AzureAD application and service principal when app_identity_type is azuread_application. The identity running Terraform is always an owner."
   type        = list(string)
   default     = []
 }

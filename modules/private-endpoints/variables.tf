@@ -38,6 +38,9 @@ variable "private_endpoint_config" {
     create_dns_zone   = optional(bool, true)
     request_message   = optional(string, "Private endpoint request for DataRobot")
     name_override     = optional(string, null)
+
+    dns_zone_link_name              = optional(string, null)
+    private_service_connection_name = optional(string, null)
   }))
 }
 
@@ -51,5 +54,9 @@ variable "private_storage_endpoints" {
   type = list(object({
     type          = string
     name_override = optional(string, null)
+
+    request_message                 = optional(string, "Private endpoint request for DataRobot")
+    dns_zone_link_name              = optional(string, null)
+    private_service_connection_name = optional(string, null)
   }))
 }

@@ -6,8 +6,10 @@ locals {
       resource_id          = var.storage_account_id
       subresource_names    = [ep.type]
       is_manual_connection = true
-      request_message      = "Private endpoint request for DataRobot"
+      request_message      = ep.request_message
       create_dns_zone      = true
+      link_name            = ep.dns_zone_link_name
+      psc_name             = ep.private_service_connection_name
     }
   ]
 
@@ -20,6 +22,8 @@ locals {
       is_manual_connection = true
       request_message      = ep.request_message
       create_dns_zone      = ep.create_dns_zone
+      link_name            = ep.dns_zone_link_name
+      psc_name             = ep.private_service_connection_name
     }
   ]
 
@@ -47,7 +51,7 @@ data "azurerm_private_dns_zone" "existing" {
 resource "azurerm_private_dns_zone_virtual_network_link" "this" {
   for_each = { for k, v in local.all_endpoints_map : k => v if v.create_dns_zone }
 
-  name                  = "${each.key}-link"
+  name                  = coalesce(each.value.link_name, "${each.key}-link")
   resource_group_name   = var.resource_group_name
   private_dns_zone_name = azurerm_private_dns_zone.this[each.key].name
   virtual_network_id    = var.network_id
@@ -64,7 +68,7 @@ resource "azurerm_private_endpoint" "this" {
   tags                = var.tags
 
   private_service_connection {
-    name                           = "${each.value.pe_name}-psc"
+    name                           = coalesce(each.value.psc_name, "${each.value.pe_name}-psc")
     private_connection_resource_id = each.value.resource_id
     subresource_names              = each.value.subresource_names
     is_manual_connection           = each.value.is_manual_connection

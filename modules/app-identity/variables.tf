@@ -76,3 +76,9 @@ variable "create_azuread_application_password" {
   type        = bool
   default     = false
 }
+
+variable "azuread_application_display_name" {
+  description = "Display name of the AzureAD application. Defaults to name."
+  type        = string
+  default     = null
+}

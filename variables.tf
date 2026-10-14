@@ -328,6 +328,12 @@ variable "app_identity_azuread_application_owners" {
   default     = []
 }
 
+variable "app_identity_azuread_application_display_name" {
+  description = "Display name of the AzureAD application when app_identity_type is azuread_application. Defaults to the generated identity name."
+  type        = string
+  default     = null
+}
+
 variable "app_identity_create_client_secret" {
   description = "Create a client secret for the AzureAD application when app_identity_type is azuread_application"
   type        = bool

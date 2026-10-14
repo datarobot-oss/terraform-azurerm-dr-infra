@@ -207,6 +207,7 @@ module "app_identity" {
   datarobot_service_accounts = var.datarobot_service_accounts
   create_storage             = var.create_storage
 
+  azuread_application_display_name    = var.app_identity_azuread_application_display_name
   azuread_application_owners          = var.app_identity_azuread_application_owners
   create_azuread_application_password = var.app_identity_create_client_secret
 

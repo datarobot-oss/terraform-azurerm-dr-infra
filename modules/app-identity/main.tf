@@ -55,7 +55,7 @@ locals {
 resource "azuread_application" "datarobot" {
   count = local.create_app ? 1 : 0
 
-  display_name     = var.name
+  display_name     = coalesce(var.azuread_application_display_name, var.name)
   owners           = local.azuread_application_owners
   sign_in_audience = var.azuread_application_sign_in_audience
 }

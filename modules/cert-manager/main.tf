@@ -33,9 +33,9 @@ resource "azurerm_role_assignment" "dns_zone_contributor" {
 resource "helm_release" "this" {
   name       = local.name
   namespace  = local.namespace
-  repository = "https://charts.jetstack.io"
+  repository = "oci://quay.io/jetstack/charts"
   chart      = "cert-manager"
-  version    = "1.16.1"
+  version    = "v1.16.1"
 
   create_namespace = true
 

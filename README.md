@@ -224,7 +224,7 @@ Not required
 - `cert_manager` to install the `cert-manager` helm chart
 
 #### Description
-Uses the [terraform-helm-release](https://github.com/terraform-module/terraform-helm-release) module to install the `cert-manager` helm chart from the `https://charts.jetstack.io` repo into the `cert-manager` namespace.
+Uses the [terraform-helm-release](https://github.com/terraform-module/terraform-helm-release) module to install the `cert-manager` helm chart from the `oci://quay.io/jetstack/charts` OCI registry into the `cert-manager` namespace.
 
 A User Assigned Identity and Federated Identity Credential is created for the `cert-manager` service account running in the `cert-manager` namespace that allows the creation of DNS resources within the specified DNS zone.
 

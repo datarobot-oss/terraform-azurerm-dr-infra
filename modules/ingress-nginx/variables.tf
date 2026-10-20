@@ -15,3 +15,9 @@ variable "values_overrides" {
   type        = string
   default     = null
 }
+
+variable "chart_version" {
+  description = "Version of the ingress-nginx helm chart to install. Accepts an exact version or a semver range constraint (e.g. ^X.Y.Z)."
+  type        = string
+  default     = "^4.11.5"
+}

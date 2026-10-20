@@ -401,6 +401,7 @@ module "ingress_nginx" {
 
   aks_managed_resource_group_name = local.aks_managed_resource_group_name
   internet_facing_ingress_lb      = var.internet_facing_ingress_lb
+  chart_version                   = var.ingress_nginx_chart_version
   values_overrides                = var.ingress_nginx_values_overrides
 
   depends_on = [local.aks_cluster_name]
@@ -420,6 +421,7 @@ module "cert_manager" {
   email_address              = var.cert_manager_letsencrypt_email_address
   subscription_id            = data.azurerm_subscription.current.subscription_id
 
+  chart_version    = var.cert_manager_chart_version
   values_overrides = var.cert_manager_values_overrides
 
   tags = var.tags
@@ -437,6 +439,7 @@ module "external_dns" {
   hosted_zone_name    = var.domain_name
   hosted_zone_id      = var.internet_facing_ingress_lb ? local.public_zone_id : local.private_zone_id
 
+  chart_version    = var.external_dns_chart_version
   values_overrides = var.external_dns_values_overrides
 
   tags = var.tags
@@ -446,6 +449,7 @@ module "nvidia_device_plugin" {
   source = "./modules/nvidia-device-plugin"
   count  = var.install_helm_charts && var.nvidia_device_plugin ? 1 : 0
 
+  chart_version    = var.nvidia_device_plugin_chart_version
   values_overrides = var.nvidia_device_plugin_values_overrides
 
   depends_on = [local.aks_cluster_name]
@@ -455,6 +459,7 @@ module "descheduler" {
   source = "./modules/descheduler"
   count  = var.install_helm_charts && var.descheduler ? 1 : 0
 
+  chart_version    = var.descheduler_chart_version
   values_overrides = var.descheduler_values_overrides
 
   depends_on = [local.aks_cluster_name]

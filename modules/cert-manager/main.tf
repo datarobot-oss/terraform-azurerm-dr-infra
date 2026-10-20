@@ -35,7 +35,7 @@ resource "helm_release" "this" {
   namespace  = local.namespace
   repository = "oci://quay.io/jetstack/charts"
   chart      = "cert-manager"
-  version    = "v1.16.2"
+  version    = var.chart_version
 
   create_namespace = true
 
@@ -56,7 +56,7 @@ resource "helm_release" "letsencrypt_clusterissuers" {
   namespace  = local.namespace
   repository = "https://dysnix.github.io/charts"
   chart      = "raw"
-  version    = "0.3.2"
+  version    = ">=0.3.2 <1.0.0"
 
   values = [
     <<-EOF

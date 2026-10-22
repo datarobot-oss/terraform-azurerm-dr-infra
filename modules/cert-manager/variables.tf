@@ -52,5 +52,5 @@ variable "values_overrides" {
 variable "chart_version" {
   description = "Version of the cert-manager helm chart to install. Accepts an exact version or a semver range constraint (e.g. ^X.Y.Z)."
   type        = string
-  default     = "^1.16.2"
+  default     = "~1.21.2"
 }

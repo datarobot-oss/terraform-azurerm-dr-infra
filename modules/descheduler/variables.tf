@@ -5,7 +5,7 @@ variable "values_overrides" {
 }
 
 variable "chart_version" {
-  description = "Version of the descheduler helm chart to install. Accepts an exact version or a semver range constraint (e.g. ^X.Y.Z)."
+  description = "Version of the descheduler helm chart to install."
   type        = string
-  default     = ">=0.33.0 <1.0.0"
+  default     = "0.37.0"
 }

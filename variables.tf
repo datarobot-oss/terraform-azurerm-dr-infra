@@ -684,9 +684,9 @@ variable "internet_facing_ingress_lb" {
 }
 
 variable "ingress_nginx_chart_version" {
-  description = "Version of the ingress-nginx helm chart to install. Accepts an exact version or a semver range constraint (e.g. ^X.Y.Z)."
+  description = "Version of the ingress-nginx helm chart to install."
   type        = string
-  default     = "^4.11.5"
+  default     = "4.15.1"
 }
 
 variable "ingress_nginx_values_overrides" {
@@ -714,9 +714,9 @@ variable "cert_manager_letsencrypt_email_address" {
 }
 
 variable "cert_manager_chart_version" {
-  description = "Version of the cert-manager helm chart to install. Accepts an exact version or a semver range constraint (e.g. ^X.Y.Z)."
+  description = "Version of the cert-manager helm chart to install."
   type        = string
-  default     = "~1.21.2"
+  default     = "v1.21.2"
 }
 
 variable "cert_manager_values_overrides" {
@@ -732,9 +732,9 @@ variable "external_dns" {
 }
 
 variable "external_dns_chart_version" {
-  description = "Version of the external-dns helm chart to install. Accepts an exact version or a semver range constraint (e.g. ^X.Y.Z)."
+  description = "Version of the external-dns helm chart to install."
   type        = string
-  default     = "^1.19.0"
+  default     = "1.23.0"
 }
 
 variable "external_dns_values_overrides" {
@@ -750,9 +750,9 @@ variable "nvidia_device_plugin" {
 }
 
 variable "nvidia_device_plugin_chart_version" {
-  description = "Version of the nvidia-device-plugin helm chart to install. Accepts an exact version or a semver range constraint (e.g. ^X.Y.Z)."
+  description = "Version of the nvidia-device-plugin helm chart to install."
   type        = string
-  default     = ">=0.17.0 <1.0.0"
+  default     = "0.20.1"
 }
 
 variable "nvidia_device_plugin_values_overrides" {
@@ -768,9 +768,9 @@ variable "descheduler" {
 }
 
 variable "descheduler_chart_version" {
-  description = "Version of the descheduler helm chart to install. Accepts an exact version or a semver range constraint (e.g. ^X.Y.Z)."
+  description = "Version of the descheduler helm chart to install."
   type        = string
-  default     = ">=0.33.0 <1.0.0"
+  default     = "0.37.0"
 }
 
 variable "descheduler_values_overrides" {

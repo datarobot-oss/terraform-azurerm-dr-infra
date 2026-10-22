@@ -45,7 +45,7 @@ variable "values_overrides" {
 }
 
 variable "chart_version" {
-  description = "Version of the external-dns helm chart to install. Accepts an exact version or a semver range constraint (e.g. ^X.Y.Z)."
+  description = "Version of the external-dns helm chart to install."
   type        = string
-  default     = "^1.19.0"
+  default     = "1.23.0"
 }

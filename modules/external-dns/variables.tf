@@ -43,3 +43,9 @@ variable "values_overrides" {
   type        = string
   default     = null
 }
+
+variable "chart_version" {
+  description = "Version of the external-dns helm chart to install."
+  type        = string
+  default     = "1.23.0"
+}

@@ -203,6 +203,10 @@ Create a MongoDB Atlas project and cluster for use by the DataRobot application.
 TBD
 
 
+### Helm chart versions
+Each helm chart submodule exposes a `chart_version` input, wired through the root module as `<component>_chart_version` (`ingress_nginx_chart_version`, `cert_manager_chart_version`, `external_dns_chart_version`, `nvidia_device_plugin_chart_version`, `descheduler_chart_version`). Defaults are exact chart versions. The helm provider requires an exact version, so set the variable to a specific release to upgrade or pin a chart.
+
+
 ### Helm Chart - ingress-nginx
 #### Toggle
 - `ingress_nginx` to install the `ingress-nginx` helm chart
@@ -299,16 +303,16 @@ The default installation supports DataRobot versions >= 10.0.
 | Name | Version |
 | ---- | ------- |
 | <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.5.7 |
-| <a name="requirement_azurerm"></a> [azurerm](#requirement\_azurerm) | >= 4.3.0 |
-| <a name="requirement_helm"></a> [helm](#requirement\_helm) | >= 3.0.2 |
-| <a name="requirement_kubectl"></a> [kubectl](#requirement\_kubectl) | >= 1.14.0 |
+| <a name="requirement_azurerm"></a> [azurerm](#requirement\_azurerm) | ~> 4.3 |
+| <a name="requirement_helm"></a> [helm](#requirement\_helm) | ~> 3.0 |
+| <a name="requirement_kubectl"></a> [kubectl](#requirement\_kubectl) | ~> 1.14 |
 | <a name="requirement_mongodbatlas"></a> [mongodbatlas](#requirement\_mongodbatlas) | ~> 2.0 |
 
 ## Providers
 
 | Name | Version |
 | ---- | ------- |
-| <a name="provider_azurerm"></a> [azurerm](#provider\_azurerm) | >= 4.3.0 |
+| <a name="provider_azurerm"></a> [azurerm](#provider\_azurerm) | ~> 4.3 |
 
 ## Modules
 
@@ -353,6 +357,7 @@ The default installation supports DataRobot versions >= 10.0.
 | <a name="input_app_identity_create_client_secret"></a> [app\_identity\_create\_client\_secret](#input\_app\_identity\_create\_client\_secret) | Create a client secret for the AzureAD application when app\_identity\_type is azuread\_application | `bool` | `false` | no |
 | <a name="input_app_identity_type"></a> [app\_identity\_type](#input\_app\_identity\_type) | Type of identity to create for the DataRobot application. Use azuread\_application when the application needs access to resources in another Azure tenant, such as a customer-managed storage account. Creating an AzureAD application requires Microsoft Graph permissions (e.g. Application.ReadWrite.OwnedBy). | `string` | `"user_assigned_identity"` | no |
 | <a name="input_cert_manager"></a> [cert\_manager](#input\_cert\_manager) | Install the cert-manager helm chart. All other cert\_manager variables are ignored if this variable is false. | `bool` | `true` | no |
+| <a name="input_cert_manager_chart_version"></a> [cert\_manager\_chart\_version](#input\_cert\_manager\_chart\_version) | Version of the cert-manager helm chart to install. | `string` | `"v1.21.2"` | no |
 | <a name="input_cert_manager_letsencrypt_clusterissuers"></a> [cert\_manager\_letsencrypt\_clusterissuers](#input\_cert\_manager\_letsencrypt\_clusterissuers) | Whether to create letsencrypt-prod and letsencrypt-staging ClusterIssuers | `bool` | `true` | no |
 | <a name="input_cert_manager_letsencrypt_email_address"></a> [cert\_manager\_letsencrypt\_email\_address](#input\_cert\_manager\_letsencrypt\_email\_address) | Email address for the certificate owner. Let's Encrypt will use this to contact you about expiring certificates, and issues related to your account. Only required if cert\_manager\_letsencrypt\_clusterissuers is true. | `string` | `"user@example.com"` | no |
 | <a name="input_cert_manager_values_overrides"></a> [cert\_manager\_values\_overrides](#input\_cert\_manager\_values\_overrides) | Values in raw yaml format to pass to helm. | `string` | `null` | no |
@@ -378,6 +383,7 @@ The default installation supports DataRobot versions >= 10.0.
 | <a name="input_datarobot_namespace"></a> [datarobot\_namespace](#input\_datarobot\_namespace) | Kubernetes namespace in which the DataRobot application will be installed | `string` | `"dr-app"` | no |
 | <a name="input_datarobot_service_accounts"></a> [datarobot\_service\_accounts](#input\_datarobot\_service\_accounts) | Kubernetes service accounts in the datarobot\_namespace to provide with Storage Blob Data Contributor and AcrPush access | `set(string)` | <pre>[<br/>  "datarobot-storage-sa",<br/>  "dynamic-worker",<br/>  "kubeworker-sa",<br/>  "prediction-server-sa",<br/>  "internal-api-sa",<br/>  "build-service",<br/>  "tileservergl-sa",<br/>  "nbx-notebook-revisions-account",<br/>  "buzok-account",<br/>  "exec-manager-qw",<br/>  "exec-manager-wrangling",<br/>  "lrs-job-manager",<br/>  "blob-view-service",<br/>  "spark-compute-services-sa"<br/>]</pre> | no |
 | <a name="input_descheduler"></a> [descheduler](#input\_descheduler) | Install the descheduler helm chart to enable rescheduling of pods. All other descheduler variables are ignored if this variable is false | `bool` | `true` | no |
+| <a name="input_descheduler_chart_version"></a> [descheduler\_chart\_version](#input\_descheduler\_chart\_version) | Version of the descheduler helm chart to install. | `string` | `"0.37.0"` | no |
 | <a name="input_descheduler_values_overrides"></a> [descheduler\_values\_overrides](#input\_descheduler\_values\_overrides) | Values in raw yaml format to pass to helm. | `string` | `null` | no |
 | <a name="input_domain_name"></a> [domain\_name](#input\_domain\_name) | Name of the domain to use for the DataRobot application. If create\_dns\_zones is true then zones will be created for this domain. It is also used by the cert-manager helm chart for DNS validation and as a domain filter by the external-dns helm chart. | `string` | `null` | no |
 | <a name="input_existing_aks_cluster_name"></a> [existing\_aks\_cluster\_name](#input\_existing\_aks\_cluster\_name) | Name of existing AKS cluster to use. When specified, all other kubernetes variables will be ignored. | `string` | `null` | no |
@@ -393,8 +399,10 @@ The default installation supports DataRobot versions >= 10.0.
 | <a name="input_existing_storage_account_id"></a> [existing\_storage\_account\_id](#input\_existing\_storage\_account\_id) | ID of existing Azure Storage Account to use for DataRobot file storage. When specified, all other storage variables will be ignored. | `string` | `null` | no |
 | <a name="input_existing_vnet_name"></a> [existing\_vnet\_name](#input\_existing\_vnet\_name) | Name of an existing VNet to use. When specified, other network variables are ignored. | `string` | `null` | no |
 | <a name="input_external_dns"></a> [external\_dns](#input\_external\_dns) | Install the external\_dns helm chart to create DNS records for ingress resources matching the domain\_name variable. All other external\_dns variables are ignored if this variable is false. | `bool` | `true` | no |
+| <a name="input_external_dns_chart_version"></a> [external\_dns\_chart\_version](#input\_external\_dns\_chart\_version) | Version of the external-dns helm chart to install. | `string` | `"1.23.0"` | no |
 | <a name="input_external_dns_values_overrides"></a> [external\_dns\_values\_overrides](#input\_external\_dns\_values\_overrides) | Values in raw yaml format to pass to helm. | `string` | `null` | no |
 | <a name="input_ingress_nginx"></a> [ingress\_nginx](#input\_ingress\_nginx) | Install the ingress-nginx helm chart to use as the ingress controller for the AKS cluster. All other ingress\_nginx variables are ignored if this variable is false. | `bool` | `true` | no |
+| <a name="input_ingress_nginx_chart_version"></a> [ingress\_nginx\_chart\_version](#input\_ingress\_nginx\_chart\_version) | Version of the ingress-nginx helm chart to install. | `string` | `"4.15.1"` | no |
 | <a name="input_ingress_nginx_values_overrides"></a> [ingress\_nginx\_values\_overrides](#input\_ingress\_nginx\_values\_overrides) | Values in raw yaml format to pass to helm. | `string` | `null` | no |
 | <a name="input_ingress_pl_auto_approval_subscription_ids"></a> [ingress\_pl\_auto\_approval\_subscription\_ids](#input\_ingress\_pl\_auto\_approval\_subscription\_ids) | A list of Subscription UUID/GUID's that will be automatically be able to use this Private Link Service. Only applies if internet\_facing\_ingress\_lb is false. | `list(string)` | `null` | no |
 | <a name="input_ingress_pl_service_name"></a> [ingress\_pl\_service\_name](#input\_ingress\_pl\_service\_name) | Name of the Azure Private Link Service. If not specified, defaults to `<name>-ingress-pl-service`. | `string` | `null` | no |
@@ -432,6 +440,7 @@ The default installation supports DataRobot versions >= 10.0.
 | <a name="input_name"></a> [name](#input\_name) | Name to use as a prefix for created resources | `string` | n/a | yes |
 | <a name="input_network_address_space"></a> [network\_address\_space](#input\_network\_address\_space) | CIDR block to be used for the new VNet. By default, AKS uses 10.0.0.0/16 for services and 10.244.0.0/16 for pods. This should not overlap with the kubernetes\_service\_cidr or kubernetes\_pod\_cidr variables. | `string` | `"10.1.0.0/16"` | no |
 | <a name="input_nvidia_device_plugin"></a> [nvidia\_device\_plugin](#input\_nvidia\_device\_plugin) | Install the nvidia-device-plugin helm chart to expose node GPU resources to the AKS cluster. All other nvidia\_device\_plugin variables are ignored if this variable is false. | `bool` | `true` | no |
+| <a name="input_nvidia_device_plugin_chart_version"></a> [nvidia\_device\_plugin\_chart\_version](#input\_nvidia\_device\_plugin\_chart\_version) | Version of the nvidia-device-plugin helm chart to install. | `string` | `"0.20.1"` | no |
 | <a name="input_nvidia_device_plugin_values_overrides"></a> [nvidia\_device\_plugin\_values\_overrides](#input\_nvidia\_device\_plugin\_values\_overrides) | Values in raw yaml format to pass to helm. | `string` | `null` | no |
 | <a name="input_observability_grafana_admin_principal_ids"></a> [observability\_grafana\_admin\_principal\_ids](#input\_observability\_grafana\_admin\_principal\_ids) | The principal ID for Grafana admin access in the observability module. | `list(string)` | `[]` | no |
 | <a name="input_observability_grafana_editor_principal_ids"></a> [observability\_grafana\_editor\_principal\_ids](#input\_observability\_grafana\_editor\_principal\_ids) | The principal IDs for Grafana editor access in the observability module. | `list(string)` | `[]` | no |

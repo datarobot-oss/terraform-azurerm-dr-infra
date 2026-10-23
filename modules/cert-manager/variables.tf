@@ -48,3 +48,9 @@ variable "values_overrides" {
   type        = string
   default     = null
 }
+
+variable "chart_version" {
+  description = "Version of the cert-manager helm chart to install."
+  type        = string
+  default     = "v1.21.2"
+}

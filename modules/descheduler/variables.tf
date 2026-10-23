@@ -3,3 +3,9 @@ variable "values_overrides" {
   type        = string
   default     = null
 }
+
+variable "chart_version" {
+  description = "Version of the descheduler helm chart to install."
+  type        = string
+  default     = "0.37.0"
+}

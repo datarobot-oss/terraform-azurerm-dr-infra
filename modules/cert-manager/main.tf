@@ -35,7 +35,7 @@ resource "helm_release" "this" {
   namespace  = local.namespace
   repository = "oci://quay.io/jetstack/charts"
   chart      = "cert-manager"
-  version    = "v1.16.2"
+  version    = var.chart_version
 
   create_namespace = true
 

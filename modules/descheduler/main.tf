@@ -8,7 +8,7 @@ resource "helm_release" "this" {
   namespace  = local.namespace
   repository = "https://kubernetes-sigs.github.io/descheduler"
   chart      = local.name
-  version    = "0.33.0"
+  version    = var.chart_version
 
   create_namespace = true
 

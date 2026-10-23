@@ -54,7 +54,7 @@ resource "helm_release" "this" {
   namespace  = local.namespace
   repository = "https://kubernetes-sigs.github.io/external-dns"
   chart      = local.name
-  version    = "1.19.0"
+  version    = var.chart_version
 
   create_namespace = true
 

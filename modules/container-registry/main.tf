@@ -58,11 +58,9 @@ resource "azurerm_private_endpoint" "acr" {
 }
 
 resource "azurerm_private_dns_zone_virtual_network_link" "acr" {
-  resource_group_name = var.resource_group_name
-
-  name                  = "acr-link"
-  private_dns_zone_name = azurerm_private_dns_zone.acr_privatelink.name
-  virtual_network_id    = var.vnet_id
+  name                = "acr-link"
+  private_dns_zone_id = azurerm_private_dns_zone.acr_privatelink.id
+  virtual_network_id  = var.vnet_id
 
   tags = var.tags
 }

@@ -39,5 +39,5 @@ variable "location" {
 variable "grafana_major_version" {
   description = "The major version of Grafana to deploy."
   type        = number
-  default     = 11
+  default     = 12
 }

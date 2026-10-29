@@ -15,8 +15,11 @@ resource "azurerm_subnet" "kubernetes_nodes" {
   name                                          = "${var.name}-nodes-snet"
   address_prefixes                              = [cidrsubnet(var.address_space, 8, 0)]
   private_link_service_network_policies_enabled = false
-  service_endpoints                             = ["Microsoft.Storage"]
   private_endpoint_network_policies             = "Enabled"
+
+  service_endpoint {
+    service = "Microsoft.Storage"
+  }
 }
 
 resource "azurerm_subnet" "postgres" {

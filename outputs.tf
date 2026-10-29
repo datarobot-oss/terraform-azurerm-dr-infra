@@ -47,6 +47,11 @@ output "private_dns_zone_name" {
   value       = try(azurerm_private_dns_zone.private[0].name, null)
 }
 
+output "private_dns_zone_id" {
+  description = "ID of the private zone"
+  value       = try(azurerm_private_dns_zone.private[0].id, null)
+}
+
 ################################################################################
 # Storage
 ################################################################################

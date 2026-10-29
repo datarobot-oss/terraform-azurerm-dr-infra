@@ -303,7 +303,7 @@ The default installation supports DataRobot versions >= 10.0.
 | Name | Version |
 | ---- | ------- |
 | <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.5.7 |
-| <a name="requirement_azurerm"></a> [azurerm](#requirement\_azurerm) | ~> 4.3 |
+| <a name="requirement_azurerm"></a> [azurerm](#requirement\_azurerm) | ~> 5.0 |
 | <a name="requirement_helm"></a> [helm](#requirement\_helm) | ~> 3.0 |
 | <a name="requirement_kubectl"></a> [kubectl](#requirement\_kubectl) | ~> 1.14 |
 | <a name="requirement_mongodbatlas"></a> [mongodbatlas](#requirement\_mongodbatlas) | ~> 2.0 |
@@ -312,7 +312,7 @@ The default installation supports DataRobot versions >= 10.0.
 
 | Name | Version |
 | ---- | ------- |
-| <a name="provider_azurerm"></a> [azurerm](#provider\_azurerm) | ~> 4.3 |
+| <a name="provider_azurerm"></a> [azurerm](#provider\_azurerm) | ~> 5.0 |
 
 ## Modules
 
@@ -444,7 +444,7 @@ The default installation supports DataRobot versions >= 10.0.
 | <a name="input_nvidia_device_plugin_values_overrides"></a> [nvidia\_device\_plugin\_values\_overrides](#input\_nvidia\_device\_plugin\_values\_overrides) | Values in raw yaml format to pass to helm. | `string` | `null` | no |
 | <a name="input_observability_grafana_admin_principal_ids"></a> [observability\_grafana\_admin\_principal\_ids](#input\_observability\_grafana\_admin\_principal\_ids) | The principal ID for Grafana admin access in the observability module. | `list(string)` | `[]` | no |
 | <a name="input_observability_grafana_editor_principal_ids"></a> [observability\_grafana\_editor\_principal\_ids](#input\_observability\_grafana\_editor\_principal\_ids) | The principal IDs for Grafana editor access in the observability module. | `list(string)` | `[]` | no |
-| <a name="input_observability_grafana_major_version"></a> [observability\_grafana\_major\_version](#input\_observability\_grafana\_major\_version) | The major version of Grafana to deploy in the observability module. | `number` | `11` | no |
+| <a name="input_observability_grafana_major_version"></a> [observability\_grafana\_major\_version](#input\_observability\_grafana\_major\_version) | The major version of Grafana to deploy in the observability module. | `number` | `12` | no |
 | <a name="input_observability_grafana_viewer_principal_ids"></a> [observability\_grafana\_viewer\_principal\_ids](#input\_observability\_grafana\_viewer\_principal\_ids) | The principal IDs for Grafana viewer access in the observability module. | `list(string)` | `[]` | no |
 | <a name="input_password_constraints"></a> [password\_constraints](#input\_password\_constraints) | Constraints to put on any generated passwords | <pre>object({<br/>    length           = number<br/>    min_lower        = optional(number)<br/>    min_numeric      = optional(number)<br/>    min_upper        = optional(number)<br/>    min_special      = optional(number, 0)<br/>    special          = optional(bool)<br/>    override_special = optional(string)<br/>  })</pre> | <pre>{<br/>  "length": 32,<br/>  "min_lower": 1,<br/>  "min_numeric": 1,<br/>  "min_upper": 1,<br/>  "override_special": "-"<br/>}</pre> | no |
 | <a name="input_postgres_backup_retention_days"></a> [postgres\_backup\_retention\_days](#input\_postgres\_backup\_retention\_days) | The backup retention days for the PostgreSQL Flexible Server. Possible values are between 7 and 35 days. | `number` | `7` | no |
@@ -492,6 +492,7 @@ The default installation supports DataRobot versions >= 10.0.
 | <a name="output_observability_user_assigned_identity_client_id"></a> [observability\_user\_assigned\_identity\_client\_id](#output\_observability\_user\_assigned\_identity\_client\_id) | The client\_id of the user assigned identity |
 | <a name="output_postgres_endpoint"></a> [postgres\_endpoint](#output\_postgres\_endpoint) | PostgreSQL Flexible Server endpoint |
 | <a name="output_postgres_password"></a> [postgres\_password](#output\_postgres\_password) | PostgreSQL Flexible Server admin password |
+| <a name="output_private_dns_zone_id"></a> [private\_dns\_zone\_id](#output\_private\_dns\_zone\_id) | ID of the private zone |
 | <a name="output_private_dns_zone_name"></a> [private\_dns\_zone\_name](#output\_private\_dns\_zone\_name) | Name of the private zone |
 | <a name="output_private_zone_id"></a> [private\_zone\_id](#output\_private\_zone\_id) | ID of the private zone |
 | <a name="output_public_dns_zone_name"></a> [public\_dns\_zone\_name](#output\_public\_dns\_zone\_name) | Name of the public zone |

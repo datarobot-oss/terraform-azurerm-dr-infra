@@ -843,7 +843,7 @@ variable "observability_grafana_viewer_principal_ids" {
 variable "observability_grafana_major_version" {
   description = "The major version of Grafana to deploy in the observability module."
   type        = number
-  default     = 11
+  default     = 12
 }
 
 # Custom Private Endpoints

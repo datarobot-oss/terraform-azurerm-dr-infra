@@ -45,17 +45,15 @@ resource "azurerm_private_dns_zone" "this" {
 }
 
 resource "azurerm_private_dns_zone_virtual_network_link" "this" {
-  name                  = local.private_endpoint_name
-  resource_group_name   = var.resource_group_name
-  private_dns_zone_name = azurerm_private_dns_zone.this.name
-  virtual_network_id    = var.vnet_id
-  tags                  = var.tags
+  name                = local.private_endpoint_name
+  private_dns_zone_id = azurerm_private_dns_zone.this.id
+  virtual_network_id  = var.vnet_id
+  tags                = var.tags
 }
 
 resource "azurerm_private_dns_a_record" "this" {
   name                = azurerm_redis_cache.this.name
-  zone_name           = azurerm_private_dns_zone.this.name
-  resource_group_name = var.resource_group_name
+  private_dns_zone_id = azurerm_private_dns_zone.this.id
   ttl                 = 300
   records             = [data.azurerm_private_endpoint_connection.this.private_service_connection[0].private_ip_address]
 }

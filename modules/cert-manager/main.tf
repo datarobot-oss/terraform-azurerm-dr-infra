@@ -14,13 +14,11 @@ resource "azurerm_user_assigned_identity" "this" {
 }
 
 resource "azurerm_federated_identity_credential" "this" {
-  resource_group_name = var.resource_group_name
-
-  name      = "${local.name}-uai-fic"
-  parent_id = azurerm_user_assigned_identity.this.id
-  issuer    = var.aks_oidc_issuer_url
-  subject   = "system:serviceaccount:${local.namespace}:${local.service_account}"
-  audience  = ["api://AzureADTokenExchange"]
+  name                      = "${local.name}-uai-fic"
+  user_assigned_identity_id = azurerm_user_assigned_identity.this.id
+  issuer                    = var.aks_oidc_issuer_url
+  subject                   = "system:serviceaccount:${local.namespace}:${local.service_account}"
+  audience                  = ["api://AzureADTokenExchange"]
 }
 
 resource "azurerm_role_assignment" "dns_zone_contributor" {

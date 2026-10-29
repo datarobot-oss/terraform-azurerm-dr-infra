@@ -14,6 +14,10 @@ resource "azurerm_kubernetes_cluster" "this" {
     type = "SystemAssigned"
   }
 
+  node_provisioning_profile {
+    mode = "Manual"
+  }
+
   dynamic "api_server_access_profile" {
     for_each = var.cluster_endpoint_authorized_ip_ranges != null ? ["api_server_access_profile"] : []
     content {

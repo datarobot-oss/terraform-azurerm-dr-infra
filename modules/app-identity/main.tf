@@ -29,13 +29,11 @@ moved {
 resource "azurerm_federated_identity_credential" "datarobot" {
   for_each = local.create_uai ? var.datarobot_service_accounts : []
 
-  resource_group_name = var.resource_group_name
-
-  name      = "${var.name}-${each.value}-fic"
-  parent_id = azurerm_user_assigned_identity.datarobot[0].id
-  issuer    = var.aks_oidc_issuer_url
-  subject   = "system:serviceaccount:${var.datarobot_namespace}:${each.value}"
-  audience  = ["api://AzureADTokenExchange"]
+  name                      = "${var.name}-${each.value}-fic"
+  user_assigned_identity_id = azurerm_user_assigned_identity.datarobot[0].id
+  issuer                    = var.aks_oidc_issuer_url
+  subject                   = "system:serviceaccount:${var.datarobot_namespace}:${each.value}"
+  audience                  = ["api://AzureADTokenExchange"]
 }
 
 

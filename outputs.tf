@@ -98,6 +98,26 @@ output "container_registry_admin_password" {
 
 
 ################################################################################
+# Pull-Through Cache
+################################################################################
+
+output "pull_through_cache_registry_url" {
+  description = "Registry URL to pull Docker Hub images through the container registry cache rule, e.g. <url>/<namespace>/<image>:<tag>"
+  value       = var.create_pull_through_cache ? "${local.container_registry_login_server}/${var.pull_through_cache_rule_name}" : null
+}
+
+output "pull_through_cache_credential_set_principal_id" {
+  description = "Principal ID of the cache rule credential set managed identity"
+  value       = try(module.pull_through_cache[0].credential_set_principal_id, null)
+}
+
+output "pull_through_cache_key_vault_id" {
+  description = "ID of the Key Vault holding the Docker Hub credentials"
+  value       = try(module.pull_through_cache[0].key_vault_id, null)
+}
+
+
+################################################################################
 # App Identity
 ################################################################################
 

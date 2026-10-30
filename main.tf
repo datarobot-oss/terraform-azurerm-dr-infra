@@ -138,6 +138,41 @@ module "container_registry" {
 
 
 ################################################################################
+# Pull-Through Cache
+################################################################################
+
+data "azurerm_container_registry" "existing" {
+  count = var.create_pull_through_cache && var.existing_container_registry_id != null ? 1 : 0
+
+  name                = element(split("/", var.existing_container_registry_id), 8)
+  resource_group_name = element(split("/", var.existing_container_registry_id), 4)
+}
+
+locals {
+  container_registry_login_server = try(data.azurerm_container_registry.existing[0].login_server, module.container_registry[0].login_server, null)
+}
+
+module "pull_through_cache" {
+  source = "./modules/pull-through-cache"
+  count  = var.create_pull_through_cache ? 1 : 0
+
+  resource_group_name = local.resource_group_name
+  location            = var.location
+
+  container_registry_id       = local.container_registry_id
+  rule_name                   = var.pull_through_cache_rule_name
+  credential_set_name         = var.pull_through_cache_credential_set_name
+  key_vault_name              = coalesce(var.pull_through_cache_key_vault_name, module.naming.key_vault.name_unique)
+  dockerhub_username          = var.pull_through_cache_dockerhub_username
+  dockerhub_access_token      = var.pull_through_cache_dockerhub_access_token
+  existing_username_secret_id = var.existing_pull_through_cache_username_secret_id
+  existing_password_secret_id = var.existing_pull_through_cache_password_secret_id
+
+  tags = var.tags
+}
+
+
+################################################################################
 # Kubernetes
 ################################################################################
 

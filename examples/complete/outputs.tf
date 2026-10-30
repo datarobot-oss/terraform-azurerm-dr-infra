@@ -13,6 +13,11 @@ output "container_registry_admin_password" {
   value       = nonsensitive(module.datarobot_infra.container_registry_admin_password)
 }
 
+output "pull_through_cache_registry_url" {
+  description = "Registry URL to pull Docker Hub images through the container registry cache rule"
+  value       = module.datarobot_infra.pull_through_cache_registry_url
+}
+
 output "storage_account_name" {
   description = "Name of the storage account"
   value       = module.datarobot_infra.storage_account_name

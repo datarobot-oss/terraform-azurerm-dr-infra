@@ -198,6 +198,60 @@ variable "container_registry_ip_allow_list" {
 
 
 ################################################################################
+# Pull-Through Cache
+################################################################################
+
+variable "create_pull_through_cache" {
+  description = "Create an Azure Container Registry cache rule that caches Docker Hub images. Requires a container registry, plus either pull_through_cache_dockerhub_username and pull_through_cache_dockerhub_access_token or existing Key Vault secret IDs."
+  type        = bool
+  default     = false
+}
+
+variable "pull_through_cache_dockerhub_username" {
+  description = "Docker Hub username the cache rule uses to authenticate to Docker Hub. Stored in a Key Vault created by this module."
+  type        = string
+  default     = null
+}
+
+variable "pull_through_cache_dockerhub_access_token" {
+  description = "Docker Hub personal access token the cache rule uses to authenticate to Docker Hub. Stored in a Key Vault created by this module and in Terraform state."
+  type        = string
+  default     = null
+  sensitive   = true
+}
+
+variable "pull_through_cache_rule_name" {
+  description = "Name of the cache rule. Cached images are pulled as <login_server>/<rule_name>/<namespace>/<image>:<tag>."
+  type        = string
+  default     = "datarobot-remote"
+}
+
+variable "pull_through_cache_credential_set_name" {
+  description = "Name of the container registry credential set holding the Docker Hub credentials"
+  type        = string
+  default     = "dockerhub-remote-credential-set"
+}
+
+variable "pull_through_cache_key_vault_name" {
+  description = "Name of the Key Vault created to store the Docker Hub credentials. If not specified, a unique name is generated from the `name` variable. Ignored if existing secret IDs are specified."
+  type        = string
+  default     = null
+}
+
+variable "existing_pull_through_cache_username_secret_id" {
+  description = "Versionless ID of an existing Key Vault secret holding the Docker Hub username. When specified with existing_pull_through_cache_password_secret_id, no Key Vault is created and the credential set identity must be granted read access to the secrets."
+  type        = string
+  default     = null
+}
+
+variable "existing_pull_through_cache_password_secret_id" {
+  description = "Versionless ID of an existing Key Vault secret holding the Docker Hub access token"
+  type        = string
+  default     = null
+}
+
+
+################################################################################
 # Kubernetes
 ################################################################################
 

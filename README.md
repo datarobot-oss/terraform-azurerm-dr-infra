@@ -132,6 +132,29 @@ The DataRobot application will use this registry to host custom images created b
 TBD
 
 
+### Pull-Through Cache
+#### Toggle
+- `create_pull_through_cache` to create an Azure Container Registry cache rule for Docker Hub
+
+#### Description
+Creates an [artifact cache rule](https://learn.microsoft.com/azure/container-registry/artifact-cache-overview) in the container registry (created by this module or `existing_container_registry_id`) that caches Docker Hub images. Images are pulled as `<login_server>/<pull_through_cache_rule_name>/<namespace>/<image>:<tag>`; the `pull_through_cache_registry_url` output can be used as the DataRobot `global.imageRegistry` value. Anything allowed to pull from the registry, such as the AKS kubelet identity with `AcrPull`, can pull through the cache.
+
+Docker Hub credentials are stored in a Key Vault created by this module and referenced by a credential set with a system-assigned managed identity, which is granted `Key Vault Secrets User` on the Key Vault. The access token is also stored in the Terraform state. The identity running Terraform is granted `Key Vault Secrets Officer` on the Key Vault to write the secrets; if the first apply fails with a 403 while that role assignment propagates, run the apply again.
+
+To use existing Key Vault secrets instead, set `existing_pull_through_cache_username_secret_id` and `existing_pull_through_cache_password_secret_id` and grant the `pull_through_cache_credential_set_principal_id` read access to them.
+
+When public network access to the registry is restricted, the cache only works while trusted Azure services are allowed to bypass the registry network rules, which is the default.
+
+The `Microsoft.KeyVault` resource provider must be registered in the subscription. azurerm 5 no longer registers resource providers by default; set `resource_provider_registrations = "legacy"` in the provider block or register it yourself.
+
+To manage an existing cache rule and credential set, import them with `terraform import`.
+
+#### Permissions
+- `Microsoft.ContainerRegistry/registries/cacheRules/*` and `Microsoft.ContainerRegistry/registries/credentialSets/*` on the container registry
+- `Microsoft.KeyVault/vaults/*` on the resource group
+- `Microsoft.Authorization/roleAssignments/write` and `Microsoft.Authorization/roleAssignments/delete` on the Key Vault
+
+
 ### Kubernetes
 #### Toggle
 - `create_kubernetes_cluster` to create a new Azure Kubernetes Service Cluster
@@ -333,6 +356,7 @@ The default installation supports DataRobot versions >= 10.0.
 | <a name="module_postgres"></a> [postgres](#module\_postgres) | ./modules/postgres | n/a |
 | <a name="module_private_endpoints"></a> [private\_endpoints](#module\_private\_endpoints) | ./modules/private-endpoints | n/a |
 | <a name="module_private_link_service"></a> [private\_link\_service](#module\_private\_link\_service) | ./modules/private-link-service | n/a |
+| <a name="module_pull_through_cache"></a> [pull\_through\_cache](#module\_pull\_through\_cache) | ./modules/pull-through-cache | n/a |
 | <a name="module_redis"></a> [redis](#module\_redis) | ./modules/redis | n/a |
 | <a name="module_storage"></a> [storage](#module\_storage) | ./modules/storage | n/a |
 
@@ -343,6 +367,7 @@ The default installation supports DataRobot versions >= 10.0.
 | [azurerm_dns_zone.public](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/dns_zone) | resource |
 | [azurerm_private_dns_zone.private](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/private_dns_zone) | resource |
 | [azurerm_resource_group.this](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/resource_group) | resource |
+| [azurerm_container_registry.existing](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/data-sources/container_registry) | data source |
 | [azurerm_kubernetes_cluster.existing](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/data-sources/kubernetes_cluster) | data source |
 | [azurerm_lb.existing](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/data-sources/lb) | data source |
 | [azurerm_subscription.current](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/data-sources/subscription) | data source |
@@ -376,6 +401,7 @@ The default installation supports DataRobot versions >= 10.0.
 | <a name="input_create_network"></a> [create\_network](#input\_create\_network) | Create a new Azure Virtual Network. Ignored if an existing existing\_vnet\_name is specified. | `bool` | `true` | no |
 | <a name="input_create_observability"></a> [create\_observability](#input\_create\_observability) | Whether to create the observability components. | `bool` | `false` | no |
 | <a name="input_create_postgres"></a> [create\_postgres](#input\_create\_postgres) | Whether to create a Azure PostgreSQL Flexible Server | `bool` | `false` | no |
+| <a name="input_create_pull_through_cache"></a> [create\_pull\_through\_cache](#input\_create\_pull\_through\_cache) | Create an Azure Container Registry cache rule that caches Docker Hub images. Requires a container registry, plus either pull\_through\_cache\_dockerhub\_username and pull\_through\_cache\_dockerhub\_access\_token or existing Key Vault secret IDs. | `bool` | `false` | no |
 | <a name="input_create_redis"></a> [create\_redis](#input\_create\_redis) | Whether to create an Azure Cache for Redis instance | `bool` | `false` | no |
 | <a name="input_create_resource_group"></a> [create\_resource\_group](#input\_create\_resource\_group) | Create a new Azure resource group. Ignored if existing existing\_resource\_group\_name is specified. | `bool` | `true` | no |
 | <a name="input_create_storage"></a> [create\_storage](#input\_create\_storage) | Create a new Azure Storage account and container. Ignored if an existing\_storage\_account\_id is specified. | `bool` | `true` | no |
@@ -394,6 +420,8 @@ The default installation supports DataRobot versions >= 10.0.
 | <a name="input_existing_postgres_subnet"></a> [existing\_postgres\_subnet](#input\_existing\_postgres\_subnet) | ID of existing virtual network subnet to create the PostgreSQL Flexible Server. The provided subnet should not have any other resource deployed in it and this subnet will be delegated to the PostgreSQL Flexible Server, if not already delegated. Required when an existing\_network\_id is specified. Ignored if create\_network is true and no existing\_network\_id is specified. | `string` | `null` | no |
 | <a name="input_existing_private_dns_zone_id"></a> [existing\_private\_dns\_zone\_id](#input\_existing\_private\_dns\_zone\_id) | ID of existing private hosted zone to use for private DNS records created by external-dns. This is required when create\_dns\_zones is false and ingress\_nginx is true with internet\_facing\_ingress\_lb false. | `string` | `null` | no |
 | <a name="input_existing_public_dns_zone_id"></a> [existing\_public\_dns\_zone\_id](#input\_existing\_public\_dns\_zone\_id) | ID of existing public hosted zone to use for public DNS records created by external-dns and public LetsEncrypt certificate validation by cert-manager. This is required when create\_dns\_zones is false and ingress\_nginx and internet\_facing\_ingress\_lb are true or when cert\_manager and cert\_manager\_letsencrypt\_clusterissuers are true. | `string` | `null` | no |
+| <a name="input_existing_pull_through_cache_password_secret_id"></a> [existing\_pull\_through\_cache\_password\_secret\_id](#input\_existing\_pull\_through\_cache\_password\_secret\_id) | Versionless ID of an existing Key Vault secret holding the Docker Hub access token | `string` | `null` | no |
+| <a name="input_existing_pull_through_cache_username_secret_id"></a> [existing\_pull\_through\_cache\_username\_secret\_id](#input\_existing\_pull\_through\_cache\_username\_secret\_id) | Versionless ID of an existing Key Vault secret holding the Docker Hub username. When specified with existing\_pull\_through\_cache\_password\_secret\_id, no Key Vault is created and the credential set identity must be granted read access to the secrets. | `string` | `null` | no |
 | <a name="input_existing_redis_subnet"></a> [existing\_redis\_subnet](#input\_existing\_redis\_subnet) | ID of existing virtual network subnet to create the Azure Cache for Redis private endpoint in. Required when an existing\_network\_id is specified. Ignored if create\_network is true and no existing\_network\_id is specified. | `string` | `null` | no |
 | <a name="input_existing_resource_group_name"></a> [existing\_resource\_group\_name](#input\_existing\_resource\_group\_name) | Name of existing resource group to use | `string` | `null` | no |
 | <a name="input_existing_storage_account_id"></a> [existing\_storage\_account\_id](#input\_existing\_storage\_account\_id) | ID of existing Azure Storage Account to use for DataRobot file storage. When specified, all other storage variables will be ignored. | `string` | `null` | no |
@@ -456,6 +484,11 @@ The default installation supports DataRobot versions >= 10.0.
 | <a name="input_postgres_storage_mb"></a> [postgres\_storage\_mb](#input\_postgres\_storage\_mb) | The max storage allowed for the PostgreSQL Flexible Server in MB. Default is 32768. | `number` | `null` | no |
 | <a name="input_postgres_version"></a> [postgres\_version](#input\_postgres\_version) | The version of PostgreSQL Flexible Server to use | `string` | `"17"` | no |
 | <a name="input_private_storage_endpoints"></a> [private\_storage\_endpoints](#input\_private\_storage\_endpoints) | A list of private storage endpoints | <pre>list(object({<br/>    type          = string<br/>    name_override = optional(string, null)<br/><br/>    request_message                 = optional(string, "Private endpoint request for DataRobot")<br/>    dns_zone_link_name              = optional(string, null)<br/>    private_service_connection_name = optional(string, null)<br/>  }))</pre> | <pre>[<br/>  {<br/>    "type": "blob"<br/>  },<br/>  {<br/>    "type": "dfs"<br/>  }<br/>]</pre> | no |
+| <a name="input_pull_through_cache_credential_set_name"></a> [pull\_through\_cache\_credential\_set\_name](#input\_pull\_through\_cache\_credential\_set\_name) | Name of the container registry credential set holding the Docker Hub credentials | `string` | `"dockerhub-remote-credential-set"` | no |
+| <a name="input_pull_through_cache_dockerhub_access_token"></a> [pull\_through\_cache\_dockerhub\_access\_token](#input\_pull\_through\_cache\_dockerhub\_access\_token) | Docker Hub personal access token the cache rule uses to authenticate to Docker Hub. Stored in a Key Vault created by this module and in Terraform state. | `string` | `null` | no |
+| <a name="input_pull_through_cache_dockerhub_username"></a> [pull\_through\_cache\_dockerhub\_username](#input\_pull\_through\_cache\_dockerhub\_username) | Docker Hub username the cache rule uses to authenticate to Docker Hub. Stored in a Key Vault created by this module. | `string` | `null` | no |
+| <a name="input_pull_through_cache_key_vault_name"></a> [pull\_through\_cache\_key\_vault\_name](#input\_pull\_through\_cache\_key\_vault\_name) | Name of the Key Vault created to store the Docker Hub credentials. If not specified, a unique name is generated from the `name` variable. Ignored if existing secret IDs are specified. | `string` | `null` | no |
+| <a name="input_pull_through_cache_rule_name"></a> [pull\_through\_cache\_rule\_name](#input\_pull\_through\_cache\_rule\_name) | Name of the cache rule. Cached images are pulled as <login\_server>/<rule\_name>/<namespace>/<image>:<tag>. | `string` | `"datarobot-remote"` | no |
 | <a name="input_redis_capacity"></a> [redis\_capacity](#input\_redis\_capacity) | The size of the Redis cache to deploy. Valid values for a SKU family of C (Basic/Standard) are 0, 1, 2, 3, 4, 5, 6, and for P (Premium) family are 1, 2, 3, 4, 5. | `number` | `4` | no |
 | <a name="input_redis_name"></a> [redis\_name](#input\_redis\_name) | Name of the Azure Cache for Redis instance. If not specified, the `name` variable will be used. | `string` | `null` | no |
 | <a name="input_redis_private_endpoint_name"></a> [redis\_private\_endpoint\_name](#input\_redis\_private\_endpoint\_name) | Name of the Redis private endpoint. If not specified, defaults to `<redis_name>-redis`. | `string` | `null` | no |
@@ -498,6 +531,9 @@ The default installation supports DataRobot versions >= 10.0.
 | <a name="output_public_dns_zone_name"></a> [public\_dns\_zone\_name](#output\_public\_dns\_zone\_name) | Name of the public zone |
 | <a name="output_public_dns_zone_name_servers"></a> [public\_dns\_zone\_name\_servers](#output\_public\_dns\_zone\_name\_servers) | Name servers of the public DNS zone |
 | <a name="output_public_zone_id"></a> [public\_zone\_id](#output\_public\_zone\_id) | ID of the public zone |
+| <a name="output_pull_through_cache_credential_set_principal_id"></a> [pull\_through\_cache\_credential\_set\_principal\_id](#output\_pull\_through\_cache\_credential\_set\_principal\_id) | Principal ID of the cache rule credential set managed identity |
+| <a name="output_pull_through_cache_key_vault_id"></a> [pull\_through\_cache\_key\_vault\_id](#output\_pull\_through\_cache\_key\_vault\_id) | ID of the Key Vault holding the Docker Hub credentials |
+| <a name="output_pull_through_cache_registry_url"></a> [pull\_through\_cache\_registry\_url](#output\_pull\_through\_cache\_registry\_url) | Registry URL to pull Docker Hub images through the container registry cache rule, e.g. <url>/<namespace>/<image>:<tag> |
 | <a name="output_redis_endpoint"></a> [redis\_endpoint](#output\_redis\_endpoint) | Azure Cache for Redis endpoint |
 | <a name="output_redis_non_ssl_port"></a> [redis\_non\_ssl\_port](#output\_redis\_non\_ssl\_port) | Azure Cache for Redis non-SSL port |
 | <a name="output_redis_password"></a> [redis\_password](#output\_redis\_password) | Azure Cache for Redis primary access key |

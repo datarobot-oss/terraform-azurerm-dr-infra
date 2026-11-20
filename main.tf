@@ -519,7 +519,7 @@ module "private_endpoints" {
   storage_account_id = local.storage_account_id
 
   network_id = local.vnet_id
-  subnet_id  = local.aks_nodes_subnet_id
+  subnet_id  = var.private_endpoints_subnet_id != null ? var.private_endpoints_subnet_id : local.aks_nodes_subnet_id
 
   private_endpoint_config   = var.custom_private_endpoints
   private_storage_endpoints = var.private_storage_endpoints

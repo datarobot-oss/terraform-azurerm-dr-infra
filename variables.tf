@@ -418,6 +418,7 @@ variable "datarobot_service_accounts" {
     "lrs-job-manager",
     "blob-view-service",
     "spark-compute-services-sa",
+    "secret-mgmt-service-account",
   ]
 }
 
@@ -933,4 +934,10 @@ variable "private_storage_endpoints" {
     { type = "blob" },
     { type = "dfs" },
   ]
+}
+
+variable "private_endpoints_subnet_id" {
+  description = "ID of the subnet for the custom and storage private endpoints. Defaults to the Kubernetes nodes subnet. Changing it replaces the endpoints."
+  type        = string
+  default     = null
 }
